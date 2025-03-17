@@ -2,4 +2,4 @@ image: gitpod/workspace-full
 
 tasks:
   - init: npm install
-  - command: npm start
+  - command: npm run dev
