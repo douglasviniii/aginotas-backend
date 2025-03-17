@@ -43,7 +43,7 @@
         "@types/soap": "^0.21.0",
         "@types/xml-crypto": "^1.4.6",
         "@types/xml2js": "^0.4.14",
-        "tsx": "^4.19.2",
+        "tsx": "^4.19.3",
         "typescript": "^5.3.3"
     }
 }
