@@ -34,37 +34,60 @@ app.use('/scheduling', SchedulingRoute);
 io.on("connection", (socket) => {
   console.log(`Novo usuário conectado: ${socket.id}`);
 
+  // Usuário abre um ticket
   socket.on("open_ticket", async ({ userId, message }) => {
-    let ticket = await Ticket.findOne({ userId, status: "open" });
+    try {
+      let ticket = await Ticket.findOne({ userId, status: "open" });
 
-    if (!ticket) {
-      ticket = new Ticket({ userId, messages: [{ sender: "user", text: message }] });
+      if (!ticket) {
+        ticket = new Ticket({ userId, messages: [{ sender: "user", text: message }], status: "open" });
+      } else {
+        ticket.messages.push({ sender: "user", text: message });
+      }
+
       await ticket.save();
-    } else {
-      ticket.messages.push({ sender: "user", text: message });
-      await ticket.save();
+      
+      // Enviar somente para o usuário e para os admins
+      socket.join(`ticket_${ticket._id}`); 
+      io.to(`admins`).emit("new_ticket", ticket); // Notifica apenas admins
+      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket); // Notifica usuário e admins
+    } catch (error) {
+      console.error("Erro ao abrir ticket:", error);
     }
-
-    io.emit("new_ticket", ticket);
   });
 
+  // Usuário/Admin envia mensagem no ticket
   socket.on("send_message", async ({ ticketId, sender, message }) => {
-    const ticket = await Ticket.findById(ticketId);
-    if (!ticket) return;
+    try {
+      const ticket = await Ticket.findById(ticketId);
+      if (!ticket) return;
 
-    ticket.messages.push({ sender, text: message });
-    await ticket.save();
+      ticket.messages.push({ sender, text: message });
+      await ticket.save();
 
-    io.emit("update_ticket", ticket);
+      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket); // Atualiza apenas usuários e admins do ticket
+    } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
+    }
   });
 
+  // Admin fecha o ticket
   socket.on("close_ticket", async (ticketId) => {
-    const ticket = await Ticket.findByIdAndUpdate(ticketId, { status: "closed" }, { new: true });
-    if (ticket) io.emit("update_ticket", ticket);
+    try {
+      const ticket = await Ticket.findByIdAndUpdate(ticketId, { status: "closed" }, { new: true });
+      if (ticket) {
+        io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket); // Apenas os envolvidos recebem
+      }
+    } catch (error) {
+      console.error("Erro ao fechar ticket:", error);
+    }
   });
 
-  socket.on("disconnect", () => console.log(`Usuário desconectado: ${socket.id}`));
+  socket.on("disconnect", () => {
+    console.log(`Usuário desconectado: ${socket.id}`);
+  });
 });
+
 
 server.listen(PORT, async () => {
   await DataBase(); 
