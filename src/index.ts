@@ -12,6 +12,8 @@ import AdminRoute from './Routes/AdminRoute.ts';
 import { createServer } from "http";
 import { Server } from "socket.io";
 import Ticket from "./Models/Ticket.ts";
+import MiddlewareUser from './Middlwares/UserMiddlware.ts';
+import { Request, Response } from 'express';
 
 dotenv.config();
 
@@ -19,10 +21,20 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
 
-app.use(cors());
+const io = new Server(server, {
+  cors: {
+    origin: "*", 
+    methods: ["GET", "POST", "UPDATE", "DELETE", "PUT"], 
+    allowedHeaders: ["Content-Type"], 
+    credentials: true 
+  }
+});
+
+app.use(cors({origin: '*'}));
 app.use(express.json());
+
+const router = express.Router();
 
 app.use('/user', UserRoute); 
 app.use('/admin', AdminRoute); 
@@ -30,11 +42,44 @@ app.use('/customer', CustomerRoute);
 app.use('/invoice', InvoiceRoute);
 app.use('/scheduling', SchedulingRoute); 
 
+interface CustomRequest extends Request {
+    userid?: string; 
+}
+
+router.get("/user/tickets", MiddlewareUser, async (req: CustomRequest, res: Response) => {
+  try {
+      const userId = req.userid;
+
+      const tickets = await Ticket.find({ userId: userId }); // Busca todos os tickets do usuário
+
+      if (!tickets.length) {
+          res.status(404).json({ message: "Nenhum ticket encontrado para este usuário." });
+          return;
+      }
+
+      res.json(tickets);
+  } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar tickets.", error });
+  }
+});
+
+router.get("/admin/tickets", async (req, res) => {
+  try {
+      const tickets = await Ticket.find({ status: "open" });
+
+      if (!tickets.length) {
+          res.status(404).json({ message: "Nenhum ticket aberto encontrado." });
+          return;
+      }
+
+      res.json(tickets);
+  } catch (error) {
+      res.status(500).json({ message: "Erro ao buscar tickets.", error });
+  }
+});
 
 io.on("connection", (socket) => {
-  console.log(`Novo usuário conectado: ${socket.id}`);
 
-  // Usuário abre um ticket
   socket.on("open_ticket", async ({ userId, message }) => {
     try {
       let ticket = await Ticket.findOne({ userId, status: "open" });
@@ -47,16 +92,14 @@ io.on("connection", (socket) => {
 
       await ticket.save();
       
-      // Enviar somente para o usuário e para os admins
       socket.join(`ticket_${ticket._id}`); 
-      io.to(`admins`).emit("new_ticket", ticket); // Notifica apenas admins
-      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket); // Notifica usuário e admins
+      io.to(`admins`).emit("new_ticket", ticket); 
+      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket);
     } catch (error) {
       console.error("Erro ao abrir ticket:", error);
     }
   });
 
-  // Usuário/Admin envia mensagem no ticket
   socket.on("send_message", async ({ ticketId, sender, message }) => {
     try {
       const ticket = await Ticket.findById(ticketId);
@@ -65,18 +108,17 @@ io.on("connection", (socket) => {
       ticket.messages.push({ sender, text: message });
       await ticket.save();
 
-      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket); // Atualiza apenas usuários e admins do ticket
+      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket);
     } catch (error) {
       console.error("Erro ao enviar mensagem:", error);
     }
   });
 
-  // Admin fecha o ticket
   socket.on("close_ticket", async (ticketId) => {
     try {
       const ticket = await Ticket.findByIdAndUpdate(ticketId, { status: "closed" }, { new: true });
       if (ticket) {
-        io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket); // Apenas os envolvidos recebem
+        io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket);
       }
     } catch (error) {
       console.error("Erro ao fechar ticket:", error);

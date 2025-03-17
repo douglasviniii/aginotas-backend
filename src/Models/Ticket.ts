@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const TicketSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   messages: [
     {
       sender: { type: String, required: true },

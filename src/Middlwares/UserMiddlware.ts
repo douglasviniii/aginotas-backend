@@ -64,4 +64,4 @@ const AuthMiddlewareUser = (
   }
 };
 
-export default { AuthMiddlewareUser };
+export default AuthMiddlewareUser;
