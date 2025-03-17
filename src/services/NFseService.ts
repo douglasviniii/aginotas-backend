@@ -37,6 +37,7 @@ interface NfseData {
 class NfseService {
   private certPath = './src/services/Delvind100759940.pfx' // Caminho para o certificado .pfx
   private certPassword = `${process.env.SENHA_CERTIFICADO}`; 
+  private wsdlUrl = `${process.env.ELOTECH_API_URL}`; 
 
   // Carrega o certificado e extrai a chave privada
   private async carregarCertificado(): Promise<string> {
