@@ -48,7 +48,7 @@ app.get("/user/tickets", MiddlewareUser, async (req: CustomRequest, res: Respons
   try {
       const userId = req.userid;
 
-      const tickets = await Ticket.find({ userId: userId }); // Busca todos os tickets do usuário
+      const tickets = await Ticket.find({ userId: userId }).populate("userId");
 
       if (!tickets.length) {
           res.status(404).json({ message: "Nenhum ticket encontrado para este usuário." });
@@ -63,7 +63,7 @@ app.get("/user/tickets", MiddlewareUser, async (req: CustomRequest, res: Respons
 
 app.get("/admin/tickets", async (req, res) => {
   try {
-      const tickets = await Ticket.find({ status: "open" });
+      const tickets = await Ticket.find({ status: "open" }).populate("userId");
 
       if (!tickets.length) {
           res.status(404).json({ message: "Nenhum ticket aberto encontrado." });
