@@ -18,6 +18,9 @@ dotenv.config();
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+const server = createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
 app.use(cors());
 app.use(express.json());
 
@@ -27,8 +30,6 @@ app.use('/customer', CustomerRoute);
 app.use('/invoice', InvoiceRoute);
 app.use('/scheduling', SchedulingRoute); 
 
-const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
   console.log(`Novo usuário conectado: ${socket.id}`);
@@ -65,7 +66,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => console.log(`Usuário desconectado: ${socket.id}`));
 });
 
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   await DataBase(); 
    cron.schedule("0 0 * * *", async () => { //executar após a meia-noite
     await Scheduling.scheduling_controller(); // executando agendamentos
