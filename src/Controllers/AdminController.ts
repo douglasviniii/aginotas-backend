@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import AdminService from '../services/AdminService.ts';
 import UserService from '../services/UserService.ts';
+import InvoiceService from '../services/InvoiceService.ts';
 
 const Create_Admin = async (req: Request, res: Response) => {
     try {
@@ -51,9 +52,18 @@ const FindAllUsers = async (req: Request, res: Response) =>{
     }
 }
 
+const FindAllInvoicesCreated = async (req: Request, res: Response) =>{
+    try {
+        res.status(200).send(await InvoiceService.FindAllInvoices());
+    } catch (error) {
+        res.status(500).json({message:'Server internal error'});
+    }
+}
+
 export default 
 {
     Create_Admin,
     AuthAdminController,
-    FindAllUsers
+    FindAllUsers,
+    FindAllInvoicesCreated
 };

@@ -5,14 +5,16 @@ export interface IUser extends Document {
   name: string;
   cnpj: string;
   email: string;
-  password: string
+  password: string;
+  date_created: Date;
 }
 
 const UserSchema = new Schema<IUser>({
   name: { type: String, require: true },
   cnpj: { type: String, require: true },
   email: { type: String, require: true },
-  password: { type: String, require: true, select: false }
+  password: { type: String, require: true, select: false },
+  date_created: { type: Date, default: Date.now }
 });
 
 // Middleware para hash da senha antes de salvar

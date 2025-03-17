@@ -6,5 +6,7 @@ const AdminRoute = express.Router();
 AdminRoute.post('/auth', AdminController.AuthAdminController);
 AdminRoute.post('/create', AdminController.Create_Admin);
 AdminRoute.get('/findallusers', AdminController.FindAllUsers);
+AdminRoute.get('/findallinvoices', AdminController.FindAllInvoicesCreated);
+AdminRoute.get('/findallinvoices', AdminController.FindAllInvoicesCreated);
 
 export default AdminRoute;
