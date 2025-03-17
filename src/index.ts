@@ -21,14 +21,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const server = createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
-
 app.use('/user', UserRoute); 
 app.use('/admin', AdminRoute); 
 app.use('/customer', CustomerRoute); 
 app.use('/invoice', InvoiceRoute);
 app.use('/scheduling', SchedulingRoute); 
+
+const server = createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
   console.log(`Novo usuário conectado: ${socket.id}`);
