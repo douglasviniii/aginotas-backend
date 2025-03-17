@@ -34,8 +34,6 @@ const io = new Server(server, {
 app.use(cors({origin: '*'}));
 app.use(express.json());
 
-const router = express.Router();
-
 app.use('/user', UserRoute); 
 app.use('/admin', AdminRoute); 
 app.use('/customer', CustomerRoute); 
@@ -46,7 +44,7 @@ interface CustomRequest extends Request {
     userid?: string; 
 }
 
-router.get("/user/tickets", MiddlewareUser, async (req: CustomRequest, res: Response) => {
+app.get("/user/tickets", MiddlewareUser, async (req: CustomRequest, res: Response) => {
   try {
       const userId = req.userid;
 
@@ -57,13 +55,13 @@ router.get("/user/tickets", MiddlewareUser, async (req: CustomRequest, res: Resp
           return;
       }
 
-      res.json(tickets);
+      res.status(200).json(tickets);
   } catch (error) {
       res.status(500).json({ message: "Erro ao buscar tickets.", error });
   }
 });
 
-router.get("/admin/tickets", async (req, res) => {
+app.get("/admin/tickets", async (req, res) => {
   try {
       const tickets = await Ticket.find({ status: "open" });
 
