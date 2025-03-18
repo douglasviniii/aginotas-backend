@@ -2,8 +2,10 @@ import { Request, Response } from 'express';
 import UserService from '../services/UserService.ts';
 import SendEmailService from '../services/SendEmailService.ts';
 import bcrypt from "bcrypt";
+import PagarmeService from '../services/Pagarme.service.ts';
 
 interface User {
+  id_client_pagarme: string;
   name: string;
   cnpj: string;
   email: string;
@@ -12,23 +14,25 @@ interface User {
 
 const create_user = async (req: Request<{}, {}, User>, res: Response) => {
   try {
-    const Data = req.body;
 
-    const name = Data.name;
-    const cnpj = Data.cnpj;
-    const email = Data.email;
-    const password = Data.password;
+    const {name,cnpj,email,password} = req.body;
 
-    const data: User = {name, cnpj, email, password};
+    const response = await PagarmeService.CreateClient({name:name,email:email});
 
-    await UserService.CreateUserService(data);
-
-    res.status(200).send({ message: 'Usuário criado com sucesso!' });
+    if(response.id){
+      const data: User = {id_client_pagarme: response.id, name, cnpj, email, password};
+      await UserService.CreateUserService(data);
+      res.status(200).send({ message: 'Usuário criado com sucesso!' });
+      return;
+    }
+    res.status(400).send({ message: 'Ocorreu um erro ao criar a conta do usuário!' });
+    return;
   } catch (error) {
     res.status(500).send({
       message: 'Não foi possivel criar conta do usuário',
       error: error,
     });
+    return;
   }
 };
 

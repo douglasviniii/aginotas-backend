@@ -5,6 +5,7 @@ interface UserData {
   email: string;
   password: string;
 }
+
 const CreateUserService = (data: UserData) => User.create(data);
 const FindUserByIdService = (id: String) => User.findById(id);
 const ExistUser = (email: String) => User.findOne({email: email});
