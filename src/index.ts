@@ -9,6 +9,7 @@ import InvoiceRoute from './Routes/InvoiceRoute.ts';
 import SchedulingRoute from './Routes/SchedulingRoute.ts';
 import Scheduling from './Controllers/SchedulingController.ts'
 import AdminRoute from './Routes/AdminRoute.ts';
+import PagarmeRoute from './Routes/PagarmeRoute.ts';
 import { createServer } from "http";
 import { Server } from "socket.io";
 import Ticket from "./Models/Ticket.ts";
@@ -38,6 +39,7 @@ app.use('/user', UserRoute);
 app.use('/admin', AdminRoute); 
 app.use('/customer', CustomerRoute); 
 app.use('/invoice', InvoiceRoute);
+app.use('/pagarme', PagarmeRoute);
 app.use('/scheduling', SchedulingRoute); 
 
 interface CustomRequest extends Request {

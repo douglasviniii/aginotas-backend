@@ -1,9 +1,18 @@
-interface CustomerClient {
-    name: String;
-    email: String;
+interface CustomerData {
+  price: Number;
+  name: String;
+  trial_period_days: Number;
+  billing_days: Number;
+  statement_descriptor: String;
 }
 
-const CreatePlan = async (data: object) => {
+interface CustomerClient {
+  name: String;
+  email: String;
+}
+
+//PLANOS
+const CreatePlan = async (data: CustomerData) => {
 
     const options = {
         method: 'POST',
@@ -15,15 +24,15 @@ const CreatePlan = async (data: object) => {
         body: JSON.stringify({
             interval: 'month',
             interval_count: 1,
-            pricing_scheme: {scheme_type: 'Unit', price: 49, mininum_price: 49},
+            pricing_scheme: {scheme_type: 'Unit', price: data.price, mininum_price: data.price},
             quantity: 1,
-            name: 'Plano Basic',
+            name: data.name,
             payment_methods: ['credit_card'],
             currency: 'BRL',
-            trial_period_days: 15,
+            trial_period_days: data.trial_period_days,
             billing_type: 'exact_day',
-            billing_days: [5],
-            statement_descriptor: 'Aginotas'
+            billing_days: [data.billing_days],
+            statement_descriptor: data.statement_descriptor
           })
       };
       
@@ -89,7 +98,7 @@ const DeletePlan = async (id: string) => {
       }
 }
 
-const ListPlans = async (id: string) => {
+const ListPlans = async () => {
 
     const options = {
         method: 'GET',
@@ -109,6 +118,9 @@ const ListPlans = async (id: string) => {
       }
 }
 
+
+
+//CLIENTE
 const CreateClient = async (data: CustomerClient) => {
 
     const options = {
@@ -130,5 +142,7 @@ const CreateClient = async (data: CustomerClient) => {
         throw new Error('Erro na requisição: ' + response);
       }
 }
+
+
 
 export default {CreatePlan,EditPlan,DeletePlan,ListPlans,CreateClient};
