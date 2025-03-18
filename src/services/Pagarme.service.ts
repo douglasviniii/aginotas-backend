@@ -175,6 +175,34 @@ const CreateClient = async (data: CustomerClient) => {
       }
 }
 
+const ListClients = async () => {
+
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      authorization: `Basic ${process.env.TOKEN_PAGARME}`
+    }
+  };
+    
+    const response = await fetch(`${process.env.PAGARME_API_URL_CUSTOMER}`, options);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error('Erro na requisição: ' + response);
+    }
+}
 
 
-export default {CreatePlan,EditItemPlan,DeletePlan,ListPlans,CreateClient};
+
+
+export default {
+  CreatePlan,
+  EditItemPlan,
+  DeletePlan,
+  ListPlans,
+  CreateClient,
+  ListClients
+};

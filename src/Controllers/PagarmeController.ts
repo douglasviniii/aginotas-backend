@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import PagarmeService from '../services/Pagarme.service.ts';
 
+//PLANOS
 const CreatePlan = async (req: Request, res: Response) => {
     try {
         const data = req.body;
@@ -56,10 +57,25 @@ const EditItemPlan = async (req: Request, res: Response) => {
   }
 }
 
+//CLIENTE
+const ListClients = async (req: Request, res: Response) => {
+  try {
+
+    const response = await PagarmeService.ListClients();
+    res.status(200).send(response);
+    return;
+
+  } catch (error) {
+    res.status(500).send({message: 'Internal server error', error});
+    return;    
+  }
+}
+
 export default 
 {
   CreatePlan,
   ListPlans,
   DeletePlan,
-  EditItemPlan
+  EditItemPlan,
+  ListClients
 };
