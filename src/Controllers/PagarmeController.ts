@@ -71,11 +71,28 @@ const ListClients = async (req: Request, res: Response) => {
   }
 }
 
+//ASSINATURA
+const CreateSubscription = async (req: Request, res: Response) => {
+  try {
+      const data = req.body;
+
+      if(data){
+        const response = await PagarmeService.CreateSubscription(data);
+        res.status(200).send({message: 'Subscription created with success', response });
+        return;
+      }
+      res.status(400).send({message: 'Occurred an error when created Subscription'});
+    } catch (error) {
+      res.status(500).send({message: 'Internal server error', error});
+  }
+}
+
 export default 
 {
   CreatePlan,
   ListPlans,
   DeletePlan,
   EditItemPlan,
-  ListClients
+  ListClients,
+  CreateSubscription
 };

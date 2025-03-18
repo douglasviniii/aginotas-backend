@@ -9,4 +9,6 @@ route.get('/clients', PagarmeController.ListClients);
 route.put('/edit-item-plan',PagarmeController.EditItemPlan);
 route.delete('/delete/:id',PagarmeController.DeletePlan);
 
+route.post('/create-subscription', PagarmeController.CreateSubscription);
+
 export default route;
