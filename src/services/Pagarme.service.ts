@@ -195,50 +195,7 @@ const ListClients = async () => {
 }
 
 //ASSINATURA
-
  const CreateSubscription = async (data: CustomerData) => {
-
-
-  const tokenizarCartao = async () => {
-    const url = 'https://api.pagar.me/1/transactions';
-  
-    const data = {
-      amount: 1000, // Valor do pagamento em centavos (R$ 10,00)
-      payment_method: 'credit_card',
-      card: {
-        holder_name: 'Tony Stark',
-        number: '4532464862385322',
-        exp_month: 1,
-        exp_year: 30,
-        cvv: '903',
-      },
-    };
-  
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Basic SEU_TOKEN_AQUI', // Substitua com seu token de autenticação
-        },
-        body: JSON.stringify(data),
-      });
-  
-      const result = await response.json();
-  
-      if (response.ok) {
-        console.log('Token do cartão gerado:', result);
-        return result.card.token; // Retorna o token do cartão gerado
-      } else {
-        console.error('Erro ao gerar o token do cartão:', result);
-        return null;
-      }
-    } catch (error) {
-      console.error('Erro na requisição para gerar o token:', error);
-      return null;
-    }
-  };
-
 
   const options = {
     method: 'POST',
