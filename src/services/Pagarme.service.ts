@@ -4,6 +4,9 @@ interface CustomerData {
   trial_period_days: Number;
   billing_days: Number;
   statement_descriptor: String;
+  Id_Plan: String;
+  Id_Item: String;
+  quantity: Number;
 }
 
 interface CustomerClient {
@@ -36,6 +39,7 @@ const CreatePlan = async (data: CustomerData) => {
           })
       };
       
+      console.log(data);
       const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}`, options);
 
       if (response.ok) {
@@ -46,7 +50,7 @@ const CreatePlan = async (data: CustomerData) => {
       }
 }
 
-const EditPlan = async (data: object) => {
+/* const EditPlan = async (data: object) => {
 
     const options = {
         method: 'PUT',
@@ -68,7 +72,7 @@ const EditPlan = async (data: object) => {
         })
       };
       
-      const response = await fetch(`${process.env.PAGARME_API_URL_EDITPLAN}/Id_aqui`, options);
+      const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}/Id_aqui`, options);
 
       if (response.ok) {
         const data = await response.json();
@@ -76,6 +80,35 @@ const EditPlan = async (data: object) => {
       } else {
         throw new Error('Erro na requisição: ' + response);
       }
+} */
+
+
+const EditItemPlan = async (data: CustomerData) =>{
+  const options = {
+    method: 'PUT',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      authorization: `Basic ${process.env.TOKEN_PAGARME}`
+    },
+
+    body: JSON.stringify({
+      pricing_scheme: {scheme_type: 'Unit', price: data.price},
+      status: 'active',
+      name: data.name,
+      quantity: data.quantity,
+    })
+  };
+
+  const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}/${data.Id_Plan}/items/${data.Id_Item}`, options);
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error('Erro na requisição: ' + response);
+  }
+
 }
 
 const DeletePlan = async (id: string) => {
@@ -88,7 +121,7 @@ const DeletePlan = async (id: string) => {
         }
       };
       
-      const response = await fetch(`${process.env.PAGARME_API_URL_DELETEPLAN}${id}`, options);
+      const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}/${id}`, options);
 
       if (response.ok) {
         const data = await response.json();
@@ -108,7 +141,7 @@ const ListPlans = async () => {
         }
       };
       
-      const response = await fetch(`${process.env.PAGARME_API_URL_LISTPLAN}`, options);
+      const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}`, options);
 
       if (response.ok) {
         const data = await response.json();
@@ -117,7 +150,6 @@ const ListPlans = async () => {
         throw new Error('Erro na requisição: ' + response);
       }
 }
-
 
 
 //CLIENTE
@@ -145,4 +177,4 @@ const CreateClient = async (data: CustomerClient) => {
 
 
 
-export default {CreatePlan,EditPlan,DeletePlan,ListPlans,CreateClient};
+export default {CreatePlan,EditItemPlan,DeletePlan,ListPlans,CreateClient};

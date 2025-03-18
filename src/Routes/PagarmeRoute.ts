@@ -5,6 +5,7 @@ const route = express.Router();
 
 route.post('/create-plan',PagarmeController.CreatePlan);
 route.get('/plans',PagarmeController.ListPlans);
+route.put('/edit-item-plan',PagarmeController.EditItemPlan);
 route.delete('/delete/:id',PagarmeController.DeletePlan);
 
 export default route;

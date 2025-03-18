@@ -3,33 +3,16 @@ import PagarmeService from '../services/Pagarme.service.ts';
 
 const CreatePlan = async (req: Request, res: Response) => {
     try {
-        const {
-          name, 
-          price,
-          trial_period_days,
-          billing_days,
-          statement_descriptor
-        } = req.body;
+        const data = req.body;
 
-        if(name && price && trial_period_days && billing_days && statement_descriptor){
-
-          const response = await PagarmeService.CreatePlan({
-            name, 
-            price,
-            trial_period_days,
-            billing_days,
-            statement_descriptor
-          });
-  
+        if(data){
+          const response = await PagarmeService.CreatePlan(data);
           res.status(200).send({message: 'Plan created with success', response });
           return;
         }
-        res.status(400).send({message: 'Occurred an error when create plan'});
-        return;
-
+        res.status(400).send({message: 'Occurred an error when created plan'});
       } catch (error) {
         res.status(500).send({message: 'Internal server error', error});
-        return;
     }
 }
 
@@ -50,7 +33,7 @@ const DeletePlan = async (req: Request, res: Response) => {
   try {
     const id = req.params.id;
     await PagarmeService.DeletePlan(id);
-    res.status(200);
+    res.status(200).send({message:'Plan deleted of with success'});
     return;
   } catch (error) {
     res.status(500).send({message: 'Internal server error', error});
@@ -58,9 +41,25 @@ const DeletePlan = async (req: Request, res: Response) => {
   }
 }
 
+const EditItemPlan = async (req: Request, res: Response) => {
+  try {
+      const data = req.body;
+
+      if(data){
+        const response = await PagarmeService.EditItemPlan(data);
+        res.status(200).send({message: 'Plan updated with success', response });
+        return;
+      }
+      res.status(400).send({message: 'Occurred an error when update plan'});
+    } catch (error) {
+      res.status(500).send({message: 'Internal server error', error});
+  }
+}
+
 export default 
 {
   CreatePlan,
   ListPlans,
-  DeletePlan
+  DeletePlan,
+  EditItemPlan
 };
