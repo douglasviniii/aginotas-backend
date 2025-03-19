@@ -203,25 +203,25 @@ const ListClients = async () => {
   const options = {
     method: 'POST',
     headers: {
-        accept: 'application/json', 'content-type': 'application/json',
-        authorization: `Basic ${process.env.TOKEN_PAGARME}`
+      accept: 'application/json',
+      'content-type': 'application/json',
+      authorization: `Basic ${process.env.TOKEN_PAGARME}`
     },
-
     body: JSON.stringify({
+      card: {
+        holder_name: 'Tony Stark',
+        exp_month: 1,
+        exp_year: 30,
+        cvv: '123',
+        number: '4000000000000010'
+      },
       installments: 1,
       plan_id: 'plan_lVrdaV4pCPSlyJNx',
       payment_method: 'credit_card',
-      customer_id: 'cus_PjVRb3mCgCyzWBlp',
-
-      card:{
-        holder_name: 'Tony Stark',
-        number: '4532464862385322',
-        exp_month: 1,
-        exp_year: 30,
-        cvv: '903'
-      }
+      customer_id: 'cus_VOpX9wQsaTYq0L35'
     })
-  }; 
+  };
+  
 
   const response = await fetch(`${process.env.PAGARME_API_URL_SUBSCRIPTION}`, options);
   console.log(response);

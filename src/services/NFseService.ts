@@ -72,66 +72,138 @@ class NfseService {
       EnviarLoteRpsEnvio: {
         $: { xmlns: 'http://www.abrasf.org.br/nfse.xsd' },
         LoteRps: {
-          $: { Id: 'Lote123', versao: '2.03' },
-          NumeroLote: dados.numeroLote,
-          CpfCnpj: { Cnpj: dados.cnpjPrestador },
-          InscricaoMunicipal: dados.inscricaoMunicipal,
-          QuantidadeRps: 1,
-          ListaRps: {
-            Rps: {
-              InfDeclaracaoPrestacaoServico: {
-                $: { Id: 'Rps123' },
+            $: { Id: 'Lote123', versao: '2.03' },
+            NumeroLote: dados.numeroLote,
+            CpfCnpj: { Cnpj: dados.cnpjPrestador },
+            InscricaoMunicipal: dados.inscricaoMunicipal,
+            QuantidadeRps: 1,
+            ListaRps: {
                 Rps: {
-                  IdentificacaoRps: {
-                    Numero: dados.numeroRps,
-                    Serie: '001',
-                    Tipo: '1'
-                  },
-                  DataEmissao: dados.dataEmissao,
-                  Status: '1'
-                },
-                Servico: {
-                  Valores: {
-                    ValorServicos: dados.valor,
-                    Aliquota: dados.aliquota,
-                    ValorIss: dados.valorIss
-                  },
-                  ItemListaServico: dados.itemListaServico,
-                  Discriminacao: dados.descricaoServico,
-                  CodigoMunicipio: dados.codigoMunicipio
-                },
-                Prestador: {
-                  CpfCnpj: { Cnpj: dados.cnpjPrestador },
-                  InscricaoMunicipal: dados.inscricaoMunicipal
-                },
-                Tomador: {
-                  IdentificacaoTomador: {
-                    CpfCnpj: { Cnpj: dados.cnpjTomador }
-                  },
-                  RazaoSocial: dados.razaoTomador,
-                  Endereco: {
-                    Endereco: dados.endereco,
-                    Numero: dados.numero,
-                    Bairro: dados.bairro,
-                    CodigoMunicipio: dados.codigoMunicipio,
-                    Uf: dados.uf,
-                    Cep: dados.cep
-                  },
-                  Contato: {
-                    Telefone: dados.telefone,
-                    Email: dados.email
-                  }
+                    InfDeclaracaoPrestacaoServico: {
+                        $: { Id: 'Rps123' },
+                        Rps: {
+                            IdentificacaoRps: {
+                                Numero: dados.numeroRps,
+                                Serie: '001',
+                                Tipo: '1'
+                            },
+                            DataEmissao: dados.dataEmissao,
+                            Status: '1'
+                        },
+                        Servico: {
+                            Valores: {
+                                ValorServicos: dados.valor,
+                                Aliquota: dados.aliquota,
+                                ValorIss: dados.valorIss
+                            },
+                            ItemListaServico: dados.itemListaServico,
+                            Discriminacao: dados.descricaoServico,
+                            CodigoMunicipio: dados.codigoMunicipio,
+                            CodigoCnae: '4520004'
+                        },
+                        Prestador: {
+                            CpfCnpj: { Cnpj: dados.cnpjPrestador },
+                            InscricaoMunicipal: dados.inscricaoMunicipal
+                        },
+                        Tomador: {
+                            IdentificacaoTomador: {
+                                CpfCnpj: { Cnpj: dados.cnpjTomador }
+                            },
+                            RazaoSocial: dados.razaoTomador,
+                            Endereco: {
+                                Endereco: dados.endereco,
+                                Numero: dados.numero,
+                                Bairro: dados.bairro,
+                                CodigoMunicipio: dados.codigoMunicipio,
+                                Uf: dados.uf,
+                                Cep: dados.cep
+                            },
+                            Contato: {
+                                Telefone: dados.telefone,
+                                Email: dados.email
+                            },
+                        },
+                        Senha: '2685CSDK',
+                        Homologacao: false
+                    }
                 }
-              }
             }
-          }
         }
-      }
+    }
     };
 
     const builder = new Builder({ headless: true });
     return builder.buildObject(obj);
   }
+
+
+  // Assina o XML com a chave privada
+  private async assinarXml(xml: string): Promise<string> {
+    try {
+      const sig = new SignedXml({canonicalizationAlgorithm: "http://www.w3.org/2001/10/xml-exc-c14n#"});
+      sig.privateKey = await this.carregarCertificado(); 
+      sig.signatureAlgorithm = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
+
+      sig.addReference({
+        xpath: "//*[local-name(.)='InfDeclaracaoPrestacaoServico']",
+        transforms: ["http://www.w3.org/2000/09/xmldsig#enveloped-signature"],
+        digestAlgorithm: "http://www.w3.org/2001/04/xmlenc#sha256"
+      });
+
+      sig.computeSignature(xml);
+      return sig.getSignedXml();
+    } catch (error) {
+      console.error('Erro ao assinar o xml:', error);
+      throw new Error('Falha ao assinar o xml.');
+    }
+  }
+
+
+
+
+  // Envia a NFS-e
+  public async enviarNfse(dados: NfseData): Promise<string> {
+    try {
+
+      const xml = this.gerarXmlNfse(dados);
+      const xsd = fs.readFileSync('./src/services/xmldsig-core-schema20020212.xsd', 'utf8');
+
+      const xmlDoc = libxmljs.parseXml(xml);
+      const xsdDoc = libxmljs.parseXml(xsd);
+      
+      const validationErrors = xmlDoc.validate(xsdDoc);
+
+      if (validationErrors) {
+        console.error('Erros de validação:', validationErrors);
+
+      } else {
+        console.log('XML válido!');
+  
+        const xmlAssinado = await this.assinarXml(xml);
+
+        console.log(xmlAssinado);
+
+        const client = await soap.createClientAsync("https://medianeira.iss.elotech.com.br/iss-ws/nfseService");
+        
+        const args = {
+            xml: xmlAssinado};
+
+        const [result] = await client.EnviarLoteRpsAsync(args);
+
+        const jsonResponse = await parseStringPromise(result);
+
+        const objxml = JSON.stringify(jsonResponse, null, 2);
+
+        return objxml; 
+      }
+      return 'Erro de validação no XML'; 
+
+    } catch (error) {
+      console.error('Erro ao enviar Nfse:', error);
+      throw new Error('Falha ao enviar Nfse.');
+    }
+  }
+
 
   // Gera o XML de consulta
   private gerarXmlConsulta(numeroNfse: string, cnpjPrestador: string): string {
@@ -164,81 +236,6 @@ class NfseService {
     `;
   }
 
-  // Assina o XML com a chave privada
-  private async assinarXml(xml: string): Promise<string> {
-    try {
-      const sig = new SignedXml({canonicalizationAlgorithm: "http://www.w3.org/2001/10/xml-exc-c14n#"});
-      sig.privateKey = await this.carregarCertificado(); 
-      sig.signatureAlgorithm = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
-
-      sig.addReference({
-        xpath: "//*[local-name(.)='InfDeclaracaoPrestacaoServico']",
-        transforms: ["http://www.w3.org/2000/09/xmldsig#enveloped-signature"],
-        digestAlgorithm: "http://www.w3.org/2001/04/xmlenc#sha256"
-      });
-
-      sig.computeSignature(xml);
-      return sig.getSignedXml();
-    } catch (error) {
-      console.error('Erro ao assinar o xml:', error);
-      throw new Error('Falha ao assinar o xml.');
-    }
-  }
-
-  // Envia a NFS-e
-  public async enviarNfse(dados: NfseData): Promise<string> {
-    try {
-
-      const xml = this.gerarXmlNfse(dados);
-      const xsd = fs.readFileSync('./src/services/xmldsig-core-schema20020212.xsd', 'utf8');
-
-      const xmlDoc = libxmljs.parseXml(xml);
-      const xsdDoc = libxmljs.parseXml(xsd);
-      
-      const validationErrors = xmlDoc.validate(xsdDoc);
-
-      if (validationErrors) {
-        console.error('Erros de validação:', validationErrors);
-
-      } else {
-        console.log('XML válido!');
-
-        const xmlAssinado = await this.assinarXml(xml);
-
-/*         const client = await soap.createClientAsync("https://medianeira.oxy.elotech.com.br/iss-ws/nfseService");
-        
-        const args = {
-            xml: xmlAssinado,
-            username: '',
-            password: '',
-        };
-
-        const [result] = await client.EnviarLoteRpsAsync(args);
-
-        const jsonResponse = await parseStringPromise(result);
-
-        const objxml = JSON.stringify(jsonResponse, null, 2);
-
-        return objxml; // Retorna a resposta da API */
-      
-        const headers = {
-          "Content-Type": "text/xml; charset=utf-8",
-          "SOAPAction": "", // Algumas APIs SOAP exigem esse cabeçalho
-        };
-    
-        const response = await axios.post(`${process.env.ELOTECH_API_URL}`, xmlAssinado, { headers });
-        console.log(response);
-
-        return 'ok';
-
-      }
-      return 'Erro de validação no XML'; 
-
-    } catch (error) {
-      console.error('Erro ao enviar Nfse:', error);
-      throw new Error('Falha ao enviar Nfse.');
-    }
-  }
 
 //const arquivo = path.join('./src/services/nota_fiscal_gerada.xml');
 //fs.writeFileSync(arquivo, result, 'utf8');
@@ -277,3 +274,83 @@ class NfseService {
 }
 
 export default new NfseService();
+
+
+`
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
+  <soapenv:Header/>
+  <soapenv:Body>
+    <EnviarLoteRpsSincronoEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
+      <IdentificacaoRequerente>
+        <CpfCnpj>
+          <Cnpj>57278676000169</Cnpj>
+        </CpfCnpj>
+        <InscricaoMunicipal>00898131</InscricaoMunicipal>
+        <Senha>4EY3AH6Z</Senha>
+        <Homologa>true</Homologa>
+      </IdentificacaoRequerente>
+      <LoteRps versao="2.03">
+        <NumeroLote>123</NumeroLote>
+        <CpfCnpj>
+          <Cnpj>57278676000169</Cnpj>
+        </CpfCnpj>
+        <InscricaoMunicipal>00898131</InscricaoMunicipal>
+        <QuantidadeRps>1</QuantidadeRps>
+        <ListaRps>
+          <Rps>
+            <InfDeclaracaoPrestacaoServico Id="Rps123">
+              <Rps>
+                <IdentificacaoRps>
+                  <Numero>456</Numero>
+                  <Serie>001</Serie>
+                  <Tipo>1</Tipo>
+                </IdentificacaoRps>
+                <DataEmissao>2025-03-19T19:35:00</DataEmissao>
+                <Status>1</Status>
+              </Rps>
+              <Servico>
+                <Valores>
+                  <ValorServicos>100.00</ValorServicos>
+                  <Aliquota>2.00</Aliquota>
+                  <ValorIss>2.00</ValorIss>
+                </Valores>
+                <ItemListaServico>01.01</ItemListaServico>
+                <Discriminacao>Serviço de exemplo</Discriminacao>
+                <CodigoMunicipio>00898131</CodigoMunicipio>
+                <CodigoCnae>6201502</CodigoCnae>
+              </Servico>
+              <Prestador>
+                <CpfCnpj>
+                  <Cnpj>57278676000169</Cnpj>
+                </CpfCnpj>
+                <InscricaoMunicipal>00898131</InscricaoMunicipal>
+              </Prestador>
+              <Tomador>
+                <IdentificacaoTomador>
+                  <CpfCnpj>
+                    <Cnpj>11769293000192</Cnpj>
+                  </CpfCnpj>
+                </IdentificacaoTomador>
+                <RazaoSocial>Cliente Exemplo Ltda</RazaoSocial>
+                <Endereco>
+                  <Endereco>Rua Exemplo, 123</Endereco>
+                  <Numero>123</Numero>
+                  <Bairro>Centro</Bairro>
+                  <CodigoMunicipio>4106902</CodigoMunicipio>
+                  <Uf>PR</Uf>
+                  <Cep>85720068</Cep>
+                </Endereco>
+                <Contato>
+                  <Telefone>45999030044</Telefone>
+                  <Email>faturamento@evoluaco.com.br</Email>
+                </Contato>
+              </Tomador>
+            </InfDeclaracaoPrestacaoServico>
+          </Rps>
+        </ListaRps>
+      </LoteRps>
+    </EnviarLoteRpsSincronoEnvio>
+  </soapenv:Body>
+</soapenv:Envelope>
+
+`

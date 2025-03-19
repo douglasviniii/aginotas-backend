@@ -28,8 +28,10 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
         const dados = {
           numeroLote: '123',
-          cnpjPrestador: '12345678000199',
-          inscricaoMunicipal: '123456',
+
+          cnpjPrestador: '23.631.375/0001-55',
+          inscricaoMunicipal: '898131', 
+
           numeroRps: '456',
           dataEmissao: formattedDate,
           valor: 100.0,
@@ -38,7 +40,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           itemListaServico: '01.01',
           descricaoServico: 'Serviço de exemplo',
           codigoMunicipio: '3106200',
-          cnpjTomador: '57.278.676/0001-69',
+          cnpjTomador: '11.769.293/0001-92',
           razaoTomador: 'Cliente Exemplo Ltda',
           endereco: 'Rua Exemplo, 123',
           numero: '123',
@@ -47,6 +49,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           cep: '30130000',
           telefone: '31999999999',
           email: 'cliente@exemplo.com'
+
         };
 
         const response = await NFseService.enviarNfse(dados);
