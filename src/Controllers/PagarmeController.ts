@@ -87,6 +87,47 @@ const CreateSubscription = async (req: Request, res: Response) => {
   }
 }
 
+const GetSubscription = async (req: Request, res: Response) => {
+  try {
+      const id = req.params.id;
+
+      if(id){
+        const response = await PagarmeService.GetSubscription(id);
+        res.status(200).send(response);
+        return;
+      }
+      res.status(400).send({message: 'Occurred an error when find Subscription'});
+    } catch (error) {
+      res.status(500).send({message: 'Internal server error', error});
+  }
+}
+
+const GetAllSubscriptions = async (req: Request, res: Response) => {
+  try {
+      const response = await PagarmeService.GetAllSubscriptions();
+      res.status(200).send(response);
+      return;
+    } catch (error) {
+      res.status(500).send({message: 'Internal server error', error});
+  }
+}
+
+const CancelSubscription = async (req: Request, res: Response) => {
+  try {
+      const id = req.params.id;
+
+      if(id){
+        await PagarmeService.CancelSubscription(id);
+        res.status(200).send({message: 'Subscription deleted with success'});
+        return;
+      }
+      res.status(400).send({message: 'Occurred an error when delete Subscription'});
+    } catch (error) {
+      res.status(500).send({message: 'Internal server error', error});
+  }
+}
+
+
 export default 
 {
   CreatePlan,
@@ -94,5 +135,8 @@ export default
   DeletePlan,
   EditItemPlan,
   ListClients,
-  CreateSubscription
+  CreateSubscription,
+  GetSubscription,
+  CancelSubscription,
+  GetAllSubscriptions
 };

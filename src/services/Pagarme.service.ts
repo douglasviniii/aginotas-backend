@@ -274,7 +274,29 @@ const GetAllSubscriptions = async () => {
     }
 }
 
-const CancelSubscription = async (data: CustomerData) => {
+const CancelSubscription = async (subscription_id: string) => {
+
+  const options = {
+    method: 'DELETE',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      authorization: `Basic ${process.env.TOKEN_PAGARME}`
+    },
+    body: JSON.stringify({cancel_pending_invoices: true})
+  };
+
+    const response = await fetch(`${process.env.PAGARME_API_URL_SUBSCRIPTION}/${subscription_id}`, options);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error('Erro na requisição: ' + response);
+    }
+}
+
+const UpdateCardSubscription = async (data: CustomerData) => {
 
   const options = {
     method: 'PATCH',
@@ -297,7 +319,6 @@ const CancelSubscription = async (data: CustomerData) => {
 }
 
 
-
 export default {
   CreatePlan,
   EditItemPlan,
@@ -308,5 +329,6 @@ export default {
   CreateSubscription,
   GetSubscription,
   GetAllSubscriptions,
+  UpdateCardSubscription,
   CancelSubscription
 };
