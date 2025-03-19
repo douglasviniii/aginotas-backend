@@ -16,6 +16,7 @@ route.delete('/delete/:id',PagarmeController.DeletePlan);
 route.post('/create-subscription', PagarmeController.CreateSubscription);
 route.get('/get-subscription/:id', PagarmeController.GetSubscription);
 route.get('/get-all-subscriptions', PagarmeController.GetAllSubscriptions);
+route.patch('/update-subscription/:id', PagarmeController.UpdateCardSubscription);
 route.delete('/cancel-subscription/:id', PagarmeController.CancelSubscription);
 
 export default route;

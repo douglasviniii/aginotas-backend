@@ -127,6 +127,20 @@ const CancelSubscription = async (req: Request, res: Response) => {
   }
 }
 
+const UpdateCardSubscription = async (req: Request, res: Response) => {
+  try {
+      const data = req.body;
+
+      if(data){
+        const response = await PagarmeService.UpdateCardSubscription(data);
+        res.status(200).send({message: 'Card updated with success', response });
+        return;
+      }
+      res.status(400).send({message: 'Occurred an error when update card'});
+    } catch (error) {
+      res.status(500).send({message: 'Internal server error', error});
+  }
+}
 
 export default 
 {
@@ -138,5 +152,6 @@ export default
   CreateSubscription,
   GetSubscription,
   CancelSubscription,
-  GetAllSubscriptions
+  GetAllSubscriptions,
+  UpdateCardSubscription
 };
