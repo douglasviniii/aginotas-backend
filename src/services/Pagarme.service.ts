@@ -286,6 +286,7 @@ const CancelSubscription = async (subscription_id: string) => {
     body: JSON.stringify({cancel_pending_invoices: true})
   };
 
+    console.log(`${process.env.PAGARME_API_URL_SUBSCRIPTION}/${subscription_id}`);
     const response = await fetch(`${process.env.PAGARME_API_URL_SUBSCRIPTION}/${subscription_id}`, options);
 
     if (response.ok) {

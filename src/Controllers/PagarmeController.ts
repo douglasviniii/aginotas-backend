@@ -115,13 +115,10 @@ const GetAllSubscriptions = async (req: Request, res: Response) => {
 const CancelSubscription = async (req: Request, res: Response) => {
   try {
       const id = req.params.id;
+      await PagarmeService.CancelSubscription(id);
+      res.status(200).send({message: 'Subscription deleted with success'});
+      return;
 
-      if(id){
-        await PagarmeService.CancelSubscription(id);
-        res.status(200).send({message: 'Subscription deleted with success'});
-        return;
-      }
-      res.status(400).send({message: 'Occurred an error when delete Subscription'});
     } catch (error) {
       res.status(500).send({message: 'Internal server error', error});
   }
