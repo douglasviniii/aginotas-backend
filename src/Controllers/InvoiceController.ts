@@ -53,8 +53,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         };
 
         const response = await NFseService.enviarNfse(dados);
-        res.status(200).send({message: 'Nota Fiscal gerada com sucesso', response });
-
+        res.status(200).send(response);
+        return;
       } catch (error) {
         res.status(500).send({message: 'Não foi possivel criar nota fiscal', error});
     }
