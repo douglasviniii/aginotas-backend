@@ -7,6 +7,9 @@ interface CustomerData {
   Id_Plan: String;
   Id_Item: String;
   quantity: Number;
+  card_id: String;
+  card_descripton: String;
+  subscription_id: String;
 }
 
 interface CustomerClient {
@@ -231,6 +234,68 @@ const ListClients = async () => {
   }  
 } 
 
+const GetSubscription = async (id: string) => {
+
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      authorization: `Basic ${process.env.TOKEN_PAGARME}`
+    }
+  };
+    
+    const response = await fetch(`${process.env.PAGARME_API_URL_SUBSCRIPTION}/${id}`, options);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error('Erro na requisição: ' + response);
+    }
+}
+
+const GetAllSubscriptions = async () => {
+
+  const options = {
+    method: 'GET',
+    headers: {
+      accept: 'application/json',
+      authorization: `Basic ${process.env.TOKEN_PAGARME}`
+    }
+  };
+    
+    const response = await fetch(`${process.env.PAGARME_API_URL_SUBSCRIPTION}`, options);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error('Erro na requisição: ' + response);
+    }
+}
+
+const CancelSubscription = async (data: CustomerData) => {
+
+  const options = {
+    method: 'PATCH',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      authorization: `Basic ${process.env.TOKEN_PAGARME}`
+    },
+    body: JSON.stringify({card_id: data.card_id, card: data.card_descripton})
+  };
+
+    const response = await fetch(`${process.env.PAGARME_API_URL_SUBSCRIPTION}/${data.subscription_id}/card`, options);
+
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error('Erro na requisição: ' + response);
+    }
+}
+
 
 
 export default {
@@ -240,5 +305,8 @@ export default {
   ListPlans,
   CreateClient,
   ListClients,
-  CreateSubscription
+  CreateSubscription,
+  GetSubscription,
+  GetAllSubscriptions,
+  CancelSubscription
 };
