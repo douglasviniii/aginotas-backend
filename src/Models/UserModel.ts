@@ -14,7 +14,7 @@ const UserSchema = new Schema<IUser>({
   id_client_pagarme: { type: String, require: true },
   name: { type: String, require: true },
   cnpj: { type: String, require: true },
-  email: { type: String, require: true },
+  email: { type: String, require: true, unique:true },
   password: { type: String, require: true, select: false },
   date_created: { type: Date, default: Date.now }
 });
