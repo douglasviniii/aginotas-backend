@@ -191,7 +191,8 @@ class NfseService {
         console.log('XML válido!');
   
         const xmlAssinado = await this.assinarXml(xml);
-
+        console.log(xmlAssinado);
+        
         const response = await axios.post(
           'https://medianeira.oxy.elotech.com.br/iss-ws/nfseService', xmlAssinado,
           {
