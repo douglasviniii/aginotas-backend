@@ -39,7 +39,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             cnpj: "57278676000169",
             inscricaoMunicipal: "00898131",
             senha: "HHFTHGRB",
-            homologa: true
+            homologa: false
           },
           loteRps: {
             numeroLote: numeroLote.toLocaleString(),
