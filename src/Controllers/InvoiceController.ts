@@ -16,15 +16,22 @@ interface CustomRequest extends Request {
     }; 
 }
 
+let numeroLote = 1;
+
 const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
         const user = req.userObject;
         const body = req.body;
 
+
         const date = new Date();
-        const formattedDate = date.toLocaleString("pt-BR", { 
-          timeZone: "America/Sao_Paulo"
-        });
+        const year = date.getFullYear(); 
+        const month = String(date.getMonth() + 1).padStart(2, '0'); 
+        const day = String(date.getDate()).padStart(2, '0');
+        const formattedDate = `${year}-${month}-${day}`;
+
+        console.log('data:', formattedDate);
+        console.log(numeroLote);
 
         const data = {
           requerente: {
@@ -34,7 +41,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             homologa: true
           },
           loteRps: {
-            numeroLote: "2333108545456453",
+            numeroLote: numeroLote.toLocaleString(),
             cnpj: "57278676000169",
             inscricaoMunicipal: "00898131",
             quantidadeRps: 1
@@ -45,13 +52,13 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               serie: "D",
               tipo: 1
             },
-            dataEmissao: "2025-03-20",
+            dataEmissao: formattedDate,
             status: 1,
-            competencia: "2025-03-20",
+            competencia: formattedDate,
             servico: {
               valores: {
                 valorServicos: "200.00",
-                valorDeducoes: "50.00",
+                valorDeducoes: "0",
                 aliquotaPis: "0",
                 retidoPis: "2",
                 aliquotaCofins: "0",
@@ -75,8 +82,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               municipioIncidencia: "4115804",
               listaItensServico: [
                 {
-                  itemListaServico: "1401",
-                  codigoCnae: "6201502",
+                  itemListaServico: "02",
+                  codigoCnae: "6201501",
                   descricao: "servico",
                   tributavel: "1",
                   quantidade: "1.00000",
@@ -130,6 +137,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         };
 
         const response = await NFseService.enviarNfse(data);
+        numeroLote += 1;
         res.status(200).send(response);
         return;
       } catch (error) {
