@@ -16,7 +16,7 @@ interface CustomRequest extends Request {
     }; 
 }
 
-let numeroLote = 1;
+let numeroLote = 6;
 
 const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
@@ -82,7 +82,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               municipioIncidencia: "4115804",
               listaItensServico: [
                 {
-                  itemListaServico: "02",
+                  itemListaServico: "104",
                   codigoCnae: "6201501",
                   descricao: "servico",
                   tributavel: "1",
