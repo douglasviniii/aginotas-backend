@@ -16,7 +16,8 @@ interface CustomRequest extends Request {
     }; 
 }
 
-let numeroLote = 6;
+let numeroLote = 8;
+let identificacaoRpsnumero = 1;
 
 const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
@@ -37,7 +38,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           requerente: {
             cnpj: "57278676000169",
             inscricaoMunicipal: "00898131",
-            senha: "4EY3AH6Z",
+            senha: "HHFTHGRB",
             homologa: true
           },
           loteRps: {
@@ -48,7 +49,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           },
           rps: {
             identificacaoRps: {
-              numero: "34356311",
+              numero: identificacaoRpsnumero.toLocaleString(),
               serie: "D",
               tipo: 1
             },
@@ -138,6 +139,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
         const response = await NFseService.enviarNfse(data);
         numeroLote += 1;
+        identificacaoRpsnumero += 1;
+
         res.status(200).send(response);
         return;
       } catch (error) {
