@@ -11,27 +11,95 @@ import { create } from 'xmlbuilder2';
 import axios from 'axios';
 
 
-interface NfseData {
-  numeroLote: string;
-  cnpjPrestador: string;
-  inscricaoMunicipal: string;
-  numeroRps: string;
-  dataEmissao: string;
-  valor: number;
-  aliquota: number;
-  valorIss: number;
-  itemListaServico: string;
-  descricaoServico: string;
-  codigoMunicipio: string;
-  cnpjTomador: string;
-  razaoTomador: string;
-  endereco: string;
-  numero: string;
-  bairro: string;
-  uf: string;
-  cep: string;
-  telefone: string;
-  email: string;
+interface Data {
+  requerente: {
+    cnpj: string;
+    inscricaoMunicipal: string;
+    senha: string;
+    homologa: boolean;
+  };
+  loteRps: {
+    numeroLote: string;
+    cnpj: string;
+    inscricaoMunicipal: string;
+    quantidadeRps: number;
+  };
+  rps: {
+    identificacaoRps: {
+      numero: string;
+      serie: string;
+      tipo: number;
+    };
+    dataEmissao: string;
+    status: number;
+    competencia: string;
+    servico: {
+      valores: {
+        valorServicos: string;
+        valorDeducoes: string;
+        aliquotaPis: string;
+        retidoPis: string;
+        aliquotaCofins: string;
+        retidoCofins: string;
+        aliquotaInss: string;
+        retidoInss: string;
+        aliquotaIr: string;
+        retidoIr: string;
+        aliquotaCsll: string;
+        retidoCsll: string;
+        retidoCpp: string;
+        retidoOutrasRetencoes: string;
+        aliquota: string;
+        descontoIncondicionado: string;
+        descontoCondicionado: string;
+      };
+      issRetido: string;
+      discriminacao: string;
+      codigoMunicipio: string;
+      exigibilidadeISS: string;
+      municipioIncidencia: string;
+      listaItensServico: Array<{
+        itemListaServico: string;
+        codigoCnae: string;
+        descricao: string;
+        tributavel: string;
+        quantidade: string;
+        valorUnitario: string;
+        valorDesconto: string;
+        valorLiquido: string;
+        dadosDeducao?: {
+          tipoDeducao: string;
+          cpf: string;
+          valorTotalNotaFiscal: string;
+          valorADeduzir: string;
+        };
+      }>;
+    };
+    prestador: {
+      cnpj: string;
+      inscricaoMunicipal: string;
+    };
+    tomador: {
+      identificacaoTomador: {
+        cnpj: string;
+      };
+      razaoSocial: string;
+      endereco: {
+        endereco: string;
+        numero: string;
+        bairro: string;
+        codigoMunicipio: string;
+        uf: string;
+        cep: string;
+      };
+      contato: {
+        telefone: string;
+        email: string;
+      };
+    };
+    regimeEspecialTributacao: string;
+    incentivoFiscal: string;
+  };
 }
 
 class NfseService {
@@ -67,78 +135,116 @@ class NfseService {
   }
 
   // Gera o XML da NFS-e
-  private gerarXmlNfse(dados: NfseData): string {
+  private gerarXmlNfse(data: Data): string {
     return `
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
       <soapenv:Header/>
       <soapenv:Body>
         <EnviarLoteRpsSincronoEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
-          
           <IdentificacaoRequerente>
             <CpfCnpj>
-              <Cnpj>57278676000169</Cnpj>
+              <Cnpj>${data.requerente.cnpj}</Cnpj>
             </CpfCnpj>
-            <InscricaoMunicipal>00898131</InscricaoMunicipal>
-            <Senha>4EY3AH6Z</Senha>
-            <Homologa>true</Homologa>
+            <InscricaoMunicipal>${data.requerente.inscricaoMunicipal}</InscricaoMunicipal>
+            <Senha>${data.requerente.senha}</Senha>
+            <Homologa>${data.requerente.homologa}</Homologa>
           </IdentificacaoRequerente>
-
           <LoteRps versao="2.03">
-            <NumeroLote>123</NumeroLote>
+            <NumeroLote>${data.loteRps.numeroLote}</NumeroLote>
             <CpfCnpj>
-              <Cnpj>57278676000169</Cnpj>
+              <Cnpj>${data.loteRps.cnpj}</Cnpj>
             </CpfCnpj>
-            <InscricaoMunicipal>00898131</InscricaoMunicipal>
-            <QuantidadeRps>1</QuantidadeRps>
+            <InscricaoMunicipal>${data.loteRps.inscricaoMunicipal}</InscricaoMunicipal>
+            <QuantidadeRps>${data.loteRps.quantidadeRps}</QuantidadeRps>
             <ListaRps>
               <Rps>
-                <InfDeclaracaoPrestacaoServico Id="Rps123">
+                <InfDeclaracaoPrestacaoServico>
                   <Rps>
                     <IdentificacaoRps>
-                      <Numero>456</Numero>
-                      <Serie>001</Serie>
-                      <Tipo>1</Tipo>
+                      <Numero>${data.rps.identificacaoRps.numero}</Numero>
+                      <Serie>${data.rps.identificacaoRps.serie}</Serie>
+                      <Tipo>${data.rps.identificacaoRps.tipo}</Tipo>
                     </IdentificacaoRps>
-                    <DataEmissao>2025-03-19T19:35:00</DataEmissao>
-                    <Status>1</Status>
+                    <DataEmissao>${data.rps.dataEmissao}</DataEmissao>
+                    <Status>${data.rps.status}</Status>
                   </Rps>
+                  <Competencia>${data.rps.competencia}</Competencia>
                   <Servico>
                     <Valores>
-                      <ValorServicos>100.00</ValorServicos>
-                      <Aliquota>2.00</Aliquota>
-                      <ValorIss>2.00</ValorIss>
+                      <ValorServicos>${data.rps.servico.valores.valorServicos}</ValorServicos>
+                      <ValorDeducoes>${data.rps.servico.valores.valorDeducoes}</ValorDeducoes>
+                      <AliquotaPis>${data.rps.servico.valores.aliquotaPis}</AliquotaPis>
+                      <RetidoPis>${data.rps.servico.valores.retidoPis}</RetidoPis>
+                      <AliquotaCofins>${data.rps.servico.valores.aliquotaCofins}</AliquotaCofins>
+                      <RetidoCofins>${data.rps.servico.valores.retidoCofins}</RetidoCofins>
+                      <AliquotaInss>${data.rps.servico.valores.aliquotaInss}</AliquotaInss>
+                      <RetidoInss>${data.rps.servico.valores.retidoInss}</RetidoInss>
+                      <AliquotaIr>${data.rps.servico.valores.aliquotaIr}</AliquotaIr>
+                      <RetidoIr>${data.rps.servico.valores.retidoIr}</RetidoIr>
+                      <AliquotaCsll>${data.rps.servico.valores.aliquotaCsll}</AliquotaCsll>
+                      <RetidoCsll>${data.rps.servico.valores.retidoCsll}</RetidoCsll>
+                      <RetidoCpp>${data.rps.servico.valores.retidoCpp}</RetidoCpp>
+                      <RetidoOutrasRetencoes>${data.rps.servico.valores.retidoOutrasRetencoes}</RetidoOutrasRetencoes>
+                      <Aliquota>${data.rps.servico.valores.aliquota}</Aliquota>
+                      <DescontoIncondicionado>${data.rps.servico.valores.descontoIncondicionado}</DescontoIncondicionado>
+                      <DescontoCondicionado>${data.rps.servico.valores.descontoCondicionado}</DescontoCondicionado>
                     </Valores>
-                    <ItemListaServico>01.01</ItemListaServico>
-                    <Discriminacao>Serviço de exemplo</Discriminacao>
-                    <CodigoMunicipio>00898131</CodigoMunicipio>
-                    <CodigoCnae>6201502</CodigoCnae>
+                    <IssRetido>${data.rps.servico.issRetido}</IssRetido>
+                    <Discriminacao>${data.rps.servico.discriminacao}</Discriminacao>
+                    <CodigoMunicipio>${data.rps.servico.codigoMunicipio}</CodigoMunicipio>
+                    <ExigibilidadeISS>${data.rps.servico.exigibilidadeISS}</ExigibilidadeISS>
+                    <MunicipioIncidencia>${data.rps.servico.municipioIncidencia}</MunicipioIncidencia>
+                    <ListaItensServico>
+                      ${data.rps.servico.listaItensServico.map(item => `
+                      <ItemServico>
+                        <ItemListaServico>${item.itemListaServico}</ItemListaServico>
+                        <CodigoCnae>${item.codigoCnae}</CodigoCnae>
+                        <Descricao>${item.descricao}</Descricao>
+                        <Tributavel>${item.tributavel}</Tributavel>
+                        <Quantidade>${item.quantidade}</Quantidade>
+                        <ValorUnitario>${item.valorUnitario}</ValorUnitario>
+                        <ValorDesconto>${item.valorDesconto}</ValorDesconto>
+                        <ValorLiquido>${item.valorLiquido}</ValorLiquido>
+                        ${item.dadosDeducao ? `
+                        <DadosDeducao>
+                          <TipoDeducao>${item.dadosDeducao.tipoDeducao}</TipoDeducao>
+                          <Cpf>${item.dadosDeducao.cpf}</Cpf>
+                          <ValorTotalNotaFiscal>${item.dadosDeducao.valorTotalNotaFiscal}</ValorTotalNotaFiscal>
+                          <ValorADeduzir>${item.dadosDeducao.valorADeduzir}</ValorADeduzir>
+                        </DadosDeducao>
+                        ` : ''}
+                      </ItemServico>
+                      `).join('')}
+                    </ListaItensServico>
                   </Servico>
                   <Prestador>
                     <CpfCnpj>
-                      <Cnpj>57278676000169</Cnpj>
+                      <Cnpj>${data.rps.prestador.cnpj}</Cnpj>
                     </CpfCnpj>
-                    <InscricaoMunicipal>00898131</InscricaoMunicipal>
+                    <InscricaoMunicipal>${data.rps.prestador.inscricaoMunicipal}</InscricaoMunicipal>
                   </Prestador>
                   <Tomador>
                     <IdentificacaoTomador>
                       <CpfCnpj>
-                        <Cnpj>11769293000192</Cnpj>
+                        <Cnpj>${data.rps.tomador.identificacaoTomador.cnpj}</Cnpj>
                       </CpfCnpj>
                     </IdentificacaoTomador>
-                    <RazaoSocial>Cliente Exemplo Ltda</RazaoSocial>
+                    <RazaoSocial>${data.rps.tomador.razaoSocial}</RazaoSocial>
                     <Endereco>
-                      <Endereco>Rua Exemplo, 123</Endereco>
-                      <Numero>123</Numero>
-                      <Bairro>Centro</Bairro>
-                      <CodigoMunicipio>4106902</CodigoMunicipio>
-                      <Uf>PR</Uf>
-                      <Cep>85720068</Cep>
+                      <Endereco>${data.rps.tomador.endereco.endereco}</Endereco>
+                      <Numero>${data.rps.tomador.endereco.numero}</Numero>
+                      <Bairro>${data.rps.tomador.endereco.bairro}</Bairro>
+                      <CodigoMunicipio>${data.rps.tomador.endereco.codigoMunicipio}</CodigoMunicipio>
+                      <Uf>${data.rps.tomador.endereco.uf}</Uf>
+                      <Cep>${data.rps.tomador.endereco.cep}</Cep>
                     </Endereco>
                     <Contato>
-                      <Telefone>45999030044</Telefone>
-                      <Email>faturamento@evoluaco.com.br</Email>
+                      <Telefone>${data.rps.tomador.contato.telefone}</Telefone>
+                      <Email>${data.rps.tomador.contato.email}</Email>
                     </Contato>
                   </Tomador>
+                  <RegimeEspecialTributacao>${data.rps.regimeEspecialTributacao}</RegimeEspecialTributacao>
+                  <IncentivoFiscal>${data.rps.incentivoFiscal}</IncentivoFiscal>
                 </InfDeclaracaoPrestacaoServico>
               </Rps>
             </ListaRps>
@@ -146,7 +252,7 @@ class NfseService {
         </EnviarLoteRpsSincronoEnvio>
       </soapenv:Body>
     </soapenv:Envelope>
-    `
+  `
   }
 
 
@@ -173,10 +279,10 @@ class NfseService {
 
 
   // Envia a NFS-e
-  public async enviarNfse(dados: NfseData): Promise<string> {
+  public async enviarNfse(data: Data): Promise<string> {
     try {
 
-      const xml = this.gerarXmlNfse(dados);
+      const xml = this.gerarXmlNfse(data);
       const xsd = fs.readFileSync('./src/services/xmldsig-core-schema20020212.xsd', 'utf8');
 
       const xmlDoc = libxmljs.parseXml(xml);

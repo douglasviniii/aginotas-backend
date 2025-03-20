@@ -26,33 +26,110 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           timeZone: "America/Sao_Paulo"
         });
 
-        const dados = {
-          numeroLote: '123',
-
-          cnpjPrestador: '23.631.375/0001-55',
-          inscricaoMunicipal: '898131', 
-
-          numeroRps: '456',
-          dataEmissao: formattedDate,
-          valor: 100.0,
-          aliquota: 2.0,
-          valorIss: 2.0,
-          itemListaServico: '01.01',
-          descricaoServico: 'Serviço de exemplo',
-          codigoMunicipio: '3106200',
-          cnpjTomador: '11.769.293/0001-92',
-          razaoTomador: 'Cliente Exemplo Ltda',
-          endereco: 'Rua Exemplo, 123',
-          numero: '123',
-          bairro: 'Centro',
-          uf: 'MG',
-          cep: '30130000',
-          telefone: '31999999999',
-          email: 'cliente@exemplo.com'
-
+        const data = {
+          requerente: {
+            cnpj: "57278676000169",
+            inscricaoMunicipal: "00898131",
+            senha: "4EY3AH6Z",
+            homologa: true
+          },
+          loteRps: {
+            numeroLote: "2333108545456453",
+            cnpj: "57278676000169",
+            inscricaoMunicipal: "00898131",
+            quantidadeRps: 1
+          },
+          rps: {
+            identificacaoRps: {
+              numero: "34356311",
+              serie: "D",
+              tipo: 1
+            },
+            dataEmissao: "2025-03-20",
+            status: 1,
+            competencia: "2025-03-20",
+            servico: {
+              valores: {
+                valorServicos: "200.00",
+                valorDeducoes: "50.00",
+                aliquotaPis: "0",
+                retidoPis: "2",
+                aliquotaCofins: "0",
+                retidoCofins: "2",
+                aliquotaInss: "0",
+                retidoInss: "2",
+                aliquotaIr: "0",
+                retidoIr: "2",
+                aliquotaCsll: "0",
+                retidoCsll: "2",
+                retidoCpp: "2",
+                retidoOutrasRetencoes: "2",
+                aliquota: "4.41",
+                descontoIncondicionado: "0.00",
+                descontoCondicionado: "0.00"
+              },
+              issRetido: "2",
+              discriminacao: "CONTRATO MENSAL",
+              codigoMunicipio: "4115804",
+              exigibilidadeISS: "1",
+              municipioIncidencia: "4115804",
+              listaItensServico: [
+                {
+                  itemListaServico: "1401",
+                  codigoCnae: "6201502",
+                  descricao: "servico",
+                  tributavel: "1",
+                  quantidade: "1.00000",
+                  valorUnitario: "200.00000",
+                  valorDesconto: "0.00",
+                  valorLiquido: "200.00"
+                },
+/*                 {
+                  itemListaServico: "802",
+                  codigoCnae: "6201502",
+                  descricao: "deducao",
+                  tributavel: "2",
+                  quantidade: "1.00000",
+                  valorUnitario: "50.00000",
+                  valorDesconto: "0.00",
+                  valorLiquido: "50.00",
+                  dadosDeducao: {
+                    tipoDeducao: "M",
+                    cpf: "00936697989",
+                    valorTotalNotaFiscal: "50.00",
+                    valorADeduzir: "50.00"
+                  }
+                } */
+              ]
+            },
+            prestador: {
+              cnpj: "57278676000169",
+              inscricaoMunicipal: "00898131"
+            },
+            tomador: {
+              identificacaoTomador: {
+                cnpj: "11769293000192"
+              },
+              razaoSocial: "CONTROLAREP PONTOS DE ACESSO EIRELI",
+              endereco: {
+                endereco: "AV ROBERT KOCH",
+                numero: "1330",
+                bairro: "OPERARIA",
+                codigoMunicipio: "4113700",
+                uf: "PR",
+                cep: "86038350"
+              },
+              contato: {
+                telefone: "4304330326176",
+                email: "everton@publitechsistemas.com.br"
+              }
+            },
+            regimeEspecialTributacao: "7",
+            incentivoFiscal: "2"
+          }
         };
 
-        const response = await NFseService.enviarNfse(dados);
+        const response = await NFseService.enviarNfse(data);
         res.status(200).send(response);
         return;
       } catch (error) {
