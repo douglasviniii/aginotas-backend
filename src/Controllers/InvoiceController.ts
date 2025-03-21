@@ -24,6 +24,18 @@ interface DataConsultaNFSE{
   Senha: string;
   Homologa: boolean;
 }
+interface DataCancelarNfseEnvio{
+  CpfCnpj: string;
+  InscricaoMunicipal: string;
+  Senha: string;
+  Homologa: boolean;
+  NumeroNfse: string;
+  CpfCnpjNfse: string;
+  InscricaoMunicipalNfse: string;
+  CodigoMunicipioNfse: string;
+  ChaveAcesso: string;
+  CodigoCancelamento: number;
+}
 
 let numeroLote = 8;
 let identificacaoRpsnumero = 1;
@@ -173,16 +185,25 @@ const consult_invoice = async (req: CustomRequest, res: Response) => {
 
 const cancel_invoice = async (req: CustomRequest, res: Response) => {
   try {
-      const user = req.userObject;
-      const body = req.body;
+      //const user = req.userObject;
+      //const body = req.body;
 
-      const numeroNfse = '0000';
-      const cnpjPrestador = '12.345.678/0001-99';
-      const justificativa = 'blablabla';
+      const data: DataCancelarNfseEnvio = {
+        CpfCnpj: '',
+        InscricaoMunicipal: '',
+        Senha: '',
+        Homologa: true,
+        NumeroNfse: '',
+        CpfCnpjNfse: '',
+        InscricaoMunicipalNfse: '',
+        CodigoMunicipioNfse: '',
+        ChaveAcesso: '',
+        CodigoCancelamento: 1,
+      }
 
-      const response = await NFseService.cancelarNfse(numeroNfse,cnpjPrestador,justificativa);
+      const response = await NFseService.cancelarNfse(data);
 
-      res.status(200).send({message: 'Consulta realiza com sucesso', response });
+      res.status(200).send(response);
       
     } catch (error) {
       res.status(500).send({message: 'Não foi possivel consultar Nota Fiscal', error});

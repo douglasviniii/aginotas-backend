@@ -9,6 +9,7 @@ import https from 'https';
 import { parseStringPromise } from "xml2js";
 import { create } from 'xmlbuilder2';
 import axios from 'axios';
+import { object } from 'zod';
 
 
 interface Data {
@@ -112,6 +113,19 @@ interface DataConsultaNFSE{
   Homologa: boolean;
 }
 
+interface DataCancelarNfseEnvio{
+  CpfCnpj: string;
+  InscricaoMunicipal: string;
+  Senha: string;
+  Homologa: boolean;
+  NumeroNfse: string;
+  CpfCnpjNfse: string;
+  InscricaoMunicipalNfse: string;
+  CodigoMunicipioNfse: string;
+  ChaveAcesso: string;
+  CodigoCancelamento: number;
+}
+
 class NfseService {
   private certPath = './src/services/Delvind100759940.pfx' // Caminho para o certificado .pfx
   private certPassword = `${process.env.SENHA_CERTIFICADO}`;
@@ -147,7 +161,6 @@ class NfseService {
 
 
 
-  // Gera o XML da NFS-e
   private gerarXmlNfse(data: Data): string {
     return `
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
@@ -268,7 +281,6 @@ class NfseService {
   `
   }
 
-  // Assina o XML com a chave privada
   private async assinarXml(xml: string): Promise<string> {
     try {
       const sig = new SignedXml({ canonicalizationAlgorithm: "http://www.w3.org/2001/10/xml-exc-c14n#" });
@@ -289,7 +301,6 @@ class NfseService {
     }
   }
 
-  // Envia a NFS-e
   public async enviarNfse(data: Data): Promise<string> {
     try {
 
@@ -328,8 +339,6 @@ class NfseService {
 
 
 
-
-
   private async assinarXmlConsulta(xml: string): Promise<string> {
     try {
       const sig = new SignedXml({ canonicalizationAlgorithm: "http://www.w3.org/2001/10/xml-exc-c14n#" });
@@ -350,7 +359,6 @@ class NfseService {
     }
   }
 
-  // Gera o XML de consulta
   private gerarXmlConsultarNfseRpsEnvio(data: DataConsultaNFSE): string {
     return   `
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
@@ -376,7 +384,6 @@ class NfseService {
   `;
   }
 
-  // Consulta a NFS-e
   public async consultarNfse(data: DataConsultaNFSE): Promise<string> {
     try {
       const xmlConsulta = this.gerarXmlConsultarNfseRpsEnvio(data);
@@ -404,37 +411,72 @@ class NfseService {
 
 
 
+  private async assinarXmlCancelar(xml: string): Promise<string> {
+    try {
+      const sig = new SignedXml({ canonicalizationAlgorithm: "http://www.w3.org/2001/10/xml-exc-c14n#" });
+      sig.privateKey = await this.carregarCertificado();
+      sig.signatureAlgorithm = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
 
+      sig.addReference({
+        xpath: "//*[local-name(.)='CancelarNfseEnvio' and namespace-uri(.)='http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd']",
+        transforms: ["http://www.w3.org/2000/09/xmldsig#enveloped-signature"],
+        digestAlgorithm: "http://www.w3.org/2001/04/xmlenc#sha256"
+      });
 
-  // Gera o XML de cancelamento
-  private gerarXmlCancelamento(numeroNfse: string, cnpjPrestador: string, justificativa: string): string {
-    return `
-      <CancelarNfseEnvio xmlns="http://www.abrasf.org.br/nfse.xsd">
-        <Pedido>
-          <InfPedidoCancelamento>
-            <IdentificacaoNfse>
-              <Numero>${numeroNfse}</Numero>
-            </IdentificacaoNfse>
-            <Prestador>
-              <Cnpj>${cnpjPrestador}</Cnpj>
-            </Prestador>
-            <Justificativa>${justificativa}</Justificativa>
-          </InfPedidoCancelamento>
-        </Pedido>
-      </CancelarNfseEnvio>
-    `;
+      sig.computeSignature(xml);
+      return sig.getSignedXml();
+    } catch (error) {
+      console.error('Erro ao assinar o xml:', error);
+      throw new Error('Falha ao assinar o xml.');
+    }
   }
 
-  // Cancela a NFS-e
-  public async cancelarNfse(numeroNfse: string, cnpjPrestador: string, justificativa: string): Promise<string> {
+  private async gerarXmlCancelarNfseEnvio(data: DataCancelarNfseEnvio): Promise<string> {
+    return`
+      <CancelarNfseEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
+        <IdentificacaoRequerente>
+            <CpfCnpj>
+                <Cnpj>${data.CpfCnpj}</Cnpj>
+            </CpfCnpj>
+            <InscricaoMunicipal>${data.InscricaoMunicipal}</InscricaoMunicipal>
+            <Senha>${data.Senha}</Senha>
+            <Homologa>${data.Homologa}</Homologa>
+        </IdentificacaoRequerente>
+        <Pedido>
+            <InfPedidoCancelamento>
+                <IdentificacaoNfse>
+                    <Numero>${data.NumeroNfse}</Numero>
+                    <CpfCnpj>
+                        <Cnpj>${data.CpfCnpjNfse}</Cnpj>
+                    </CpfCnpj>
+                    <InscricaoMunicipal>${data.InscricaoMunicipalNfse}</InscricaoMunicipal>
+                    <CodigoMunicipio>${data.CodigoMunicipioNfse}</CodigoMunicipio>
+                </IdentificacaoNfse>
+                <ChaveAcesso>${data.ChaveAcesso}</ChaveAcesso>
+                <CodigoCancelamento>${data.CodigoCancelamento}</CodigoCancelamento>
+            </InfPedidoCancelamento>
+        </Pedido>
+    </CancelarNfseEnvio>
+    `
+  }
+
+  public async cancelarNfse(data: DataCancelarNfseEnvio): Promise<string> {
     try {
-      const xmlCancelamento = this.gerarXmlCancelamento(numeroNfse, cnpjPrestador, justificativa);
-      const xmlAssinado = await this.assinarXml(xmlCancelamento);
+      const xmlCancelamento = await this.gerarXmlCancelarNfseEnvio(data);
 
-      const client = await soap.createClientAsync(this.wsdlUrl);
-      const result = await client.CancelarNfseAsync({ xml: xmlAssinado });
+      const xmlAssinado = await this.assinarXmlCancelar(xmlCancelamento);
 
-      return result;
+      const response = await axios.post(
+        'https://medianeira.oxy.elotech.com.br/iss-ws/nfseService', xmlAssinado,
+        {
+          headers: {
+            'Content-Type': 'text/xml',
+            'Accept': 'text/xml',
+          },
+        }
+      );
+
+      return response.data;
     } catch (error) {
       console.error('Erro no cancelamento da NFS-e:', error);
       throw new Error('Falha ao cancelar NFS-e.');
