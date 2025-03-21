@@ -5,6 +5,6 @@ import MiddlewareUser from '../Middlwares/UserMiddlware.ts';
 const InvoiceRoute = express.Router();
 
 InvoiceRoute.post('/create',InvoiceController.create_invoice);
-InvoiceRoute.get('/find',MiddlewareUser,InvoiceController.findinvoices);
+InvoiceRoute.get('/consult',InvoiceController.consult_invoice);
 
 export default InvoiceRoute;

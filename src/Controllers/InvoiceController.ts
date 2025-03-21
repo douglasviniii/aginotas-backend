@@ -15,6 +15,15 @@ interface CustomRequest extends Request {
       ];
     }; 
 }
+interface DataConsultaNFSE{
+  NumeroRps: string;
+  SerieRps: string;
+  TipoRps: number;
+  CnpjCpf: string;
+  InscricaoMunicipal: string;
+  Senha: string;
+  Homologa: boolean;
+}
 
 let numeroLote = 8;
 let identificacaoRpsnumero = 1;
@@ -134,15 +143,22 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
 const consult_invoice = async (req: CustomRequest, res: Response) => {
   try {
-      const user = req.userObject;
-      const body = req.body;
+      //const user = req.userObject;
+      //const body = req.body;
 
-      const numeroNfse = '0000';
-      const cnpjPrestador = '12.345.678/0001-99';
+      const data: DataConsultaNFSE = {
+        NumeroRps: '2',
+        SerieRps: 'D',
+        TipoRps: 1,
+        CnpjCpf: '57278676000169',
+        InscricaoMunicipal: '00898131',
+        Senha: 'HHFTHGRB',
+        Homologa: false,
+      }
 
-      const response = await NFseService.consultarNfse(numeroNfse, cnpjPrestador);
+      const response = await NFseService.consultarNfse(data);
 
-      res.status(200).send({message: 'Consulta realiza com sucesso', response });
+      res.status(200).send(response);
       
     } catch (error) {
       res.status(500).send({message: 'Não foi possivel consultar Nota Fiscal', error});
