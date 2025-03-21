@@ -33,15 +33,11 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         const user = req.userObject;
         const body = req.body;
 
-
         const date = new Date();
         const year = date.getFullYear(); 
         const month = String(date.getMonth() + 1).padStart(2, '0'); 
         const day = String(date.getDate()).padStart(2, '0');
         const formattedDate = `${year}-${month}-${day}`;
-
-        console.log('data:', formattedDate);
-        console.log(numeroLote);
 
         const data = {
           requerente: {
@@ -131,6 +127,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         };
 
         const response = await NFseService.enviarNfse(data);
+        
         numeroLote += 1;
         identificacaoRpsnumero += 1;
 
