@@ -127,9 +127,18 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         };
 
         const response = await NFseService.enviarNfse(data);
-        
+
         numeroLote += 1;
         identificacaoRpsnumero += 1;
+
+/*         await InvoiceService.CreateInvoiceService({
+          customer:'',
+          user: '',
+          valor: 0,
+          xml: '',
+          numeroLote: numeroLote,
+          identificacaoRpsnumero: identificacaoRpsnumero,
+        }); */
 
         res.status(200).send(response);
         return;
