@@ -92,22 +92,6 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                   valorDesconto: "0.00",
                   valorLiquido: "200.00"
                 },
-/*                 {
-                  itemListaServico: "802",
-                  codigoCnae: "6201502",
-                  descricao: "deducao",
-                  tributavel: "2",
-                  quantidade: "1.00000",
-                  valorUnitario: "50.00000",
-                  valorDesconto: "0.00",
-                  valorLiquido: "50.00",
-                  dadosDeducao: {
-                    tipoDeducao: "M",
-                    cpf: "00936697989",
-                    valorTotalNotaFiscal: "50.00",
-                    valorADeduzir: "50.00"
-                  }
-                } */
               ]
             },
             prestador: {
@@ -200,3 +184,30 @@ export default
   consult_invoice,
   cancel_invoice
 };
+
+
+
+
+
+
+
+
+
+
+
+/*                 {
+                  itemListaServico: "802",
+                  codigoCnae: "6201502",
+                  descricao: "deducao",
+                  tributavel: "2",
+                  quantidade: "1.00000",
+                  valorUnitario: "50.00000",
+                  valorDesconto: "0.00",
+                  valorLiquido: "50.00",
+                  dadosDeducao: {
+                    tipoDeducao: "M",
+                    cpf: "00936697989",
+                    valorTotalNotaFiscal: "50.00",
+                    valorADeduzir: "50.00"
+                  }
+                } */
