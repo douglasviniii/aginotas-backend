@@ -8,6 +8,7 @@ export interface IUser extends Document {
   email: string;
   inscricaoMunicipal: string;
   password: string;
+  homologa: boolean;
   senhaelotech: string;
   date_created: Date;
 }
@@ -17,7 +18,8 @@ const UserSchema = new Schema<IUser>({
   name: { type: String, require: true },
   cnpj: { type: String, require: true },
   inscricaoMunicipal: { type: String, require: true },
-  senhaelotech: { type: String, require: true },
+  senhaelotech: { type: String},
+  homologa: {type: Boolean},
   email: { type: String, require: true, unique:true },
   password: { type: String, require: true, select: false },
   date_created: { type: Date, default: Date.now }

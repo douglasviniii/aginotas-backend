@@ -183,7 +183,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             cnpj: "57278676000169", //user?.cnpj
             inscricaoMunicipal: "00898131", //user?.inscricaoMunicipal
             senha: "KK89BRGH", //user?.senhaelotech
-            homologa: true,
+            homologa: true, //user?.homologa
           },
           loteRps: {
             numeroLote: numeroLote.toLocaleString(),
@@ -265,7 +265,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           }
         };
 
-        const response = await NFseService.enviarNfse(data);
+        console.log(data);
+
+/*         const response = await NFseService.enviarNfse(data);
       
           await InvoiceService.CreateInvoiceService({
           customer: body.customer,
@@ -278,7 +280,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
 
         res.status(200).send(response);
-        return;
+        return; */
         
       } catch (error) {
         res.status(500).send({message: 'Não foi possivel criar nota fiscal', error});
