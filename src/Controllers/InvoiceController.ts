@@ -165,8 +165,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           requerente: {
             cnpj: "57278676000169",
             inscricaoMunicipal: "00898131",
-            senha: "HHFTHGRB",
-            homologa: false
+            senha: "KK89BRGH",
+            homologa: true
           },
           loteRps: {
             numeroLote: numeroLote.toLocaleString(),
@@ -215,9 +215,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                   descricao: "servico",
                   tributavel: "1",
                   quantidade: "1.00000",
-                  valorUnitario: "200.00000",
+                  valorUnitario: "20.00000",
                   valorDesconto: "0.00",
-                  valorLiquido: "200.00"
+                  valorLiquido: "20.00"
                 },
               ]
             },
@@ -275,9 +275,9 @@ const cancel_invoice = async (req: CustomRequest, res: Response) => {
       //const body = req.body;
 
       const data: DataCancelarNfseEnvio = {
-        CpfCnpj: '',
-        InscricaoMunicipal: '',
-        Senha: '',
+        CpfCnpj: '57278676000169',
+        InscricaoMunicipal: '00898131',
+        Senha: 'KK89BRGH',
         Homologa: true,
         NumeroNfse: '',
         CpfCnpjNfse: '',
@@ -303,10 +303,10 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
 
     const data: DataSubstituirNfse = {
       IdentificacaoRequerente: {
-          CpfCnpj: { Cnpj: "02847928000131" },
-          InscricaoMunicipal: "59939",
-          Senha: "GGARCY9A",
-          Homologa: false
+          CpfCnpj: { Cnpj: "57278676000169" },
+          InscricaoMunicipal: "00898131",
+          Senha: "KK89BRGH",
+          Homologa: true
       },
       Pedido: {
           InfPedidoCancelamento: {
