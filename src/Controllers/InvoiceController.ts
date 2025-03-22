@@ -6,14 +6,10 @@ import { parseStringPromise } from 'xml2js';
 interface CustomRequest extends Request {
     userObject?: {
       id: string;
+      name: string;
+      cnpj: string;
+      inscricaoMunicipal: string;
       email: string;
-      subscription: Object;
-      history: [
-        {
-          date: Date,
-          count: Number,
-        }
-      ];
     }; 
 }
 interface DataConsultaNFSE{
@@ -184,15 +180,15 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
         const data = {
           requerente: {
-            cnpj: "57278676000169",
-            inscricaoMunicipal: "00898131",
-            senha: "KK89BRGH",
-            homologa: true
+            cnpj: "57278676000169", //user?.cnpj
+            inscricaoMunicipal: "00898131", //user?.inscricaoMunicipal
+            senha: "KK89BRGH", //user?.senhaelotech
+            homologa: true,
           },
           loteRps: {
             numeroLote: numeroLote.toLocaleString(),
-            cnpj: "57278676000169",
-            inscricaoMunicipal: "00898131",
+            cnpj: "57278676000169", //user?.cnpj
+            inscricaoMunicipal: "00898131", //user?.inscricaoMunicipal
             quantidadeRps: 1
           },
           rps: {
@@ -243,8 +239,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               ]
             },
             prestador: {
-              cnpj: "57278676000169",
-              inscricaoMunicipal: "00898131"
+              cnpj: "57278676000169", //user?.cnpj
+              inscricaoMunicipal: "00898131" //user?.inscricaoMunicipal
             },
             tomador: {
               identificacaoTomador: {
@@ -272,7 +268,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         const response = await NFseService.enviarNfse(data);
       
           await InvoiceService.CreateInvoiceService({
-          customer:'67ba46a3128021bfdb2781b6',
+          customer: body.customer,
           user: user?.id,
           xml: response,
           data: data,
