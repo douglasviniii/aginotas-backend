@@ -126,6 +126,116 @@ interface DataCancelarNfseEnvio{
   CodigoCancelamento: number;
 }
 
+interface DataSubstituirNfse {
+  IdentificacaoRequerente: {
+    CpfCnpj: {
+      Cnpj: string;
+    };
+    InscricaoMunicipal: string;
+    Senha: string;
+    Homologa: boolean;
+  };
+  Pedido: {
+    InfPedidoCancelamento: {
+      IdentificacaoNfse: {
+        Numero: string;
+        CpfCnpj: {
+          Cnpj: string;
+        };
+        InscricaoMunicipal: string;
+        CodigoMunicipio: string;
+      };
+      ChaveAcesso: string;
+      CodigoCancelamento: string;
+    };
+  };
+  DeclaracaoPrestacaoServico: {
+    InfDeclaracaoPrestacaoServico: {
+      Rps: {
+        IdentificacaoRps: {
+          Numero: string;
+          Serie: string;
+          Tipo: number;
+        };
+        DataEmissao: string;
+        Status: number;
+      };
+      Competencia: string;
+      Servico: {
+        Valores: {
+          ValorServicos: string;
+          AliquotaPis: string;
+          RetidoPis: string;
+          ValorPis: string;
+          AliquotaCofins: string;
+          RetidoCofins: string;
+          ValorCofins: string;
+          AliquotaInss: string;
+          RetidoInss: string;
+          ValorInss: string;
+          AliquotaIr: string;
+          RetidoIr: string;
+          ValorIr: string;
+          AliquotaCsll: string;
+          RetidoCsll: string;
+          ValorCsll: string;
+          AliquotaCpp: string;
+          RetidoCpp: string;
+          ValorCpp: string;
+          OutrasRetencoes: string;
+          RetidoOutrasRetencoes: string;
+        };
+        IssRetido: string;
+        Discriminacao: string;
+        CodigoNbs: string;
+        CodigoMunicipio: string;
+        ExigibilidadeISS: string;
+        MunicipioIncidencia: string;
+        ListaItensServico: {
+          ItemServico: {
+            ItemListaServico: string;
+            CodigoCnae: string;
+            Descricao: string;
+            Tributavel: string;
+            Quantidade: string;
+            ValorUnitario: string;
+            ValorLiquido: string;
+          };
+        };
+      };
+      Prestador: {
+        CpfCnpj: {
+          Cnpj: string;
+        };
+        InscricaoMunicipal: string;
+      };
+      Tomador: {
+        IdentificacaoTomador: {
+          CpfCnpj: {
+            Cnpj: string;
+          };
+          InscricaoMunicipal: string;
+        };
+        RazaoSocial: string;
+        Endereco: {
+          Endereco: string;
+          Numero: string;
+          Bairro: string;
+          CodigoMunicipio: string;
+          Uf: string;
+          Cep: string;
+        };
+        Contato: {
+          Telefone: string;
+          Email: string;
+        };
+        InscricaoEstadual: string;
+      };
+      IncentivoFiscal: string;
+    };
+  };
+}
+
 class NfseService {
   private certPath = './src/services/Delvind100759940.pfx' // Caminho para o certificado .pfx
   private certPassword = `${process.env.SENHA_CERTIFICADO}`;
@@ -482,6 +592,168 @@ class NfseService {
       throw new Error('Falha ao cancelar NFS-e.');
     }
   }
+
+
+
+
+
+  private async assinarXmlSubstituir(xml: string): Promise<string> {
+    try {
+      const sig = new SignedXml({ canonicalizationAlgorithm: "http://www.w3.org/2001/10/xml-exc-c14n#" });
+      sig.privateKey = await this.carregarCertificado();
+      sig.signatureAlgorithm = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
+
+      sig.addReference({
+        xpath: "//*[local-name(.)='InfDeclaracaoPrestacaoServico']",
+        transforms: ["http://www.w3.org/2000/09/xmldsig#enveloped-signature"],
+        digestAlgorithm: "http://www.w3.org/2001/04/xmlenc#sha256"
+      });
+
+      sig.computeSignature(xml);
+      return sig.getSignedXml();
+    } catch (error) {
+      console.error('Erro ao assinar o xml:', error);
+      throw new Error('Falha ao assinar o xml.');
+    }
+  }
+
+  private async gerarXmlSubstituirNfseEnvio(data: DataSubstituirNfse): Promise<string> {
+    return`
+      <SubstituirNfseEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
+      <IdentificacaoRequerente>
+      <CpfCnpj>
+      <Cnpj>02847928000131</Cnpj>
+      </CpfCnpj>
+      <InscricaoMunicipal>59939</InscricaoMunicipal>
+      <Senha>GGARCY9A</Senha>
+      <Homologa>false</Homologa>
+      </IdentificacaoRequerente>
+      <Pedido>
+      <InfPedidoCancelamento>
+      <IdentificacaoNfse>
+      <Numero>1049</Numero>
+      <CpfCnpj>
+      <Cnpj>02847928000131</Cnpj>
+      </CpfCnpj>
+      <InscricaoMunicipal>1047</InscricaoMunicipal>
+      <CodigoMunicipio>4119905</CodigoMunicipio>
+      </IdentificacaoNfse>
+      <ChaveAcesso>27a68ba3b8b01ae40648b52f5485ec03</ChaveAcesso>
+      <CodigoCancelamento>4</CodigoCancelamento>
+      </InfPedidoCancelamento>
+      </Pedido>
+      <DeclaracaoPrestacaoServico>
+      <InfDeclaracaoPrestacaoServico>
+      <Rps>
+      <IdentificacaoRps>
+      <Numero>6</Numero>
+      <Serie>RPS</Serie>
+      <Tipo>1</Tipo>
+      </IdentificacaoRps>
+      <DataEmissao>2017-03-23</DataEmissao>
+      <Status>1</Status>
+      </Rps>
+      <Competencia>2017-03-01</Competencia>
+      <Servico>
+      <Valores>
+      <ValorServicos>1000.00</ValorServicos>
+      <AliquotaPis>1</AliquotaPis>
+      <RetidoPis>2</RetidoPis>
+      <ValorPis>10</ValorPis>
+      <AliquotaCofins>1.84</AliquotaCofins>
+      <RetidoCofins>2</RetidoCofins>
+      <ValorCofins>18.40</ValorCofins>
+      <AliquotaInss>2.11</AliquotaInss>
+      <RetidoInss>2</RetidoInss>
+      <ValorInss>21.10</ValorInss>
+      <AliquotaIr>2.49</AliquotaIr>
+      <RetidoIr>2</RetidoIr>
+      <ValorIr>24.90</ValorIr>
+      <AliquotaCsll>0.5</AliquotaCsll>
+      <RetidoCsll>2</RetidoCsll>
+      <ValorCsll>5</ValorCsll>
+      <AliquotaCpp>0.7</AliquotaCpp>
+      <RetidoCpp>2</RetidoCpp>
+      <ValorCpp>7</ValorCpp>
+      <OutrasRetencoes>9</OutrasRetencoes>
+      <RetidoOutrasRetencoes>2</RetidoOutrasRetencoes>
+      </Valores>
+      <IssRetido>2</IssRetido>
+      <Discriminacao>TESTE</Discriminacao>
+      <CodigoNbs>1.0022</CodigoNbs>
+      <CodigoMunicipio>4119905</CodigoMunicipio>
+      <ExigibilidadeISS>1</ExigibilidadeISS>
+      <MunicipioIncidencia>4119905</MunicipioIncidencia>
+      <ListaItensServico>
+      <ItemServico>
+      <ItemListaServico>408</ItemListaServico>
+      <CodigoCnae>8630503</CodigoCnae>
+      <Descricao>TERAPIA</Descricao>
+      <Tributavel>1</Tributavel>
+      <Quantidade>1</Quantidade>
+      <ValorUnitario>1000.00</ValorUnitario>
+      <ValorLiquido>1000.00</ValorLiquido>
+      </ItemServico>
+      </ListaItensServico>
+      </Servico>
+      <Prestador>
+      <CpfCnpj>
+      <Cnpj>02847928000131</Cnpj>
+      </CpfCnpj>
+      <InscricaoMunicipal>59939</InscricaoMunicipal>
+      </Prestador>
+      <Tomador>
+      <IdentificacaoTomador>
+      <CpfCnpj>
+      <Cnpj>03584427001659</Cnpj>
+      </CpfCnpj>
+      <InscricaoMunicipal>47246</InscricaoMunicipal>
+      </IdentificacaoTomador>
+      <RazaoSocial>SERVICO SOCIAL DO COMERCIO</RazaoSocial>
+      <Endereco>
+      <Endereco>THEODORO ROSAS</Endereco>
+      <Numero>1247</Numero>
+      <Bairro>CENTRO</Bairro>
+      <CodigoMunicipio>4119905</CodigoMunicipio>
+      <Uf>PR</Uf>
+      <Cep>84010180</Cep>
+      </Endereco>
+      <Contato>
+      <Telefone>42 32225432</Telefone>
+      <Email>teste@elotech.com.br</Email>
+      </Contato>
+      <InscricaoEstadual>47246</InscricaoEstadual>
+      </Tomador>
+      <IncentivoFiscal>2</IncentivoFiscal>
+      </InfDeclaracaoPrestacaoServico>
+      </DeclaracaoPrestacaoServico>
+      </SubstituirNfseEnvio>
+    `
+  }
+
+  public async SubstituirNfse(data: DataSubstituirNfse): Promise<string> {
+    try {
+      const xmlCancelamento = await this.gerarXmlSubstituirNfseEnvio(data);
+
+      const xmlAssinado = await this.assinarXmlSubstituir(xmlCancelamento);
+
+      const response = await axios.post(
+        'https://medianeira.oxy.elotech.com.br/iss-ws/nfseService', xmlAssinado,
+        {
+          headers: {
+            'Content-Type': 'text/xml',
+            'Accept': 'text/xml',
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao substituir da NFS-e:', error);
+      throw new Error('Falha ao substituir NFS-e.');
+    }
+  }
+
 }
 
 export default new NfseService();

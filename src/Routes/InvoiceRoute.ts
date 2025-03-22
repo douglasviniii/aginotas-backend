@@ -5,7 +5,11 @@ import MiddlewareUser from '../Middlwares/UserMiddlware.ts';
 const InvoiceRoute = express.Router();
 
 InvoiceRoute.post('/create',InvoiceController.create_invoice);
-InvoiceRoute.post('/consult',InvoiceController.consult_invoice);
 InvoiceRoute.post('/cancel',InvoiceController.cancel_invoice);
+InvoiceRoute.post('/replace',InvoiceController.replace_invoice);
+
+
+InvoiceRoute.post('/consult',InvoiceController.consult_invoice);
+
 
 export default InvoiceRoute;

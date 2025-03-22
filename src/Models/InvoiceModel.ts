@@ -10,17 +10,19 @@ export interface IInvoice extends Document {
   numeroLote: number;
   identificacaoRpsnumero: number;
   date: Date;
+  data: object;
 }
 
 const InvoiceSchema = new Schema<IInvoice>({
   customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 
-  valor: {type: Number},
+  data: {type: Object, require: true},
+  //valor: {type: Number},
   xml: {type: String},
   status: {type: String, default: 'emitida'},
-  numeroLote: {type: Number},
-  identificacaoRpsnumero: {type: Number},
+  //numeroLote: {type: Number},
+  //identificacaoRpsnumero: {type: Number},
   date: {type: Date, default: Date.now},
 });
 
