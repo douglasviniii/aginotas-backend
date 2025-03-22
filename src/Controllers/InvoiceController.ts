@@ -148,13 +148,33 @@ interface DataSubstituirNfse {
   };
 }
 
-let numeroLote = 8;
-let identificacaoRpsnumero = 1;
+interface DataUpdateObject {
+  numeroLote: number;
+  identificacaoRpsnumero: number;
+}
+
+async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
+  const lastInvoice = await InvoiceService.FindLastInvoice(id);
+
+  if (!lastInvoice) {
+    throw new Error("Nenhuma invoice encontrada.");
+  }
+
+  let numeroLote = lastInvoice.numeroLote + 1;
+  let identificacaoRpsnumero = lastInvoice.identificacaoRpsnumero + 1;
+  
+
+  return { numeroLote, identificacaoRpsnumero };
+}
+
 
 const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
         const user = req.userObject;
         const body = req.body;
+        
+        const id = user?.id;
+        let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(id!);
 
         const date = new Date();
         const year = date.getFullYear(); 
@@ -249,36 +269,24 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           }
         };
 
-
         const response = await NFseService.enviarNfse(data);
-
-
-        const result = await parseStringPromise(response, {
-          explicitArray: false, 
-          tagNameProcessors: [trimNamespaces], 
-        });   
-
-        function trimNamespaces(name: string): string {
-          return name.replace(/^ns2:/, '');
-        }
-
-        numeroLote += 1;
-        identificacaoRpsnumero += 1;
-
-        if(result.ns2 && result.ns2.Xml){
+      
           await InvoiceService.CreateInvoiceService({
-          customer:'',
+          customer:'67ba46a3128021bfdb2781b6',
           user: user?.id,
           xml: response,
           data: data,
           numeroLote: numeroLote,
           identificacaoRpsnumero: identificacaoRpsnumero,
         }); 
-        }
+
+
         res.status(200).send(response);
         return;
+        
       } catch (error) {
         res.status(500).send({message: 'Não foi possivel criar nota fiscal', error});
+        return;
     }
 }
 

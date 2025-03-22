@@ -21,8 +21,8 @@ const InvoiceSchema = new Schema<IInvoice>({
   //valor: {type: Number},
   xml: {type: String},
   status: {type: String, default: 'emitida'},
-  //numeroLote: {type: Number},
-  //identificacaoRpsnumero: {type: Number},
+  numeroLote: {type: Number},
+  identificacaoRpsnumero: {type: Number},
   date: {type: Date, default: Date.now},
 });
 
