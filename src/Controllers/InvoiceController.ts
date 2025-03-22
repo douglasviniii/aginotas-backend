@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import InvoiceService from '../services/InvoiceService.ts';
 import NFseService from '../services/NFseService.ts';
+import { parseStringPromise } from 'xml2js';
 
 interface CustomRequest extends Request {
     userObject?: {
@@ -185,7 +186,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             competencia: formattedDate,
             servico: {
               valores: {
-                valorServicos: "200.00",
+                valorServicos: "20.00",
                 valorDeducoes: "0",
                 aliquotaPis: "0",
                 retidoPis: "2",
@@ -248,20 +249,32 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           }
         };
 
+
         const response = await NFseService.enviarNfse(data);
+
+
+        const result = await parseStringPromise(response, {
+          explicitArray: false, 
+          tagNameProcessors: [trimNamespaces], 
+        });   
+
+        function trimNamespaces(name: string): string {
+          return name.replace(/^ns2:/, '');
+        }
 
         numeroLote += 1;
         identificacaoRpsnumero += 1;
 
-/*          await InvoiceService.CreateInvoiceService({
+        if(result.ns2 && result.ns2.Xml){
+          await InvoiceService.CreateInvoiceService({
           customer:'',
-          user: '',
-          xml: '',
+          user: user?.id,
+          xml: response,
           data: data,
           numeroLote: numeroLote,
           identificacaoRpsnumero: identificacaoRpsnumero,
-        }); */ 
-
+        }); 
+        }
         res.status(200).send(response);
         return;
       } catch (error) {

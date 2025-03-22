@@ -46,7 +46,7 @@ interface CustomRequest extends Request {
     userid?: string; 
 }
 
-app.get("/user/tickets", MiddlewareUser, async (req: CustomRequest, res: Response) => {
+/* app.get("/user/tickets", MiddlewareUser, async (req: CustomRequest, res: Response) => {
   try {
       const userId = req.userid;
 
@@ -128,7 +128,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`Usuário desconectado: ${socket.id}`);
   });
-});
+}); */
 
 
 server.listen(PORT, async () => {
