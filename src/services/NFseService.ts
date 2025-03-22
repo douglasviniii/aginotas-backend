@@ -237,9 +237,9 @@ interface DataSubstituirNfse {
 }
 
 class NfseService {
-  private certPath = './src/services/Delvind100759940.pfx' // Caminho para o certificado .pfx
+  private certPath = './src/services/Delvind100759940.pfx'
   private certPassword = `${process.env.SENHA_CERTIFICADO}`;
-  private wsdlUrl = `${process.env.ELOTECH_API_URL}`;
+  private ElotechUrl = `${process.env.ELOTECH_API_URL}`;
 
   // Carrega o certificado e extrai a chave privada
   private async carregarCertificado(): Promise<string> {
@@ -428,7 +428,7 @@ class NfseService {
       } else {
         const xmlAssinado = await this.assinarXml(xml);
         const response = await axios.post(
-          'https://medianeira.oxy.elotech.com.br/iss-ws/nfseService', xmlAssinado,
+          `${this.ElotechUrl}`, xmlAssinado,
           {
             headers: {
               'Content-Type': 'text/xml',
@@ -500,7 +500,7 @@ class NfseService {
       const xmlAssinado = await this.assinarXmlConsulta(xmlConsulta);
       
       const response = await axios.post(
-        'https://medianeira.oxy.elotech.com.br/iss-ws/nfseService', xmlAssinado,
+        `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
             'Content-Type': 'text/xml',
@@ -577,7 +577,7 @@ class NfseService {
       const xmlAssinado = await this.assinarXmlCancelar(xmlCancelamento);
 
       const response = await axios.post(
-        'https://medianeira.oxy.elotech.com.br/iss-ws/nfseService', xmlAssinado,
+        `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
             'Content-Type': 'text/xml',
@@ -738,7 +738,7 @@ class NfseService {
       const xmlAssinado = await this.assinarXmlSubstituir(xmlCancelamento);
 
       const response = await axios.post(
-        'https://medianeira.oxy.elotech.com.br/iss-ws/nfseService', xmlAssinado,
+        `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
             'Content-Type': 'text/xml',
