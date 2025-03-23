@@ -5,6 +5,7 @@ export interface IUser extends Document {
   id_client_pagarme: string;
   name: string;
   cnpj: string;
+  cidade: string;
   email: string;
   inscricaoMunicipal: string;
   password: string;
@@ -15,13 +16,18 @@ export interface IUser extends Document {
 
 const UserSchema = new Schema<IUser>({
   id_client_pagarme: { type: String, require: true },
+
   name: { type: String, require: true },
-  cnpj: { type: String, require: true },
-  inscricaoMunicipal: { type: String, require: true },
-  senhaelotech: { type: String},
-  homologa: {type: Boolean},
   email: { type: String, require: true, unique:true },
   password: { type: String, require: true, select: false },
+
+  cnpj: { type: String, require: true },
+  cidade: { type: String, require: true },
+  inscricaoMunicipal: { type: String, require: true},
+
+  senhaelotech: { type: String, default: '0000'},
+  homologa: {type: Boolean, default: true},
+
   date_created: { type: Date, default: Date.now }
 });
 
