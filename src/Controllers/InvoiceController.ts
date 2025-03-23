@@ -10,8 +10,10 @@ interface CustomRequest extends Request {
       cnpj: string;
       inscricaoMunicipal: string;
       email: string;
+      cidade: string;
     }; 
 }
+
 interface DataConsultaNFSE{
   NumeroRps: string;
   SerieRps: string;
@@ -265,7 +267,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           }
         };
 
-        console.log(data);
+        console.log(body);
 
 /*         const response = await NFseService.enviarNfse(data);
       
@@ -276,11 +278,11 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           data: data,
           numeroLote: numeroLote,
           identificacaoRpsnumero: identificacaoRpsnumero,
-        }); 
+        }); */
 
 
-        res.status(200).send(response);
-        return; */
+        res.status(200).send(body);
+        return; 
         
       } catch (error) {
         res.status(500).send({message: 'Não foi possivel criar nota fiscal', error});
@@ -432,8 +434,6 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
 }
 
 
-
-
 const findinvoices = async (req: CustomRequest, res: Response) => {
   try{
     const user = req.userObject;
@@ -443,6 +443,7 @@ const findinvoices = async (req: CustomRequest, res: Response) => {
     res.status(500).send({message: "Não foi possivel buscar as notas fiscais"});
   }
 }
+
 const consult_invoice = async (req: CustomRequest, res: Response) => {
   try {
       //const user = req.userObject;
