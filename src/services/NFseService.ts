@@ -12,94 +12,94 @@ import axios from 'axios';
 import { object } from 'zod';
 
 
-interface Data {
-  requerente: {
-    cnpj: string;
-    inscricaoMunicipal: string;
-    senha: string;
-    homologa: boolean;
+interface GerarNfseEnvio {
+  Requerente: {
+    Cnpj: string;
+    InscricaoMunicipal: string;
+    Senha: string;
+    Homologa: boolean;
   };
-  loteRps: {
-    numeroLote: string;
-    cnpj: string;
-    inscricaoMunicipal: string;
-    quantidadeRps: number;
+  LoteRps: {
+    NumeroLote: string;
+    Cnpj: string;
+    InscricaoMunicipal: string;
+    QuantidadeRps: number;
   };
-  rps: {
-    identificacaoRps: {
-      numero: string;
-      serie: string;
-      tipo: number;
+  Rps: {
+    IdentificacaoRps: {
+      Numero: string;
+      Serie: string;
+      Tipo: number;
     };
-    dataEmissao: string;
-    status: number;
-    competencia: string;
-    servico: {
-      valores: {
-        valorServicos: string;
-        valorDeducoes: string;
-        aliquotaPis: string;
-        retidoPis: string;
-        aliquotaCofins: string;
-        retidoCofins: string;
-        aliquotaInss: string;
-        retidoInss: string;
-        aliquotaIr: string;
-        retidoIr: string;
-        aliquotaCsll: string;
-        retidoCsll: string;
-        retidoCpp: string;
-        retidoOutrasRetencoes: string;
-        aliquota: string;
-        descontoIncondicionado: string;
-        descontoCondicionado: string;
+    DataEmissao: string;
+    Status: number;
+    Competencia: string;
+    Servico: {
+      Valores: {
+        ValorServicos: number;
+        ValorDeducoes: number;
+        AliquotaPis: number;
+        RetidoPis: number;
+        AliquotaCofins: number;
+        RetidoCofins: number;
+        AliquotaInss: number;
+        RetidoInss: number;
+        AliquotaIr: number;
+        RetidoIr: number;
+        AliquotaCsll: number;
+        RetidoCsll: number;
+        RetidoCpp: number;
+        RetidoOutrasRetencoes: number;
+        Aliquota: number;
+        DescontoIncondicionado: number;
+        DescontoCondicionado: number;
       };
-      issRetido: string;
-      discriminacao: string;
-      codigoMunicipio: string;
-      exigibilidadeISS: string;
-      municipioIncidencia: string;
-      listaItensServico: Array<{
-        itemListaServico: string;
-        codigoCnae: string;
-        descricao: string;
-        tributavel: string;
-        quantidade: string;
-        valorUnitario: string;
-        valorDesconto: string;
-        valorLiquido: string;
-        dadosDeducao?: {
-          tipoDeducao: string;
-          cpf: string;
-          valorTotalNotaFiscal: string;
-          valorADeduzir: string;
+      IssRetido: number;
+      Discriminacao: string;
+      CodigoMunicipio: string;
+      ExigibilidadeISS: number;
+      MunicipioIncidencia: string;
+      ListaItensServico: Array<{
+        ItemListaServico: string;
+        CodigoCnae: string;
+        Descricao: string;
+        Tributavel: string;
+        Quantidade: number;
+        ValorUnitario: number;
+        ValorDesconto: number;
+        ValorLiquido: number;
+        DadosDeducao?: {
+          TipoDeducao: string;
+          Cpf: string;
+          ValorTotalNotaFiscal: number;
+          ValorADeduzir: number;
         };
       }>;
     };
-    prestador: {
-      cnpj: string;
-      inscricaoMunicipal: string;
+    Prestador: {
+      Cnpj: string;
+      InscricaoMunicipal: string;
     };
-    tomador: {
-      identificacaoTomador: {
-        cnpj: string;
+    Tomador: {
+      IdentificacaoTomador: {
+        Cnpj: string;
       };
-      razaoSocial: string;
-      endereco: {
-        endereco: string;
-        numero: string;
-        bairro: string;
-        codigoMunicipio: string;
-        uf: string;
-        cep: string;
+      RazaoSocial: string;
+      Endereco: {
+        Endereco: string;
+        Numero: string;
+        Bairro: string;
+        CodigoMunicipio: string;
+        Uf: string;
+        Cep: string;
       };
-      contato: {
-        telefone: string;
-        email: string;
+      Contato: {
+        Telefone: string;
+        Email: string;
       };
     };
-    regimeEspecialTributacao: string;
-    incentivoFiscal: string;
+    RegimeEspecialTributacao: number;
+    IncentivoFiscal: number;
   };
 }
 
@@ -128,9 +128,7 @@ interface DataCancelarNfseEnvio{
 
 interface DataSubstituirNfse {
   IdentificacaoRequerente: {
-    CpfCnpj: {
-      Cnpj: string;
-    };
+    Cnpj: string;
     InscricaoMunicipal: string;
     Senha: string;
     Homologa: boolean;
@@ -139,9 +137,7 @@ interface DataSubstituirNfse {
     InfPedidoCancelamento: {
       IdentificacaoNfse: {
         Numero: string;
-        CpfCnpj: {
-          Cnpj: string;
-        };
+        Cnpj: string;
         InscricaoMunicipal: string;
         CodigoMunicipio: string;
       };
@@ -155,41 +151,41 @@ interface DataSubstituirNfse {
         IdentificacaoRps: {
           Numero: string;
           Serie: string;
-          Tipo: number;
+          Tipo: string;
         };
         DataEmissao: string;
-        Status: number;
+        Status: string;
       };
       Competencia: string;
       Servico: {
         Valores: {
-          ValorServicos: string;
-          AliquotaPis: string;
-          RetidoPis: string;
-          ValorPis: string;
-          AliquotaCofins: string;
-          RetidoCofins: string;
-          ValorCofins: string;
-          AliquotaInss: string;
-          RetidoInss: string;
-          ValorInss: string;
-          AliquotaIr: string;
-          RetidoIr: string;
-          ValorIr: string;
-          AliquotaCsll: string;
-          RetidoCsll: string;
-          ValorCsll: string;
-          AliquotaCpp: string;
-          RetidoCpp: string;
-          ValorCpp: string;
-          OutrasRetencoes: string;
-          RetidoOutrasRetencoes: string;
+          ValorServicos: number;
+          AliquotaPis: number;
+          RetidoPis: number;
+          ValorPis: number;
+          AliquotaCofins: number;
+          RetidoCofins: number;
+          ValorCofins: number;
+          AliquotaInss: number;
+          RetidoInss: number;
+          ValorInss: number;
+          AliquotaIr: number;
+          RetidoIr: number;
+          ValorIr: number;
+          AliquotaCsll: number;
+          RetidoCsll: number;
+          ValorCsll: number;
+          AliquotaCpp: number;
+          RetidoCpp: number;
+          ValorCpp: number;
+          OutrasRetencoes: number;
+          RetidoOutrasRetencoes: number;
         };
-        IssRetido: string;
+        IssRetido: number;
         Discriminacao: string;
         CodigoNbs: string;
         CodigoMunicipio: string;
-        ExigibilidadeISS: string;
+        ExigibilidadeISS: number;
         MunicipioIncidencia: string;
         ListaItensServico: {
           ItemServico: {
@@ -197,23 +193,19 @@ interface DataSubstituirNfse {
             CodigoCnae: string;
             Descricao: string;
             Tributavel: string;
-            Quantidade: string;
-            ValorUnitario: string;
-            ValorLiquido: string;
+            Quantidade: number;
+            ValorUnitario: number;
+            ValorLiquido: number;
           };
         };
       };
       Prestador: {
-        CpfCnpj: {
-          Cnpj: string;
-        };
+        Cnpj: string;
         InscricaoMunicipal: string;
       };
       Tomador: {
         IdentificacaoTomador: {
-          CpfCnpj: {
-            Cnpj: string;
-          };
+          Cnpj: string;
           InscricaoMunicipal: string;
         };
         RazaoSocial: string;
@@ -231,7 +223,7 @@ interface DataSubstituirNfse {
         };
         InscricaoEstadual: string;
       };
-      IncentivoFiscal: string;
+      IncentivoFiscal: number;
     };
   };
 }
@@ -271,7 +263,7 @@ class NfseService {
 
 
 
-  private gerarXmlNfse(data: Data): string {
+  private gerarXmlNfse(data: GerarNfseEnvio): string {
     return `
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
       <soapenv:Header/>
@@ -279,74 +271,74 @@ class NfseService {
         <EnviarLoteRpsSincronoEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
           <IdentificacaoRequerente>
             <CpfCnpj>
-              <Cnpj>${data.requerente.cnpj}</Cnpj>
+              <Cnpj>${data.Requerente.Cnpj}</Cnpj>
             </CpfCnpj>
-            <InscricaoMunicipal>${data.requerente.inscricaoMunicipal}</InscricaoMunicipal>
-            <Senha>${data.requerente.senha}</Senha>
-            <Homologa>${data.requerente.homologa}</Homologa>
+            <InscricaoMunicipal>${data.Requerente.InscricaoMunicipal}</InscricaoMunicipal>
+            <Senha>${data.Requerente.Senha}</Senha>
+            <Homologa>${data.Requerente.Homologa}</Homologa>
           </IdentificacaoRequerente>
           <LoteRps versao="2.03">
-            <NumeroLote>${data.loteRps.numeroLote}</NumeroLote>
+            <NumeroLote>${data.LoteRps.NumeroLote}</NumeroLote>
             <CpfCnpj>
-              <Cnpj>${data.loteRps.cnpj}</Cnpj>
+              <Cnpj>${data.LoteRps.Cnpj}</Cnpj>
             </CpfCnpj>
-            <InscricaoMunicipal>${data.loteRps.inscricaoMunicipal}</InscricaoMunicipal>
-            <QuantidadeRps>${data.loteRps.quantidadeRps}</QuantidadeRps>
+            <InscricaoMunicipal>${data.LoteRps.InscricaoMunicipal}</InscricaoMunicipal>
+            <QuantidadeRps>${data.LoteRps.QuantidadeRps}</QuantidadeRps>
             <ListaRps>
               <Rps>
                 <InfDeclaracaoPrestacaoServico>
                   <Rps>
                     <IdentificacaoRps>
-                      <Numero>${data.rps.identificacaoRps.numero}</Numero>
-                      <Serie>${data.rps.identificacaoRps.serie}</Serie>
-                      <Tipo>${data.rps.identificacaoRps.tipo}</Tipo>
+                      <Numero>${data.Rps.IdentificacaoRps.Numero}</Numero>
+                      <Serie>${data.Rps.IdentificacaoRps.Serie}</Serie>
+                      <Tipo>${data.Rps.IdentificacaoRps.Tipo}</Tipo>
                     </IdentificacaoRps>
-                    <DataEmissao>${data.rps.dataEmissao}</DataEmissao>
-                    <Status>${data.rps.status}</Status>
+                    <DataEmissao>${data.Rps.DataEmissao}</DataEmissao>
+                    <Status>${data.Rps.Status}</Status>
                   </Rps>
-                  <Competencia>${data.rps.competencia}</Competencia>
+                  <Competencia>${data.Rps.Competencia}</Competencia>
                   <Servico>
                     <Valores>
-                      <ValorServicos>${data.rps.servico.valores.valorServicos}</ValorServicos>
-                      <ValorDeducoes>${data.rps.servico.valores.valorDeducoes}</ValorDeducoes>
-                      <AliquotaPis>${data.rps.servico.valores.aliquotaPis}</AliquotaPis>
-                      <RetidoPis>${data.rps.servico.valores.retidoPis}</RetidoPis>
-                      <AliquotaCofins>${data.rps.servico.valores.aliquotaCofins}</AliquotaCofins>
-                      <RetidoCofins>${data.rps.servico.valores.retidoCofins}</RetidoCofins>
-                      <AliquotaInss>${data.rps.servico.valores.aliquotaInss}</AliquotaInss>
-                      <RetidoInss>${data.rps.servico.valores.retidoInss}</RetidoInss>
-                      <AliquotaIr>${data.rps.servico.valores.aliquotaIr}</AliquotaIr>
-                      <RetidoIr>${data.rps.servico.valores.retidoIr}</RetidoIr>
-                      <AliquotaCsll>${data.rps.servico.valores.aliquotaCsll}</AliquotaCsll>
-                      <RetidoCsll>${data.rps.servico.valores.retidoCsll}</RetidoCsll>
-                      <RetidoCpp>${data.rps.servico.valores.retidoCpp}</RetidoCpp>
-                      <RetidoOutrasRetencoes>${data.rps.servico.valores.retidoOutrasRetencoes}</RetidoOutrasRetencoes>
-                      <Aliquota>${data.rps.servico.valores.aliquota}</Aliquota>
-                      <DescontoIncondicionado>${data.rps.servico.valores.descontoIncondicionado}</DescontoIncondicionado>
-                      <DescontoCondicionado>${data.rps.servico.valores.descontoCondicionado}</DescontoCondicionado>
+                      <ValorServicos>${data.Rps.Servico.Valores.ValorServicos}</ValorServicos>
+                      <ValorDeducoes>${data.Rps.Servico.Valores.ValorDeducoes}</ValorDeducoes>
+                      <AliquotaPis>${data.Rps.Servico.Valores.AliquotaPis}</AliquotaPis>
+                      <RetidoPis>${data.Rps.Servico.Valores.RetidoPis}</RetidoPis>
+                      <AliquotaCofins>${data.Rps.Servico.Valores.AliquotaCofins}</AliquotaCofins>
+                      <RetidoCofins>${data.Rps.Servico.Valores.RetidoCofins}</RetidoCofins>
+                      <AliquotaInss>${data.Rps.Servico.Valores.AliquotaInss}</AliquotaInss>
+                      <RetidoInss>${data.Rps.Servico.Valores.RetidoInss}</RetidoInss>
+                      <AliquotaIr>${data.Rps.Servico.Valores.AliquotaIr}</AliquotaIr>
+                      <RetidoIr>${data.Rps.Servico.Valores.RetidoIr}</RetidoIr>
+                      <AliquotaCsll>${data.Rps.Servico.Valores.AliquotaCsll}</AliquotaCsll>
+                      <RetidoCsll>${data.Rps.Servico.Valores.RetidoCsll}</RetidoCsll>
+                      <RetidoCpp>${data.Rps.Servico.Valores.RetidoCpp}</RetidoCpp>
+                      <RetidoOutrasRetencoes>${data.Rps.Servico.Valores.RetidoOutrasRetencoes}</RetidoOutrasRetencoes>
+                      <Aliquota>${data.Rps.Servico.Valores.Aliquota}</Aliquota>
+                      <DescontoIncondicionado>${data.Rps.Servico.Valores.DescontoIncondicionado}</DescontoIncondicionado>
+                      <DescontoCondicionado>${data.Rps.Servico.Valores.DescontoCondicionado}</DescontoCondicionado>
                     </Valores>
-                    <IssRetido>${data.rps.servico.issRetido}</IssRetido>
-                    <Discriminacao>${data.rps.servico.discriminacao}</Discriminacao>
-                    <CodigoMunicipio>${data.rps.servico.codigoMunicipio}</CodigoMunicipio>
-                    <ExigibilidadeISS>${data.rps.servico.exigibilidadeISS}</ExigibilidadeISS>
-                    <MunicipioIncidencia>${data.rps.servico.municipioIncidencia}</MunicipioIncidencia>
+                    <IssRetido>${data.Rps.Servico.IssRetido}</IssRetido>
+                    <Discriminacao>${data.Rps.Servico.Discriminacao}</Discriminacao>
+                    <CodigoMunicipio>${data.Rps.Servico.CodigoMunicipio}</CodigoMunicipio>
+                    <ExigibilidadeISS>${data.Rps.Servico.ExigibilidadeISS}</ExigibilidadeISS>
+                    <MunicipioIncidencia>${data.Rps.Servico.MunicipioIncidencia}</MunicipioIncidencia>
                     <ListaItensServico>
-                      ${data.rps.servico.listaItensServico.map(item => `
+                      ${data.Rps.Servico.ListaItensServico.map(item => `
                       <ItemServico>
-                        <ItemListaServico>${item.itemListaServico}</ItemListaServico>
-                        <CodigoCnae>${item.codigoCnae}</CodigoCnae>
-                        <Descricao>${item.descricao}</Descricao>
-                        <Tributavel>${item.tributavel}</Tributavel>
-                        <Quantidade>${item.quantidade}</Quantidade>
-                        <ValorUnitario>${item.valorUnitario}</ValorUnitario>
-                        <ValorDesconto>${item.valorDesconto}</ValorDesconto>
-                        <ValorLiquido>${item.valorLiquido}</ValorLiquido>
-                        ${item.dadosDeducao ? `
+                        <ItemListaServico>${item.ItemListaServico}</ItemListaServico>
+                        <CodigoCnae>${item.CodigoCnae}</CodigoCnae>
+                        <Descricao>${item.Descricao}</Descricao>
+                        <Tributavel>${item.Tributavel}</Tributavel>
+                        <Quantidade>${item.Quantidade}</Quantidade>
+                        <ValorUnitario>${item.ValorUnitario}</ValorUnitario>
+                        <ValorDesconto>${item.ValorDesconto}</ValorDesconto>
+                        <ValorLiquido>${item.ValorLiquido}</ValorLiquido>
+                        ${item.DadosDeducao ? `
                         <DadosDeducao>
-                          <TipoDeducao>${item.dadosDeducao.tipoDeducao}</TipoDeducao>
-                          <Cpf>${item.dadosDeducao.cpf}</Cpf>
-                          <ValorTotalNotaFiscal>${item.dadosDeducao.valorTotalNotaFiscal}</ValorTotalNotaFiscal>
-                          <ValorADeduzir>${item.dadosDeducao.valorADeduzir}</ValorADeduzir>
+                          <TipoDeducao>${item.DadosDeducao.TipoDeducao}</TipoDeducao>
+                          <Cpf>${item.DadosDeducao.Cpf}</Cpf>
+                          <ValorTotalNotaFiscal>${item.DadosDeducao.ValorTotalNotaFiscal}</ValorTotalNotaFiscal>
+                          <ValorADeduzir>${item.DadosDeducao.ValorADeduzir}</ValorADeduzir>
                         </DadosDeducao>
                         ` : ''}
                       </ItemServico>
@@ -411,7 +403,7 @@ class NfseService {
     }
   }
 
-  public async enviarNfse(data: Data): Promise<string> {
+  public async enviarNfse(data: GerarNfseEnvio): Promise<string> {
     try {
 
       const xml = this.gerarXmlNfse(data);
@@ -427,7 +419,9 @@ class NfseService {
 
       } else {
         const xmlAssinado = await this.assinarXml(xml);
-        const response = await axios.post(
+        return xmlAssinado;
+        
+/*         const response = await axios.post(
           `${this.ElotechUrl}`, xmlAssinado,
           {
             headers: {
@@ -436,7 +430,7 @@ class NfseService {
             },
           }
         );
-        return response.data;
+        return response.data; */
       }
       return 'Erro de validação no XML';
     } catch (error) {
@@ -498,8 +492,9 @@ class NfseService {
     try {
       const xmlConsulta = this.gerarXmlConsultarNfseRpsEnvio(data);
       const xmlAssinado = await this.assinarXmlConsulta(xmlConsulta);
-      
-      const response = await axios.post(
+      return xmlAssinado;
+
+/*       const response = await axios.post(
         `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
@@ -509,7 +504,7 @@ class NfseService {
         }
       );
       
-      return response.data;
+      return response.data; */
 
     } catch (error) {
       console.error('Erro na consulta da NFS-e:', error);
@@ -575,8 +570,9 @@ class NfseService {
       const xmlCancelamento = await this.gerarXmlCancelarNfseEnvio(data);
 
       const xmlAssinado = await this.assinarXmlCancelar(xmlCancelamento);
+      return xmlAssinado;
 
-      const response = await axios.post(
+/*       const response = await axios.post(
         `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
@@ -586,7 +582,7 @@ class NfseService {
         }
       );
 
-      return response.data;
+      return response.data; */
     } catch (error) {
       console.error('Erro no cancelamento da NFS-e:', error);
       throw new Error('Falha ao cancelar NFS-e.');
@@ -618,117 +614,89 @@ class NfseService {
   }
 
   private async gerarXmlSubstituirNfseEnvio(data: DataSubstituirNfse): Promise<string> {
-    return`
-      <SubstituirNfseEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
-      <IdentificacaoRequerente>
+    return `
+    <SubstituirNfseEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
+    
+    <IdentificacaoRequerente>
       <CpfCnpj>
-      <Cnpj>02847928000131</Cnpj>
+        <Cnpj>${data.IdentificacaoRequerente.Cnpj}</Cnpj>
       </CpfCnpj>
-      <InscricaoMunicipal>59939</InscricaoMunicipal>
-      <Senha>GGARCY9A</Senha>
-      <Homologa>false</Homologa>
-      </IdentificacaoRequerente>
-      <Pedido>
+      <InscricaoMunicipal>${data.IdentificacaoRequerente.InscricaoMunicipal}</InscricaoMunicipal>
+      <Senha>${data.IdentificacaoRequerente.Senha}</Senha>
+      <Homologa>${data.IdentificacaoRequerente.Homologa}</Homologa>
+    </IdentificacaoRequerente>
+
+    <Pedido>
       <InfPedidoCancelamento>
-      <IdentificacaoNfse>
-      <Numero>1049</Numero>
-      <CpfCnpj>
-      <Cnpj>02847928000131</Cnpj>
-      </CpfCnpj>
-      <InscricaoMunicipal>1047</InscricaoMunicipal>
-      <CodigoMunicipio>4119905</CodigoMunicipio>
-      </IdentificacaoNfse>
-      <ChaveAcesso>27a68ba3b8b01ae40648b52f5485ec03</ChaveAcesso>
-      <CodigoCancelamento>4</CodigoCancelamento>
+        <IdentificacaoNfse>
+          <Numero>${data.Pedido.InfPedidoCancelamento.IdentificacaoNfse.Numero}</Numero>
+          <CpfCnpj>
+            <Cnpj>${data.Pedido.InfPedidoCancelamento.IdentificacaoNfse.Cnpj}</Cnpj>
+          </CpfCnpj>
+          <InscricaoMunicipal>${data.Pedido.InfPedidoCancelamento.IdentificacaoNfse.InscricaoMunicipal}</InscricaoMunicipal>
+          <CodigoMunicipio>${data.Pedido.InfPedidoCancelamento.IdentificacaoNfse.CodigoMunicipio}</CodigoMunicipio>
+        </IdentificacaoNfse>
+        <ChaveAcesso>${data.Pedido.InfPedidoCancelamento.ChaveAcesso}</ChaveAcesso>
+        <CodigoCancelamento>${data.Pedido.InfPedidoCancelamento.CodigoCancelamento}</CodigoCancelamento>
       </InfPedidoCancelamento>
-      </Pedido>
-      <DeclaracaoPrestacaoServico>
+    </Pedido>
+
+    <DeclaracaoPrestacaoServico>
       <InfDeclaracaoPrestacaoServico>
-      <Rps>
-      <IdentificacaoRps>
-      <Numero>6</Numero>
-      <Serie>RPS</Serie>
-      <Tipo>1</Tipo>
-      </IdentificacaoRps>
-      <DataEmissao>2017-03-23</DataEmissao>
-      <Status>1</Status>
-      </Rps>
-      <Competencia>2017-03-01</Competencia>
-      <Servico>
-      <Valores>
-      <ValorServicos>1000.00</ValorServicos>
-      <AliquotaPis>1</AliquotaPis>
-      <RetidoPis>2</RetidoPis>
-      <ValorPis>10</ValorPis>
-      <AliquotaCofins>1.84</AliquotaCofins>
-      <RetidoCofins>2</RetidoCofins>
-      <ValorCofins>18.40</ValorCofins>
-      <AliquotaInss>2.11</AliquotaInss>
-      <RetidoInss>2</RetidoInss>
-      <ValorInss>21.10</ValorInss>
-      <AliquotaIr>2.49</AliquotaIr>
-      <RetidoIr>2</RetidoIr>
-      <ValorIr>24.90</ValorIr>
-      <AliquotaCsll>0.5</AliquotaCsll>
-      <RetidoCsll>2</RetidoCsll>
-      <ValorCsll>5</ValorCsll>
-      <AliquotaCpp>0.7</AliquotaCpp>
-      <RetidoCpp>2</RetidoCpp>
-      <ValorCpp>7</ValorCpp>
-      <OutrasRetencoes>9</OutrasRetencoes>
-      <RetidoOutrasRetencoes>2</RetidoOutrasRetencoes>
-      </Valores>
-      <IssRetido>2</IssRetido>
-      <Discriminacao>TESTE</Discriminacao>
-      <CodigoNbs>1.0022</CodigoNbs>
-      <CodigoMunicipio>4119905</CodigoMunicipio>
-      <ExigibilidadeISS>1</ExigibilidadeISS>
-      <MunicipioIncidencia>4119905</MunicipioIncidencia>
-      <ListaItensServico>
-      <ItemServico>
-      <ItemListaServico>408</ItemListaServico>
-      <CodigoCnae>8630503</CodigoCnae>
-      <Descricao>TERAPIA</Descricao>
-      <Tributavel>1</Tributavel>
-      <Quantidade>1</Quantidade>
-      <ValorUnitario>1000.00</ValorUnitario>
-      <ValorLiquido>1000.00</ValorLiquido>
-      </ItemServico>
-      </ListaItensServico>
-      </Servico>
-      <Prestador>
-      <CpfCnpj>
-      <Cnpj>02847928000131</Cnpj>
-      </CpfCnpj>
-      <InscricaoMunicipal>59939</InscricaoMunicipal>
-      </Prestador>
-      <Tomador>
-      <IdentificacaoTomador>
-      <CpfCnpj>
-      <Cnpj>03584427001659</Cnpj>
-      </CpfCnpj>
-      <InscricaoMunicipal>47246</InscricaoMunicipal>
-      </IdentificacaoTomador>
-      <RazaoSocial>SERVICO SOCIAL DO COMERCIO</RazaoSocial>
-      <Endereco>
-      <Endereco>THEODORO ROSAS</Endereco>
-      <Numero>1247</Numero>
-      <Bairro>CENTRO</Bairro>
-      <CodigoMunicipio>4119905</CodigoMunicipio>
-      <Uf>PR</Uf>
-      <Cep>84010180</Cep>
-      </Endereco>
-      <Contato>
-      <Telefone>42 32225432</Telefone>
-      <Email>teste@elotech.com.br</Email>
-      </Contato>
-      <InscricaoEstadual>47246</InscricaoEstadual>
-      </Tomador>
-      <IncentivoFiscal>2</IncentivoFiscal>
+        <Rps>
+          <IdentificacaoRps>
+            <Numero>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Rps.IdentificacaoRps.Numero}</Numero>
+            <Serie>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Rps.IdentificacaoRps.Serie}</Serie>
+            <Tipo>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Rps.IdentificacaoRps.Tipo}</Tipo>
+          </IdentificacaoRps>
+          <DataEmissao>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Rps.DataEmissao}</DataEmissao>
+          <Status>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Rps.Status}</Status>
+        </Rps>
+        <Competencia>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Competencia}</Competencia>
+        <Servico>
+          <Valores>
+            <ValorServicos>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Servico.Valores.ValorServicos}</ValorServicos>
+            <AliquotaPis>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Servico.Valores.AliquotaPis}</AliquotaPis>
+            <RetidoPis>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Servico.Valores.RetidoPis}</RetidoPis>
+            <ValorPis>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Servico.Valores.ValorPis}</ValorPis>
+            <AliquotaCofins>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Servico.Valores.AliquotaCofins}</AliquotaCofins>
+            <ValorCofins>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Servico.Valores.ValorCofins}</ValorCofins>
+          </Valores>
+          <Discriminacao>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Servico.Discriminacao}</Discriminacao>
+        </Servico>
+        <Prestador>
+          <CpfCnpj>
+            <Cnpj>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Prestador.Cnpj}</Cnpj>
+          </CpfCnpj>
+          <InscricaoMunicipal>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Prestador.InscricaoMunicipal}</InscricaoMunicipal>
+        </Prestador>
+        <Tomador>
+          <IdentificacaoTomador>
+            <CpfCnpj>
+              <Cnpj>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.IdentificacaoTomador.Cnpj}</Cnpj>
+            </CpfCnpj>
+            <InscricaoMunicipal>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.IdentificacaoTomador.InscricaoMunicipal}</InscricaoMunicipal>
+          </IdentificacaoTomador>
+          <RazaoSocial>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.RazaoSocial}</RazaoSocial>
+          <Endereco>
+            <Endereco>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Endereco.Endereco}</Endereco>
+            <Numero>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Endereco.Numero}</Numero>
+            <Bairro>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Endereco.Bairro}</Bairro>
+            <CodigoMunicipio>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Endereco.CodigoMunicipio}</CodigoMunicipio>
+            <Uf>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Endereco.Uf}</Uf>
+            <Cep>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Endereco.Cep}</Cep>
+          </Endereco>
+          <Contato>
+            <Telefone>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Contato.Telefone}</Telefone>
+            <Email>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Contato.Email}</Email>
+          </Contato>
+          <InscricaoEstadual>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.InscricaoEstadual}</InscricaoEstadual>
+        </Tomador>
+        <IncentivoFiscal>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.IncentivoFiscal}</IncentivoFiscal>
       </InfDeclaracaoPrestacaoServico>
-      </DeclaracaoPrestacaoServico>
-      </SubstituirNfseEnvio>
-    `
+    </DeclaracaoPrestacaoServico>
+    </SubstituirNfseEnvio>
+  `;
   }
 
   public async SubstituirNfse(data: DataSubstituirNfse): Promise<string> {
@@ -736,8 +704,8 @@ class NfseService {
       const xmlCancelamento = await this.gerarXmlSubstituirNfseEnvio(data);
 
       const xmlAssinado = await this.assinarXmlSubstituir(xmlCancelamento);
-
-      const response = await axios.post(
+      return xmlAssinado;
+/*       const response = await axios.post(
         `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
@@ -747,7 +715,7 @@ class NfseService {
         }
       );
 
-      return response.data;
+      return response.data; */
     } catch (error) {
       console.error('Erro ao substituir da NFS-e:', error);
       throw new Error('Falha ao substituir NFS-e.');
