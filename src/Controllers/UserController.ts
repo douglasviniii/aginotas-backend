@@ -12,6 +12,16 @@ interface User {
   password: string;
 }
 
+interface CustomRequest extends Request {
+  userObject?: {
+    id: string;
+    name: string;
+    cnpj: string;
+    inscricaoMunicipal: string;
+    email: string;
+  }; 
+}
+
 const create_user = async (req: Request<{}, {}, User>, res: Response) => {
   try {
 
@@ -59,6 +69,27 @@ const AuthUserController = async (req: Request, res: Response) => {
     }
 }
 
+const Update_User = async (req: CustomRequest, res: Response) =>{
+  try {
+    const data = req.body;
+    const id = req.userObject?.id;
+
+    if(!id){
+      res.status(400).send({message: 'Id null'});
+      return;
+    }
+
+    await UserService.UpdateUser(id, data);
+
+    res.status(200).send({message: "Usuário atualizado com sucesso!"});
+  } catch (error) {
+    res.status(500).send({
+      message: 'Não foi possivel atualizar conta do usuário',
+      error: error,
+    });    
+  }
+}
+
 const Exist_user_controller = async (req: Request, res: Response) =>{
   try {
     const data = req.body;
@@ -75,7 +106,6 @@ const Exist_user_controller = async (req: Request, res: Response) =>{
 const Send_code_email = async (req: Request, res: Response) =>{
   try {
     const data = req.body;
-    console.log(data);
     await SendEmailService.SendEmail(data.email, data.verificador);
     res.status(200).send({message: "Código enviado com sucesso!"});
   } catch (error) {
@@ -110,5 +140,6 @@ export default
   Exist_user_controller,
   Send_code_email,
   Recover_Password,
-  AuthUserController
+  AuthUserController,
+  Update_User
 };
