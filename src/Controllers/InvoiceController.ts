@@ -266,24 +266,34 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             incentivoFiscal: "2"
           }
         };
-
-        console.log(body);
-
-/*         const response = await NFseService.enviarNfse(data);
+       
+        switch (user?.cidade) {
+          case "Medianeira":
+            console.log(body);
+/*             const response = await NFseService.enviarNfse(data);
       
-          await InvoiceService.CreateInvoiceService({
-          customer: body.customer,
-          user: user?.id,
-          xml: response,
-          data: data,
-          numeroLote: numeroLote,
-          identificacaoRpsnumero: identificacaoRpsnumero,
-        }); */
-
-
-        res.status(200).send(body);
-        return; 
+            await InvoiceService.CreateInvoiceService({
+              customer: body.customer,
+              user: user?.id,
+              xml: response,
+              data: data,
+              numeroLote: numeroLote,
+              identificacaoRpsnumero: identificacaoRpsnumero,
+            });  */
         
+            res.status(200).send(body);
+            break;
+
+        case "Cascavel":
+          //--------
+          break;
+
+        default:
+           res.status(400).send({message: "Não atende a cidade do usuário"});
+           return;
+        } 
+
+        return;       
       } catch (error) {
         res.status(500).send({message: 'Não foi possivel criar nota fiscal', error});
         return;
