@@ -233,6 +233,9 @@ interface DataUpdateObject {
   identificacaoRpsnumero: number;
 }
 
+
+
+
 async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
   const lastInvoice = await InvoiceService.FindLastInvoice(id);
 
@@ -350,7 +353,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         };
 
         const response = await NFseService.enviarNfse(data);
-        res.status(200).send(body);
+        res.status(200).send(response);
 
 
 /*        switch (user?.cidade) {

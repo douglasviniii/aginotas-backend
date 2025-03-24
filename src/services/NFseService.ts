@@ -262,7 +262,25 @@ class NfseService {
 
 
 
+  private async assinarXml(xml: string): Promise<string> {
+    try {
+      const sig = new SignedXml({ canonicalizationAlgorithm: "http://www.w3.org/2001/10/xml-exc-c14n#" });
+      sig.privateKey = await this.carregarCertificado();
+      sig.signatureAlgorithm = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
 
+      sig.addReference({
+        xpath: "//*[local-name(.)='InfDeclaracaoPrestacaoServico']",
+        transforms: ["http://www.w3.org/2000/09/xmldsig#enveloped-signature"],
+        digestAlgorithm: "http://www.w3.org/2001/04/xmlenc#sha256"
+      });
+
+      sig.computeSignature(xml);
+      return sig.getSignedXml();
+    } catch (error) {
+      console.error('Erro ao assinar o xml:', error);
+      throw new Error('Falha ao assinar o xml.');
+    }
+  }
   private gerarXmlNfse(data: GerarNfseEnvio): string {
     return `
     <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
@@ -347,32 +365,32 @@ class NfseService {
                   </Servico>
                   <Prestador>
                     <CpfCnpj>
-                      <Cnpj>${data.rps.prestador.cnpj}</Cnpj>
+                      <Cnpj>${data.Rps.Prestador.Cnpj}</Cnpj>
                     </CpfCnpj>
-                    <InscricaoMunicipal>${data.rps.prestador.inscricaoMunicipal}</InscricaoMunicipal>
+                    <InscricaoMunicipal>${data.Rps.Prestador.InscricaoMunicipal}</InscricaoMunicipal>
                   </Prestador>
                   <Tomador>
                     <IdentificacaoTomador>
                       <CpfCnpj>
-                        <Cnpj>${data.rps.tomador.identificacaoTomador.cnpj}</Cnpj>
+                        <Cnpj>${data.Rps.Tomador.IdentificacaoTomador.Cnpj}</Cnpj>
                       </CpfCnpj>
                     </IdentificacaoTomador>
-                    <RazaoSocial>${data.rps.tomador.razaoSocial}</RazaoSocial>
+                    <RazaoSocial>${data.Rps.Tomador.RazaoSocial}</RazaoSocial>
                     <Endereco>
-                      <Endereco>${data.rps.tomador.endereco.endereco}</Endereco>
-                      <Numero>${data.rps.tomador.endereco.numero}</Numero>
-                      <Bairro>${data.rps.tomador.endereco.bairro}</Bairro>
-                      <CodigoMunicipio>${data.rps.tomador.endereco.codigoMunicipio}</CodigoMunicipio>
-                      <Uf>${data.rps.tomador.endereco.uf}</Uf>
-                      <Cep>${data.rps.tomador.endereco.cep}</Cep>
+                      <Endereco>${data.Rps.Tomador.Endereco.Endereco}</Endereco>
+                      <Numero>${data.Rps.Tomador.Endereco.Numero}</Numero>
+                      <Bairro>${data.Rps.Tomador.Endereco.Bairro}</Bairro>
+                      <CodigoMunicipio>${data.Rps.Tomador.Endereco.CodigoMunicipio}</CodigoMunicipio>
+                      <Uf>${data.Rps.Tomador.Endereco.Uf}</Uf>
+                      <Cep>${data.Rps.Tomador.Endereco.Cep}</Cep>
                     </Endereco>
                     <Contato>
-                      <Telefone>${data.rps.tomador.contato.telefone}</Telefone>
-                      <Email>${data.rps.tomador.contato.email}</Email>
+                      <Telefone>${data.Rps.Tomador.Contato.Telefone}</Telefone>
+                      <Email>${data.Rps.Tomador.Contato.Email}</Email>
                     </Contato>
                   </Tomador>
-                  <RegimeEspecialTributacao>${data.rps.regimeEspecialTributacao}</RegimeEspecialTributacao>
-                  <IncentivoFiscal>${data.rps.incentivoFiscal}</IncentivoFiscal>
+                  <RegimeEspecialTributacao>${data.Rps.RegimeEspecialTributacao}</RegimeEspecialTributacao>
+                  <IncentivoFiscal>${data.Rps.IncentivoFiscal}</IncentivoFiscal>
                 </InfDeclaracaoPrestacaoServico>
               </Rps>
             </ListaRps>
@@ -381,26 +399,6 @@ class NfseService {
       </soapenv:Body>
     </soapenv:Envelope>
   `
-  }
-
-  private async assinarXml(xml: string): Promise<string> {
-    try {
-      const sig = new SignedXml({ canonicalizationAlgorithm: "http://www.w3.org/2001/10/xml-exc-c14n#" });
-      sig.privateKey = await this.carregarCertificado();
-      sig.signatureAlgorithm = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
-
-      sig.addReference({
-        xpath: "//*[local-name(.)='InfDeclaracaoPrestacaoServico']",
-        transforms: ["http://www.w3.org/2000/09/xmldsig#enveloped-signature"],
-        digestAlgorithm: "http://www.w3.org/2001/04/xmlenc#sha256"
-      });
-
-      sig.computeSignature(xml);
-      return sig.getSignedXml();
-    } catch (error) {
-      console.error('Erro ao assinar o xml:', error);
-      throw new Error('Falha ao assinar o xml.');
-    }
   }
 
   public async enviarNfse(data: GerarNfseEnvio): Promise<string> {
