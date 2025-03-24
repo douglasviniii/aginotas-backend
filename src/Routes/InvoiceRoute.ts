@@ -8,8 +8,10 @@ InvoiceRoute.post('/create',MiddlewareUser,InvoiceController.create_invoice);
 InvoiceRoute.post('/cancel',MiddlewareUser,InvoiceController.cancel_invoice);
 InvoiceRoute.post('/replace',MiddlewareUser,InvoiceController.replace_invoice);
 
+InvoiceRoute.get('/findinvoices',MiddlewareUser,InvoiceController.findinvoicesuser);
+InvoiceRoute.get('/findinvoicescustomer/:id',MiddlewareUser,InvoiceController.findinvoicescustomer);
 
-InvoiceRoute.post('/consult',InvoiceController.consult_invoice);
+//InvoiceRoute.post('/consult',InvoiceController.consult_invoice);
 
 
 export default InvoiceRoute;

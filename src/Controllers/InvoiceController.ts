@@ -576,12 +576,20 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
 }
 
 
-
-/* AINDA INUTILIZAVEL */
-const findinvoices = async (req: CustomRequest, res: Response) => {
+const findinvoicesuser = async (req: CustomRequest, res: Response) => {
   try{
     const user = req.userObject;
     const invoices = await InvoiceService.FindInvoices(user!.id);
+    res.status(200).send(invoices);
+  }catch(error){
+    res.status(500).send({message: "Não foi possivel buscar as notas fiscais"});
+  }
+}
+
+const findinvoicescustomer = async (req: CustomRequest, res: Response) => {
+  try{
+    const id = req.params.id;
+    const invoices = await InvoiceService.FindInvoiceCustomer(id);
     res.status(200).send(invoices);
   }catch(error){
     res.status(500).send({message: "Não foi possivel buscar as notas fiscais"});
@@ -616,10 +624,11 @@ const consult_invoice = async (req: CustomRequest, res: Response) => {
 export default 
 {
   create_invoice,
-  findinvoices,
+  findinvoicesuser,
   consult_invoice,
   cancel_invoice,
-  replace_invoice
+  replace_invoice,
+  findinvoicescustomer
 };
 
 
