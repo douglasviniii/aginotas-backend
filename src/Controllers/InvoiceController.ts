@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import InvoiceService from '../services/InvoiceService.ts';
 import NFseService from '../services/NFseService.ts';
+import UserService from '../services/UserService.ts';
+import CustomerService from '../services/CustomerService.ts'
 
 interface CustomRequest extends Request {
     userObject?: {
@@ -11,9 +13,10 @@ interface CustomRequest extends Request {
       email: string;
       cidade: string;
       senhaelotech: string;
-      homologa: string;
+      homologa: boolean;
     }; 
 }
+
 interface GerarNfseEnvio {
   Requerente: {
     Cnpj: string;
@@ -254,10 +257,22 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
 const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
         const user = req.userObject;
-        const body = req.body;
+        const {customer_id, service, taxation} = req.body;
         
+        if(!customer_id || !service || !taxation){
+          res.status(400).send({message:'customer_id or service or taxation is null!'});
+          return;
+        }
+
         const id = user?.id;
         let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(id!);
+
+        const customer = await CustomerService.FindCostumerByIdService(customer_id);
+
+        if(!customer){
+          res.status(400).send({message: 'User is no found!'});
+          return;
+        }
 
         const date = new Date();
         const year = date.getFullYear(); 
@@ -267,15 +282,15 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
         const data: GerarNfseEnvio = {
           Requerente: {
-            Cnpj: "57278676000169", // user?.cnpj
-            InscricaoMunicipal: "00898131", // user?.inscricaoMunicipal
-            Senha: "KK89BRGH", // user?.senhaelotech
-            Homologa: true, // user?.homologa
+            Cnpj: user!.cnpj,  
+            InscricaoMunicipal: user!.inscricaoMunicipal, 
+            Senha: user!.senhaelotech,
+            Homologa: user!.homologa 
           },
           LoteRps: {
             NumeroLote: numeroLote.toLocaleString(),
-            Cnpj: "57278676000169", // user?.cnpj
-            InscricaoMunicipal: "00898131", // user?.inscricaoMunicipal
+            Cnpj: user!.cnpj,
+            InscricaoMunicipal: user!.inscricaoMunicipal, 
             QuantidadeRps: 1,
           },
           Rps: {
@@ -297,8 +312,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                 RetidoCofins: 2,
                 AliquotaInss: 0,
                 RetidoInss: 2,
-                AliquotaIr: 0,
-                RetidoIr: 2,
+                AliquotaIr: 0, 
+                RetidoIr: 2, 
                 AliquotaCsll: 0,
                 RetidoCsll: 2,
                 RetidoCpp: 2,
@@ -307,11 +322,11 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                 DescontoIncondicionado: 0.00,
                 DescontoCondicionado: 0.00,
               },
-              IssRetido: 2,
+              IssRetido: 2, 
               Discriminacao: "CONTRATO MENSAL",
-              CodigoMunicipio: "4115804",
+              CodigoMunicipio: customer.address.cityCode,
               ExigibilidadeISS: 1,
-              MunicipioIncidencia: "4115804",
+              MunicipioIncidencia: customer.address.cityCode,
               ListaItensServico: [
                 {
                   ItemListaServico: "104",
@@ -326,25 +341,25 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               ],
             },
             Prestador: {
-              Cnpj: "57278676000169", // user?.cnpj
-              InscricaoMunicipal: "00898131", // user?.inscricaoMunicipal
+              Cnpj: user!.cnpj,  
+              InscricaoMunicipal: user!.inscricaoMunicipal, 
             },
             Tomador: {
               IdentificacaoTomador: {
-                Cnpj: "11769293000192",
+                Cnpj: customer.cnpj,
               },
-              RazaoSocial: "CONTROLAREP PONTOS DE ACESSO EIRELI",
+              RazaoSocial: customer.name,
               Endereco: {
-                Endereco: "AV ROBERT KOCH",
-                Numero: "1330",
-                Bairro: "OPERARIA",
-                CodigoMunicipio: "4113700",
-                Uf: "PR",
-                Cep: "86038350",
+                Endereco: customer.address.street,
+                Numero: customer.address.number,
+                Bairro: customer.address.neighborhood,
+                CodigoMunicipio: customer.address.cityCode,
+                Uf: customer.address.state,
+                Cep: customer.address.zipCode,
               },
               Contato: {
-                Telefone: "4304330326176",
-                Email: "everton@publitechsistemas.com.br",
+                Telefone: customer.phone,
+                Email: customer.email,
               },
             },
             RegimeEspecialTributacao: 7,
@@ -352,40 +367,31 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           },
         };
 
-        const response = await NFseService.enviarNfse(data);
-        res.status(200).send(response);
-
-
-/*        switch (user?.cidade) {
+        switch (user?.cidade) {
           case "Medianeira":
-            console.log(body);
-             const response = await NFseService.enviarNfse(data);
-      
+
+            const response = await NFseService.enviarNfse(data);
             await InvoiceService.CreateInvoiceService({
-              customer: body.customer,
+              customer: customer_id,
               user: user?.id,
-              valor: valoraqui
+              valor: valoraqui,
               xml: response,
               data: data,
               numeroLote: numeroLote,
               identificacaoRpsnumero: identificacaoRpsnumero,
             });  
-        
-            res.status(200).send(body);
+
+            res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
             break;
 
-        case "Cascavel":
-          //--------
-          break;
-
         default:
-           res.status(400).send({message: "Não atende a cidade do usuário"});
+           res.status(400).send({message: "Não atende a cidade informada"});
            return;
         } 
 
-        return;    */   
+        return;      
       } catch (error) {
-        res.status(500).send({message: 'Não foi possivel criar nota fiscal', error});
+        res.status(500).send({message: 'Não foi possivel gerar a nota fiscal', error});
         return;
     }
 }

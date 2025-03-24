@@ -7,8 +7,16 @@ export interface ICustomer extends Document {
   inscricaoMunicipal: string;
   email: string;
   phone: string;
-  status: String;
-  address: object;
+  status: string;
+  address: {
+    street: string,
+    number: string,
+    neighborhood: string,
+    cityCode: string,
+    city: string,
+    state: string,
+    zipCode: string,    
+  };
 }
 
 const CustomerSchema = new Schema<ICustomer>({
