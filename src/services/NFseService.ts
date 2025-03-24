@@ -417,9 +417,8 @@ class NfseService {
 
       } else {
         const xmlAssinado = await this.assinarXml(xml);
-        return xmlAssinado;
         
-/*         const response = await axios.post(
+         const response = await axios.post(
           `${this.ElotechUrl}`, xmlAssinado,
           {
             headers: {
@@ -428,7 +427,7 @@ class NfseService {
             },
           }
         );
-        return response.data; */
+        return response.data; 
       }
       return 'Erro de validação no XML';
     } catch (error) {
@@ -490,9 +489,8 @@ class NfseService {
     try {
       const xmlConsulta = this.gerarXmlConsultarNfseRpsEnvio(data);
       const xmlAssinado = await this.assinarXmlConsulta(xmlConsulta);
-      return xmlAssinado;
 
-/*       const response = await axios.post(
+       const response = await axios.post(
         `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
@@ -502,7 +500,7 @@ class NfseService {
         }
       );
       
-      return response.data; */
+      return response.data; 
 
     } catch (error) {
       console.error('Erro na consulta da NFS-e:', error);
@@ -568,9 +566,8 @@ class NfseService {
       const xmlCancelamento = await this.gerarXmlCancelarNfseEnvio(data);
 
       const xmlAssinado = await this.assinarXmlCancelar(xmlCancelamento);
-      return xmlAssinado;
 
-/*       const response = await axios.post(
+       const response = await axios.post(
         `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
@@ -580,7 +577,7 @@ class NfseService {
         }
       );
 
-      return response.data; */
+      return response.data; 
     } catch (error) {
       console.error('Erro no cancelamento da NFS-e:', error);
       throw new Error('Falha ao cancelar NFS-e.');
@@ -702,8 +699,7 @@ class NfseService {
       const xmlCancelamento = await this.gerarXmlSubstituirNfseEnvio(data);
 
       const xmlAssinado = await this.assinarXmlSubstituir(xmlCancelamento);
-      return xmlAssinado;
-/*       const response = await axios.post(
+       const response = await axios.post(
         `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
@@ -713,7 +709,7 @@ class NfseService {
         }
       );
 
-      return response.data; */
+      return response.data; 
     } catch (error) {
       console.error('Erro ao substituir da NFS-e:', error);
       throw new Error('Falha ao substituir NFS-e.');
