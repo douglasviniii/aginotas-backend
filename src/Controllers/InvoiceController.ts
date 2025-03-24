@@ -14,6 +14,9 @@ interface CustomRequest extends Request {
       cidade: string;
       senhaelotech: string;
       homologa: boolean;
+      IncentivoFiscal: number;
+      RegimeEspecialTributacao: number;
+
     }; 
 }
 
@@ -257,11 +260,33 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
 const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
         const user = req.userObject;
-        const {customer_id, service, taxation} = req.body;
+        const {customer_id, servico, tributacao} = req.body;
         
-        if(!customer_id || !service || !taxation){
+        if(!customer_id || !servico || !tributacao){
           res.status(400).send({message:'customer_id or service or taxation is null!'});
           return;
+        }
+
+        const body = {
+          customer_id: 'id_do_cliente',
+          servico: {
+            Discriminacao: "CONTRATO MENSAL",
+            descricao: "Desenvolvimento de sistema ERP",
+            item_lista: "104",
+            cnae: "6201501",
+            quantidade: 1,
+            valor_unitario: 1500.00,
+            desconto: 0.00
+          },
+          tributacao: {
+            iss_retido: 2,            // 1 para true e 2 para false
+            aliquota_iss: 4.41,       // Alíquota do município do prestador
+            retencoes: {
+              irrf: 1.5,              // 1,5% se houver retenção
+              pis: 0,
+              cofins: 0
+            }
+          }          
         }
 
         const id = user?.id;
@@ -304,39 +329,39 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             Competencia: formattedDate,
             Servico: {
               Valores: {
-                ValorServicos: 20.00,
-                ValorDeducoes: 0,
+                ValorServicos: servico.valor_unitario * servico.quantidade,
+                ValorDeducoes: servico.desconto || 0.00,
                 AliquotaPis: 0,
                 RetidoPis: 2,
                 AliquotaCofins: 0,
                 RetidoCofins: 2,
                 AliquotaInss: 0,
                 RetidoInss: 2,
-                AliquotaIr: 0, 
-                RetidoIr: 2, 
+                AliquotaIr: tributacao.retencoes.irrf || 0, 
+                RetidoIr: tributacao.retencoes.irrf > 0 ? 1 : 2, 
                 AliquotaCsll: 0,
                 RetidoCsll: 2,
                 RetidoCpp: 2,
                 RetidoOutrasRetencoes: 2,
-                Aliquota: 4.41,
+                Aliquota: tributacao.aliquota_iss,
                 DescontoIncondicionado: 0.00,
                 DescontoCondicionado: 0.00,
               },
-              IssRetido: 2, 
-              Discriminacao: "CONTRATO MENSAL",
+              IssRetido: tributacao.iss_retido ? 1 : 2, 
+              Discriminacao: servico.Discriminacao,
               CodigoMunicipio: customer.address.cityCode,
               ExigibilidadeISS: 1,
               MunicipioIncidencia: customer.address.cityCode,
               ListaItensServico: [
                 {
-                  ItemListaServico: "104",
-                  CodigoCnae: "6201501",
-                  Descricao: "servico",
+                  ItemListaServico: servico.item_lista,
+                  CodigoCnae: servico.cnae,
+                  Descricao: servico.descricao,
                   Tributavel: "1",
-                  Quantidade: 1.0,
-                  ValorUnitario: 20.00,
-                  ValorDesconto: 0.00,
-                  ValorLiquido: 20.00,
+                  Quantidade: servico.quantidade,
+                  ValorUnitario: servico.valor_unitario,
+                  ValorDesconto: servico.desconto || 0.00,
+                  ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
                 },
               ],
             },
@@ -362,8 +387,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                 Email: customer.email,
               },
             },
-            RegimeEspecialTributacao: 7,
-            IncentivoFiscal: 2,
+            RegimeEspecialTributacao: user!.RegimeEspecialTributacao,
+            IncentivoFiscal: user!.IncentivoFiscal,
           },
         };
 
@@ -374,7 +399,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             await InvoiceService.CreateInvoiceService({
               customer: customer_id,
               user: user?.id,
-              valor: valoraqui,
+              valor: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
               xml: response,
               data: data,
               numeroLote: numeroLote,

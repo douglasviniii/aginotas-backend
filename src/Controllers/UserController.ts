@@ -10,6 +10,9 @@ interface User {
   cnpj: string;
   email: string;
   password: string;
+  estado: string;
+  cidade: string;
+  inscricaoMunicipal: string;
 }
 
 interface CustomRequest extends Request {
@@ -25,12 +28,22 @@ interface CustomRequest extends Request {
 const create_user = async (req: Request<{}, {}, User>, res: Response) => {
   try {
 
-    const {name,cnpj,email,password} = req.body;
+    const {name,cnpj,email,password,estado,cidade,inscricaoMunicipal} = req.body;
 
     const response = await PagarmeService.CreateClient({name:name,email:email});
 
     if(response.id){
-      const data: User = {id_client_pagarme: response.id, name, cnpj, email, password};
+      const data: User = {
+        id_client_pagarme: response.id, 
+        name, 
+        cnpj, 
+        email, 
+        password,
+        estado,
+        cidade,
+        inscricaoMunicipal,
+        
+      };
       await UserService.CreateUserService(data);
       res.status(200).send({ message: 'Usuário criado com sucesso!' });
       return;

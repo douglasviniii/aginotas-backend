@@ -7,11 +7,14 @@ export interface IUser extends Document {
   cnpj: string;
   cidade: string;
   email: string;
+  estado: string;
   inscricaoMunicipal: string;
   password: string;
   homologa: boolean;
   senhaelotech: string;
   date_created: Date;
+  RegimeEspecialTributacao: number;
+  IncentivoFiscal: number;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -22,8 +25,12 @@ const UserSchema = new Schema<IUser>({
   password: { type: String, require: true, select: false },
 
   cnpj: { type: String, require: true },
+  estado: { type: String, require: true },
   cidade: { type: String, require: true },
   inscricaoMunicipal: { type: String, require: true},
+
+  RegimeEspecialTributacao: { type: Number, default: 7},
+  IncentivoFiscal: { type: Number, default: 2},
 
   senhaelotech: { type: String, default: '0000'},
   homologa: {type: Boolean, default: true},
