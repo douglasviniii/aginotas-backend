@@ -395,7 +395,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         switch (user?.cidade) {
           case "Medianeira":
 
-            const response = await NFseService.enviarNfse(data);
+/*             const response = await NFseService.enviarNfse(data);
             await InvoiceService.CreateInvoiceService({
               customer: customer_id,
               user: user?.id,
@@ -404,7 +404,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               data: data,
               numeroLote: numeroLote,
               identificacaoRpsnumero: identificacaoRpsnumero,
-            });  
+            }); */  
 
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
             break;
