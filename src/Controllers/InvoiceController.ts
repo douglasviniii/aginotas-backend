@@ -364,6 +364,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             await InvoiceService.CreateInvoiceService({
               customer: body.customer,
               user: user?.id,
+              valor: valoraqui
               xml: response,
               data: data,
               numeroLote: numeroLote,

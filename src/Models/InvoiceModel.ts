@@ -18,7 +18,7 @@ const InvoiceSchema = new Schema<IInvoice>({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
 
   data: {type: Object, require: true},
-  //valor: {type: Number},
+  valor: {type: Number},
   xml: {type: String},
   status: {type: String, default: 'emitida'},
   numeroLote: {type: Number},
