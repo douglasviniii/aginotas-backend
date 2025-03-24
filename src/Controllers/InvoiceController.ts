@@ -114,6 +114,7 @@ interface DataConsultaNFSE{
   Homologa: boolean;
 }
 interface DataCancelarNfseEnvio{
+  IdInvoice: string;
   CpfCnpj: string;
   InscricaoMunicipal: string;
   Senha: string;
@@ -232,7 +233,6 @@ interface DataUpdateObject {
   numeroLote: number;
   identificacaoRpsnumero: number;
 }
-
 
 
 
@@ -391,10 +391,11 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
 const cancel_invoice = async (req: CustomRequest, res: Response) => {
   try {
-      //const user = req.userObject;
-      //const body = req.body;
+      const user = req.userObject;
+      const body = req.body;
 
       const data: DataCancelarNfseEnvio = {
+        IdInvoice: 't4tg4ergfe45tr43t3e4', //body.IdInvoice
         CpfCnpj: '57278676000169', //user.cnpj
         InscricaoMunicipal: '00898131', //user.inscricaoMunicipal
         Senha: 'KK89BRGH', //user.senhaelotech
@@ -409,17 +410,20 @@ const cancel_invoice = async (req: CustomRequest, res: Response) => {
 
       const response = await NFseService.cancelarNfse(data);
 
-      res.status(200).send(response);
+      const id = body.IdInvoice;
+      await InvoiceService.DeleteInvoice(id);
+
+      res.status(200).send({message: 'Nota Fiscal Cancelada com sucesso!'});
       
     } catch (error) {
-      res.status(500).send({message: 'Não foi possivel consultar Nota Fiscal', error});
+      res.status(500).send({message: 'Não foi possivel cancelar Nota Fiscal', error});
   }
 }
 
 const replace_invoice = async  (req: CustomRequest, res: Response) => {
   try {
-    //const user = req.userObject;
-    //const body = req.body;
+    const user = req.userObject;
+    const body = req.body;
 
     const data: DataSubstituirNfse = {
       IdentificacaoRequerente: {
@@ -524,15 +528,24 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
     };
 
     const response = await NFseService.SubstituirNfse(data);
+    
+    const dataupdate = {
+      xml: response,
+    }
 
+    const IdInvoice = body.IdInvoice;
+
+    await InvoiceService.UpdateInvoice(IdInvoice, dataupdate);
     res.status(200).send(response);
     
   } catch (error) {
-    res.status(500).send({message: 'Não foi possivel consultar Nota Fiscal', error});
+    res.status(500).send({message: 'Não foi possivel substituir Nota Fiscal', error});
 }
 }
 
 
+
+/* AINDA INUTILIZAVEL */
 const findinvoices = async (req: CustomRequest, res: Response) => {
   try{
     const user = req.userObject;
@@ -543,6 +556,7 @@ const findinvoices = async (req: CustomRequest, res: Response) => {
   }
 }
 
+/* INUTIL POR ENQUANTO */
 const consult_invoice = async (req: CustomRequest, res: Response) => {
   try {
       //const user = req.userObject;
