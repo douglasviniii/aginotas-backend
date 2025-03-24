@@ -23,7 +23,7 @@ const CustomerSchema = new Schema<ICustomer>({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   name: { type: String, required: true },
   cnpj: { type: String, required: true },
-  inscricaoMunicipal: { type: String, required: true },
+  inscricaoMunicipal: { type: String},
   email: { type: String, required: true, unique: true },
   phone: { type: String, required: true },
   status: {type: String},

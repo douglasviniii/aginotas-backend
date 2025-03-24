@@ -246,7 +246,7 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
   const lastInvoice = await InvoiceService.FindLastInvoice(id);
 
   if (!lastInvoice) {
-    throw new Error("Nenhuma invoice encontrada.");
+    return { numeroLote: 1, identificacaoRpsnumero:1 };
   }
 
   let numeroLote = lastInvoice.numeroLote + 1;
@@ -267,7 +267,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           return;
         }
 
-        const body = {
+/*         const body = {
           customer_id: 'id_do_cliente',
           servico: {
             Discriminacao: "CONTRATO MENSAL",
@@ -287,7 +287,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               cofins: 0
             }
           }          
-        }
+        } */
 
         const id = user?.id;
         let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(id!);
