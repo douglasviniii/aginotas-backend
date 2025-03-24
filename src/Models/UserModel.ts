@@ -32,7 +32,7 @@ const UserSchema = new Schema<IUser>({
   RegimeEspecialTributacao: { type: Number, default: 7},
   IncentivoFiscal: { type: Number, default: 2},
 
-  senhaelotech: { type: String, default: '0000'},
+  senhaelotech: { type: String, default: 'undefined'},
   homologa: {type: Boolean, default: true},
 
   date_created: { type: Date, default: Date.now }
