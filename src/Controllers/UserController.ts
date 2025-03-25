@@ -75,8 +75,9 @@ const AuthUserController = async (req: Request, res: Response) => {
         }
     
         const token = UserService.GeradorDeToken(user.id);
-    
-        res.status(200).send({ token });        
+        const userdb = UserService.FindUserByIdService(user.id);
+
+        res.status(200).send({ token, userdb });        
     }catch(error){
         res.status(500).send("Falha na autênticação");
     }
