@@ -76,6 +76,20 @@ const CreateSubscription = async (req: Request, res: Response) => {
   try {
       const data = req.body;
 
+      const exmp = {
+      card: {
+        number: '4350870594383048',
+        holder_name: 'Edvandro D P Lopes',
+        exp_month: 3,
+        exp_year: 30,
+        cvv: '022'
+      },
+      installments: 1,
+      plan_id: 'plan_2kjb0w9U1Mf6OVxY',
+      payment_method: 'credit_card',
+      customer_id: 'cus_pLb0QbjHrHoQzkZV'
+    }
+
       if(data){
         const response = await PagarmeService.CreateSubscription(data);
         res.status(200).send({message: 'Subscription created with success', response });
@@ -115,8 +129,8 @@ const GetAllSubscriptions = async (req: Request, res: Response) => {
 const CancelSubscription = async (req: Request, res: Response) => {
   try {
       const id = req.params.id;
-      await PagarmeService.CancelSubscription(id);
-      res.status(200).send({message: 'Subscription deleted with success'});
+      const response = await PagarmeService.CancelSubscription(id);
+      res.status(200).send({message: 'Subscription deleted with success', response});
       return;
 
     } catch (error) {

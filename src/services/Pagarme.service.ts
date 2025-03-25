@@ -10,6 +10,17 @@ interface CustomerData {
   card_id: String;
   card_descripton: String;
   subscription_id: String;
+  card:{
+    number: String;
+    holder_name: String;
+    exp_month: Number;
+    exp_year: Number;
+    cvv: String;
+  },
+  installments: Number;
+  plan_id: String;
+  payment_method: String;
+  customer_id: String;
 }
 
 interface CustomerClient {
@@ -209,22 +220,21 @@ const ListClients = async () => {
     },
     body: JSON.stringify({
       card: {
-        holder_name: 'Tony Stark',
-        exp_month: 1,
-        exp_year: 30,
-        cvv: '123',
-        number: '4000000000000010'
+        number: data.card.number,
+        holder_name: data.card.holder_name,
+        exp_month: data.card.exp_month,
+        exp_year: data.card.exp_year,
+        cvv: data.card.cvv,
       },
-      installments: 1,
-      plan_id: 'plan_lVrdaV4pCPSlyJNx',
-      payment_method: 'credit_card',
-      customer_id: 'cus_VOpX9wQsaTYq0L35'
+      installments: data.installments,
+      plan_id: data.plan_id,
+      payment_method: data.payment_method,
+      customer_id: data.customer_id
     })
   };
-  
+ 
 
   const response = await fetch(`${process.env.PAGARME_API_URL_SUBSCRIPTION}`, options);
-  console.log(response);
 
   if (response.ok) {
     const data = await response.json();
@@ -286,7 +296,6 @@ const CancelSubscription = async (subscription_id: string) => {
     body: JSON.stringify({cancel_pending_invoices: true})
   };
 
-    console.log(`${process.env.PAGARME_API_URL_SUBSCRIPTION}/${subscription_id}`);
     const response = await fetch(`${process.env.PAGARME_API_URL_SUBSCRIPTION}/${subscription_id}`, options);
 
     if (response.ok) {
