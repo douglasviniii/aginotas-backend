@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 
 export interface IUser extends Document {
   id_client_pagarme: string;
+  subscription_id: string;
   name: string;
   cnpj: string;
   cidade: string;
@@ -19,6 +20,7 @@ export interface IUser extends Document {
 
 const UserSchema = new Schema<IUser>({
   id_client_pagarme: { type: String, require: true },
+  subscription_id: { type: String, default: 'undefined'},
 
   name: { type: String, require: true },
   email: { type: String, require: true, unique:true },
