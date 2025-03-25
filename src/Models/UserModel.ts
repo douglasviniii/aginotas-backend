@@ -16,6 +16,7 @@ export interface IUser extends Document {
   date_created: Date;
   RegimeEspecialTributacao: number;
   IncentivoFiscal: number;
+  status: string;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -37,7 +38,8 @@ const UserSchema = new Schema<IUser>({
   senhaelotech: { type: String, default: 'undefined'},
   homologa: {type: Boolean, default: true},
 
-  date_created: { type: Date, default: Date.now }
+  date_created: { type: Date, default: Date.now },
+  status: {type: String, default: 'active'}
 });
 
 // Middleware para hash da senha antes de salvar
