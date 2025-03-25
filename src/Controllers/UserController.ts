@@ -74,8 +74,8 @@ const AuthUserController = async (req: Request, res: Response) => {
           return res.status(404).send("Email ou senha inválidos");
         }
     
-        const token = UserService.GeradorDeToken(user.id);
-        const userdb = UserService.FindUserByIdService(user.id);
+        const token = await UserService.GeradorDeToken(user.id);
+        const userdb = await UserService.FindUserByIdService(user.id);
 
         res.status(200).send({ token, userdb });        
     }catch(error){
