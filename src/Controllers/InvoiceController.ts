@@ -395,6 +395,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         switch (user?.cidade) {
           case "Medianeira":
 
+          console.log(data);
+
 /*             const response = await NFseService.enviarNfse(data);
             await InvoiceService.CreateInvoiceService({
               customer: customer_id,
