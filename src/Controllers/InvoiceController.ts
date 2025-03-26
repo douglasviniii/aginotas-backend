@@ -3,6 +3,7 @@ import InvoiceService from '../services/InvoiceService.ts';
 import NFseService from '../services/NFseService.ts';
 import UserService from '../services/UserService.ts';
 import CustomerService from '../services/CustomerService.ts'
+import xml2js from 'xml2js';
 
 interface CustomRequest extends Request {
     userObject?: {
@@ -392,12 +393,44 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           },
         };
 
+        async function verificarNFSe(xml: any) {
+          return new Promise((resolve, reject) => {
+              xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+                  if (err) return reject(err);
+      
+                  try {
+                      const body = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"];
+                      const resposta = body["ns2:EnviarLoteRpsSincronoResposta"];
+      
+                      if (resposta["ns2:ListaMensagemRetorno"]) {
+                          console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
+                          return resolve(false);
+                      }
+      
+                      if (resposta["ns2:Nfse"]) {
+                          return resolve(true);
+                      }
+      
+                      resolve(false); 
+                  } catch (e) {
+                      reject(e);
+                  }
+              });
+          });
+        }  
+
         switch (user?.cidade) {
           case "Medianeira":
 
-          console.log(data);
+          const response = await NFseService.enviarNfse(data);
 
-/*             const response = await NFseService.enviarNfse(data);
+          const nfseGerada = await verificarNFSe(response);
+        
+          if (!nfseGerada) {
+              res.status(400).send({ message: "Erro na emissão da NFS-e. Verifique os dados." });
+              return;
+          }
+
             await InvoiceService.CreateInvoiceService({
               customer: customer_id,
               user: user?.id,
@@ -406,7 +439,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               data: data,
               numeroLote: numeroLote,
               identificacaoRpsnumero: identificacaoRpsnumero,
-            }); */  
+            });   
 
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
             break;
