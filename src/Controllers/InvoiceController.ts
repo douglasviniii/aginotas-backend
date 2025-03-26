@@ -424,6 +424,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
           const response = await NFseService.enviarNfse(data);
 
+          console.log(response);
+
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
         
           if (!nfseGerada) {
