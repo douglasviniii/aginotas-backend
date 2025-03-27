@@ -28,15 +28,15 @@ const schedulingSchema = new Schema<Scheduling>({
     start_date: { type: String, required: true},
     end_date: { type: String, required: true},
     data: {
-      valor_unitario: {type: Number},
-      quantidade: {type: Number},
-      Discriminacao: {type: String},
-      item_lista: {type: Number},
-      cnae: {type: Number},
-      descricao: {type: String},
-      desconto: {type: Number}
+      valor_unitario: {type: Number, required: true},
+      quantidade: {type: Number, required: true},
+      Discriminacao: {type: String, required: true},
+      item_lista: {type: Number, required: true},
+      cnae: {type: Number, required: true},
+      descricao: {type: String, required: true},
+      desconto: {type: Number, required: true}
     },
-    valor: {type: Number},
+    valor: {type: Number, required: true},
     status: {type: String, default: 'programado'},
     date: {type: Date, default: Date.now},
 })
