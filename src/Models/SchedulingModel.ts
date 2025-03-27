@@ -4,10 +4,14 @@ export interface Scheduling extends Document {
   customer_id: String,
   user_id: String,
   billing_day: Number,
-  amount: Number,
+  //amount: Number,
   start_date: String,
   end_date: String,
-  description: String,
+  data: Object,
+  valor: Number,
+  status: String,
+  date: Date
+/*   description: String,
   item_lista_servico: String,
   codigo_cnae: String,
   customer_data: {
@@ -25,22 +29,21 @@ export interface Scheduling extends Document {
       cep: String,
     },
     telefone: String,
-  }
+  } */
 }
 
 const schedulingSchema = new Schema<Scheduling>({
     customer_id: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
     user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-
     billing_day: { type: Number, required: true },
-    amount: { type: Number, required: true },
     start_date: { type: String, required: true},
     end_date: { type: String, required: true},
-    description: { type: String, required: true},
-    item_lista_servico: { type: String},
-    codigo_cnae: { type: String},
+    data: {type: Object, require: true},
+    valor: {type: Number},
+    status: {type: String, default: 'programado'},
+    date: {type: Date, default: Date.now},
     
-    customer_data: {
+/*     customer_data: {
       cpfCnpj: { type: String, required: true},
       razaoSocial: { type: String, required: true},
       inscricaoMunicipal: { type: String, required: true},
@@ -55,7 +58,7 @@ const schedulingSchema = new Schema<Scheduling>({
         cep: { type: String, required: true},
       },
       telefone: { type: String, required: true},
-    }
+    } */
 })
 
 const SchedulingModel = mongoose.model<Scheduling>('Scheduling', schedulingSchema);

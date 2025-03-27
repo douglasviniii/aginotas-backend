@@ -30,11 +30,50 @@ interface Dados {
   emailCliente: string;
 }
 
-const create_scheduling = async (req: Request, res: Response) => {
+interface CustomRequest extends Request {
+  userid: string;
+}
+
+const create_scheduling = async (req: CustomRequest, res: Response) => {
   try {
     const data = req.body;
-    await SchedulingService.CreateSchedulingService(data);
-    res.status(201).send({ message: 'Agendamento criado com sucesso!' ,data});
+
+    if(!data.customer_id || !data.billing_day || !data.start_date || !data.end_date || !data.servico || !data.tributacao || !data.valor){
+      res.status(400).send({message: 'Dados incompletos'});
+      return;
+    }
+
+    const body = {
+      customer_id: data.customer_id,
+      user_id: req.userid,
+      billing_day: data.billing_day,
+      start_date: data.start_date,
+      end_date: data.end_date,
+      data: {
+        servico: {
+          Discriminacao: data.servico.Discriminacao,
+          descricao: data.servico.descricao,
+          item_lista: data.servico.item_lista,
+          cnae: data.servico.cnae,
+          quantidade: data.servico.quantidade,
+          valor_unitario: data.servico.valor_unitario,
+          desconto: data.servico.desconto,
+        },
+        tributacao: {
+          iss_retido: data.tributacao.iss_retido, 
+          aliquota_iss: data.tributacao.aliquota_iss, 
+          retencoes: {
+            irrf: data.tributacao.retencoes.irrf, 
+            pis: data.tributacao.retencoes.pis,
+            cofins: data.tributacao.retencoes.cofins,            
+          }
+        }
+      },
+      valor: data.valor,          
+    } 
+
+    await SchedulingService.CreateSchedulingService(body);
+    res.status(200).send({ message: 'Agendamento criado com sucesso!' ,data});
   } catch (error) {
     res.status(500).send({
       message: 'Não foi possivel criar agendamento',
