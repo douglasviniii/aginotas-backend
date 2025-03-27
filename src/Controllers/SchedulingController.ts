@@ -2,7 +2,10 @@ import { Request, Response } from 'express';
 import SchedulingService from '../services/SchedulingService.ts';
 import NFseService from '../services/NFseService.ts';
 import UserService from '../services/UserService.ts';
+import CustomerService from '../services/CustomerService.ts';
 import SendEmailService from '../services/SendEmailService.ts';
+import InvoiceService from '../services/InvoiceService.ts';
+
 
 interface Dados {
   cnpj: string;
@@ -31,7 +34,12 @@ interface Dados {
 }
 
 interface CustomRequest extends Request {
-  userid: string;
+  userid?: string;
+}
+
+interface DataUpdateObject {
+  numeroLote: number;
+  identificacaoRpsnumero: number;
 }
 
 const create_scheduling = async (req: CustomRequest, res: Response) => {
@@ -102,56 +110,32 @@ const scheduling_controller = async () =>{
         return today >= start && today <= end;
       }
 
+      async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
+        const lastInvoice = await InvoiceService.FindLastInvoice(id);
+      
+        if (!lastInvoice) {
+          return { numeroLote: 1, identificacaoRpsnumero:1 };
+        }
+      
+        let numeroLote = lastInvoice.numeroLote + 1;
+        let identificacaoRpsnumero = lastInvoice.identificacaoRpsnumero + 1;
+        
+      
+        return { numeroLote, identificacaoRpsnumero };
+      }
+
       if(isTodayDay(Number(schedule.billing_day)) && isWithinSchedule(`${schedule.start_date}`, `${schedule.end_date}`)){
-        console.log(`Gerando nota fiscal para o cliente: ${schedule.customer_id}`);
+        
         const db_user = await UserService.FindUserByIdService(schedule.user_id);
+        const db_customer = await CustomerService.FindCostumerByIdService(schedule.customer_id);
+        let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(`${schedule.user_id}`);
 
-        const date = new Date();
-        const formattedDate = date.toLocaleString("pt-BR", { 
-          timeZone: "America/Sao_Paulo"
-        });
-
-        const dados = {
-          numeroLote: '123',
-          cnpjPrestador: '12345678000199',
-          inscricaoMunicipal: '123456',
-          numeroRps: '456',
-          dataEmissao: formattedDate,
-          valor: 100.0,
-          aliquota: 2.0,
-          valorIss: 2.0,
-          itemListaServico: '01.01',
-          descricaoServico: 'Serviço de exemplo',
-          codigoMunicipio: '3106200',
-          cnpjTomador: '98765432000199',
-          razaoTomador: 'Cliente Exemplo Ltda',
-          endereco: 'Rua Exemplo, 123',
-          numero: '123',
-          bairro: 'Centro',
-          uf: 'MG',
-          cep: '30130000',
-          telefone: '31999999999',
-          email: 'cliente@exemplo.com'
-        };
-
-        //const response = await NFseService.enviarNfse(dados);
-
-        await SendEmailService.SendEmailNFSe(`${schedule.customer_data.email}`, 'nota gerada automaticamente');
-
-        const data = {
-          customer: schedule.customer_id,
-          user: schedule.user_id,
-          content: {
-            file: 'nota fiscal pdf',
-            value: 20.00,
-            date: formattedDate,
-            status: 'Entregue',
-            link: 'https://www.google.com',
-          },
+        if(!db_user || !db_customer){
+          console.log('Usuário ou cliente não encontrado'); 
+          return;
         }
 
-        //await InvoiceService.CreateInvoiceService(data); //salvar no banco de dados
-
+        //await SendEmailService.SendEmailNFSe(`${'email'}`, 'nota gerada automaticamente');
       }
     }
   } catch (error) {
