@@ -250,8 +250,8 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
     return { numeroLote: 1, identificacaoRpsnumero:1 };
   }
 
-  let numeroLote = lastInvoice.numeroLote + 20; //20
-  let identificacaoRpsnumero = lastInvoice.identificacaoRpsnumero + 20; //20
+  let numeroLote = lastInvoice.numeroLote + 1;
+  let identificacaoRpsnumero = lastInvoice.identificacaoRpsnumero + 1;
   
 
   return { numeroLote, identificacaoRpsnumero };
@@ -267,28 +267,6 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           res.status(400).send({message:'customer_id or service or taxation is null!'});
           return;
         }
-
-/*         const body = {
-          customer_id: 'id_do_cliente',
-          servico: {
-            Discriminacao: "CONTRATO MENSAL",
-            descricao: "Desenvolvimento de sistema ERP",
-            item_lista: "104",
-            cnae: "6201501",
-            quantidade: 1,
-            valor_unitario: 1500.00,
-            desconto: 0.00
-          },
-          tributacao: {
-            iss_retido: 2,            // 1 para true e 2 para false
-            aliquota_iss: 4.41,       // Alíquota do município do prestador
-            retencoes: {
-              irrf: 1.5,              // 1,5% se houver retenção
-              pis: 0,
-              cofins: 0
-            }
-          }          
-        } */
 
         const id = user?.id;
         let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(id!);
@@ -419,12 +397,10 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           });
         }  
 
-        
         switch (user?.cidade) {
           case "Medianeira":
 
           const response = await NFseService.enviarNfse(data);
-
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
         
           if (!nfseGerada) {
@@ -444,15 +420,13 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
             break;
-
         default:
            res.status(400).send({message: "Não atende a cidade informada"});
            return;
         } 
-
-        return;      
+        res.status(400).send({message: "Não foi possivel gerar a nota fiscal"});      
       } catch (error) {
-        res.status(500).send({message: 'Não foi possivel gerar a nota fiscal', error});
+        res.status(500).send({message: 'Erro interno no servidor', error});
         return;
     }
 }
@@ -677,19 +651,24 @@ export default
 
 
 
-/*                 {
-                  itemListaServico: "802",
-                  codigoCnae: "6201502",
-                  descricao: "deducao",
-                  tributavel: "2",
-                  quantidade: "1.00000",
-                  valorUnitario: "50.00000",
-                  valorDesconto: "0.00",
-                  valorLiquido: "50.00",
-                  dadosDeducao: {
-                    tipoDeducao: "M",
-                    cpf: "00936697989",
-                    valorTotalNotaFiscal: "50.00",
-                    valorADeduzir: "50.00"
-                  }
-                } */
+/*         const body = {
+          customer_id: 'id_do_cliente',
+          servico: {
+            Discriminacao: "CONTRATO MENSAL",
+            descricao: "Desenvolvimento de sistema ERP",
+            item_lista: "104",
+            cnae: "6201501",
+            quantidade: 1,
+            valor_unitario: 1500.00,
+            desconto: 0.00
+          },
+          tributacao: {
+            iss_retido: 2,            // 1 para true e 2 para false
+            aliquota_iss: 4.41,       // Alíquota do município do prestador
+            retencoes: {
+              irrf: 1.5,              // 1,5% se houver retenção
+              pis: 0,
+              cofins: 0
+            }
+          }          
+        } */
