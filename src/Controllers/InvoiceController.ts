@@ -261,9 +261,9 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
 const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
         const user = req.userObject;
-        const {customer_id, servico, tributacao} = req.body;
+        const {customer_id, servico} = req.body;
         
-        if(!customer_id || !servico || !tributacao){
+        if(!customer_id || !servico){
           res.status(400).send({message:'customer_id or service or taxation is null!'});
           return;
         }
@@ -330,7 +330,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             Competencia: formattedDate,
             Servico: {
               Valores: {
-                ValorServicos:  parseFloat((servico.valor_unitario * servico.quantidade).toFixed(2)),
+                ValorServicos:  servico.valor_unitario * servico.quantidade,
                 ValorDeducoes: 0,
                 AliquotaPis: 0,
                 RetidoPis: 2,
@@ -359,10 +359,10 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                   CodigoCnae: servico.cnae,
                   Descricao: servico.descricao,
                   Tributavel: 1,
-                  Quantidade: parseFloat(servico.quantidade.toFixed(5)),
-                  ValorUnitario: parseFloat(servico.valor_unitario.toFixed(5)),
-                  ValorDesconto: parseFloat(servico.desconto.toFixed(2)) || 0.00, 
-                  ValorLiquido: parseFloat(((servico.valor_unitario * servico.quantidade) - (servico.desconto || 0)).toFixed(2)), 
+                  Quantidade: servico.quantidade,
+                  ValorUnitario: servico.valor_unitario,
+                  ValorDesconto: servico.desconto, 
+                  ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0), 
                 },
               ],
             },
@@ -419,11 +419,11 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           });
         }  
 
+        
         switch (user?.cidade) {
           case "Medianeira":
 
           const response = await NFseService.enviarNfse(data);
-
 
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
         

@@ -317,7 +317,7 @@ class NfseService {
                   <Competencia>${data.Rps.Competencia}</Competencia>
                   <Servico>
                     <Valores>
-                      <ValorServicos>${data.Rps.Servico.Valores.ValorServicos}</ValorServicos>
+                      <ValorServicos>${data.Rps.Servico.Valores.ValorServicos}.00</ValorServicos>
                       <ValorDeducoes>${data.Rps.Servico.Valores.ValorDeducoes}</ValorDeducoes>
                       <AliquotaPis>${data.Rps.Servico.Valores.AliquotaPis}</AliquotaPis>
                       <RetidoPis>${data.Rps.Servico.Valores.RetidoPis}</RetidoPis>
@@ -418,8 +418,6 @@ class NfseService {
       } else {
         const xmlAssinado = await this.assinarXml(xml);
 
-        console.log(xmlAssinado);
-        
          const response = await axios.post(
           `${this.ElotechUrl}`, xmlAssinado,
           {
