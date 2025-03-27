@@ -16,7 +16,6 @@ export interface IInvoice extends Document {
 const InvoiceSchema = new Schema<IInvoice>({
   customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-
   data: {type: Object, require: true},
   valor: {type: Number},
   xml: {type: String},
