@@ -72,7 +72,7 @@ interface GerarNfseEnvio {
         ItemListaServico: string;
         CodigoCnae: string;
         Descricao: string;
-        Tributavel: string;
+        Tributavel: number;
         Quantidade: number;
         ValorUnitario: number;
         ValorDesconto: number;
@@ -250,8 +250,8 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
     return { numeroLote: 1, identificacaoRpsnumero:1 };
   }
 
-  let numeroLote = lastInvoice.numeroLote + 1;
-  let identificacaoRpsnumero = lastInvoice.identificacaoRpsnumero + 1;
+  let numeroLote = lastInvoice.numeroLote + 20; //20
+  let identificacaoRpsnumero = lastInvoice.identificacaoRpsnumero + 20; //20
   
 
   return { numeroLote, identificacaoRpsnumero };
@@ -330,25 +330,25 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             Competencia: formattedDate,
             Servico: {
               Valores: {
-                ValorServicos: servico.valor_unitario * servico.quantidade,
-                ValorDeducoes: servico.desconto || 0.00,
+                ValorServicos:  parseFloat((servico.valor_unitario * servico.quantidade).toFixed(2)),
+                ValorDeducoes: 0,
                 AliquotaPis: 0,
                 RetidoPis: 2,
                 AliquotaCofins: 0,
                 RetidoCofins: 2,
                 AliquotaInss: 0,
                 RetidoInss: 2,
-                AliquotaIr: tributacao.retencoes.irrf || 0, 
-                RetidoIr: tributacao.retencoes.irrf > 0 ? 1 : 2, 
+                AliquotaIr: 0, 
+                RetidoIr: 2, 
                 AliquotaCsll: 0,
                 RetidoCsll: 2,
                 RetidoCpp: 2,
                 RetidoOutrasRetencoes: 2,
-                Aliquota: tributacao.aliquota_iss,
+                Aliquota: 4.41,
                 DescontoIncondicionado: 0.00,
                 DescontoCondicionado: 0.00,
               },
-              IssRetido: tributacao.iss_retido ? 1 : 2, 
+              IssRetido: 2, 
               Discriminacao: servico.Discriminacao,
               CodigoMunicipio: customer.address.cityCode,
               ExigibilidadeISS: 1,
@@ -358,11 +358,11 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                   ItemListaServico: servico.item_lista,
                   CodigoCnae: servico.cnae,
                   Descricao: servico.descricao,
-                  Tributavel: "1",
-                  Quantidade: servico.quantidade,
-                  ValorUnitario: servico.valor_unitario,
-                  ValorDesconto: servico.desconto || 0.00,
-                  ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+                  Tributavel: 1,
+                  Quantidade: parseFloat(servico.quantidade.toFixed(5)),
+                  ValorUnitario: parseFloat(servico.valor_unitario.toFixed(5)),
+                  ValorDesconto: parseFloat(servico.desconto.toFixed(2)) || 0.00, 
+                  ValorLiquido: parseFloat(((servico.valor_unitario * servico.quantidade) - (servico.desconto || 0)).toFixed(2)), 
                 },
               ],
             },
@@ -424,7 +424,6 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
           const response = await NFseService.enviarNfse(data);
 
-          console.log(response);
 
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
         

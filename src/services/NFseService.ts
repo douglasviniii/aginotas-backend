@@ -63,7 +63,7 @@ interface GerarNfseEnvio {
         ItemListaServico: string;
         CodigoCnae: string;
         Descricao: string;
-        Tributavel: string;
+        Tributavel: number;
         Quantidade: number;
         ValorUnitario: number;
         ValorDesconto: number;
@@ -417,6 +417,8 @@ class NfseService {
 
       } else {
         const xmlAssinado = await this.assinarXml(xml);
+
+        console.log(xmlAssinado);
         
          const response = await axios.post(
           `${this.ElotechUrl}`, xmlAssinado,
