@@ -535,6 +535,9 @@ class NfseService {
 
   private async gerarXmlCancelarNfseEnvio(data: DataCancelarNfseEnvio): Promise<string> {
     return`
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
+      <soapenv:Header/>
+      <soapenv:Body>
       <CancelarNfseEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
         <IdentificacaoRequerente>
             <CpfCnpj>
@@ -559,6 +562,8 @@ class NfseService {
             </InfPedidoCancelamento>
         </Pedido>
     </CancelarNfseEnvio>
+    </soapenv:Body>
+    </soapenv:Envelope>
     `
   }
 
@@ -568,7 +573,7 @@ class NfseService {
 
       const xmlAssinado = await this.assinarXmlCancelar(xmlCancelamento);
 
-       const response = await axios.post(
+        const response = await axios.post(
         `${this.ElotechUrl}`, xmlAssinado,
         {
           headers: {
@@ -578,7 +583,8 @@ class NfseService {
         }
       );
 
-      return response.data; 
+      return response.data;
+
     } catch (error) {
       console.error('Erro no cancelamento da NFS-e:', error);
       throw new Error('Falha ao cancelar NFS-e.');

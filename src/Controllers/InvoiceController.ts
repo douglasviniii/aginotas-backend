@@ -385,11 +385,6 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                       }
 
                       return resolve(true);
-/*                       if (resposta["ns2:Nfse"]) {
-                          return resolve(true);
-                      } */
-      
-                      //resolve(false); 
                   } catch (e) {
                       reject(e);
                   }
@@ -436,10 +431,33 @@ const cancel_invoice = async (req: CustomRequest, res: Response) => {
   try {
       const user = req.userObject;
       const body = req.body;
+      let messageError = '';
 
       if(!user){
         res.status(400).send({message:'User not found!'});
         return;
+      }
+
+      async function verificarNFSe(xml: any): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+                if (err) return reject(err);
+    
+                try {
+                    const body = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"];
+                    const resposta = body["ns2:CancelarNfseResposta"];
+                    
+                    if (resposta["ns2:ListaMensagemRetorno"]) {
+                        console.error("Erro no cancelamento da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
+                        messageError = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]["ns2:Correcao"];
+                        return resolve(false);
+                    }                   
+                    return resolve(true);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
       }
 
       const data: DataCancelarNfseEnvio = {
@@ -456,13 +474,16 @@ const cancel_invoice = async (req: CustomRequest, res: Response) => {
         CodigoCancelamento: 1,
       }
 
-      console.log(data);
-
       const response = await NFseService.cancelarNfse(data);
+      const nfseGerada = await verificarNFSe(response);
+
+      if (!nfseGerada) {
+        res.status(200).send({message: messageError});
+        return;
+      }
 
       const id = body.IdInvoice;
       await InvoiceService.DeleteInvoice(id);
-
       res.status(200).send({message: 'Nota Fiscal Cancelada com sucesso!'});
       
     } catch (error) {
