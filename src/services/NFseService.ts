@@ -417,6 +417,8 @@ class NfseService {
 
       } else {
         const xmlAssinado = await this.assinarXml(xml);
+        
+        console.log(xmlAssinado);
 
          const response = await axios.post(
           `${this.ElotechUrl}`, xmlAssinado,

@@ -247,7 +247,7 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
   const lastInvoice = await InvoiceService.FindLastInvoice(id);
 
   if (!lastInvoice) {
-    return { numeroLote: 1, identificacaoRpsnumero:1 };
+    return { numeroLote: 28, identificacaoRpsnumero:28 };
   }
 
   let numeroLote = lastInvoice.numeroLote + 1;
@@ -329,9 +329,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               },
               IssRetido: 2, 
               Discriminacao: servico.Discriminacao,
-              CodigoMunicipio: customer.address.cityCode,
+              CodigoMunicipio: '4115804' /* customer.address.cityCode */, //CÓDIGO DE MEDIANEIRA
               ExigibilidadeISS: 1,
-              MunicipioIncidencia: customer.address.cityCode,
+              MunicipioIncidencia: '4115804' /* customer.address.cityCode */, //CÓDIGO DE MEDIANEIRA
               ListaItensServico: [
                 {
                   ItemListaServico: servico.item_lista,
@@ -404,6 +404,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
           const response = await NFseService.enviarNfse(data);
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
+
         
           if (!nfseGerada) {
               res.status(200).send({message: messageError});
