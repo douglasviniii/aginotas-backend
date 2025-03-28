@@ -437,18 +437,23 @@ const cancel_invoice = async (req: CustomRequest, res: Response) => {
       const user = req.userObject;
       const body = req.body;
 
+      if(!user){
+        res.status(400).send({message:'User not found!'});
+        return;
+      }
+
       const data: DataCancelarNfseEnvio = {
-        IdInvoice: 't4tg4ergfe45tr43t3e4', //body.IdInvoice
-        CpfCnpj: '57278676000169', //user.cnpj
-        InscricaoMunicipal: '00898131', //user.inscricaoMunicipal
-        Senha: 'KK89BRGH', //user.senhaelotech
-        Homologa: true, //user.homologa
-        NumeroNfse: '', //body.NumeroNfse
-        CpfCnpjNfse: '', //body.CpfCnpjNfse
-        InscricaoMunicipalNfse: '', //body.InscricaoMunicipalNfse
-        CodigoMunicipioNfse: '', //body.CodigoMunicipioNfse
-        ChaveAcesso: '', //body.ChaveAcesso
-        CodigoCancelamento: 1, //body.CodigoCancelamento
+        IdInvoice: body.IdInvoice, 
+        CpfCnpj: user!.cnpj,
+        InscricaoMunicipal: user!.inscricaoMunicipal,
+        Senha: user!.senhaelotech,
+        Homologa: user!.homologa,
+        NumeroNfse: body.NumeroNfse,
+        CpfCnpjNfse: body.CpfCnpjNfse,
+        InscricaoMunicipalNfse: body.InscricaoMunicipalNfse,
+        CodigoMunicipioNfse: body.CodigoMunicipioNfse,
+        ChaveAcesso: body.ChaveAcesso,
+        CodigoCancelamento: 1,
       }
 
       const response = await NFseService.cancelarNfse(data);
