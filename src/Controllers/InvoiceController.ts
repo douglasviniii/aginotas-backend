@@ -247,7 +247,7 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
   const lastInvoice = await InvoiceService.FindLastInvoice(id);
 
   if (!lastInvoice) {
-    return { numeroLote: 28, identificacaoRpsnumero:28 };
+    return { numeroLote: 35, identificacaoRpsnumero:35 };
   }
 
   let numeroLote = lastInvoice.numeroLote + 1;
@@ -386,10 +386,11 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                           messageError = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]["ns2:Mensagem"];
                           return resolve(false);
                       }
-
-                      if (resposta["ns2:Nfse"]) {
+                      
+                      return resolve(true);
+/*                       if (resposta["ns2:Nfse"]) {
                           return resolve(true);
-                      }
+                      } */
       
                       resolve(false); 
                   } catch (e) {
@@ -403,14 +404,14 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           case "Medianeira":
 
           const response = await NFseService.enviarNfse(data);
-          const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
 
+          const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
         
           if (!nfseGerada) {
               res.status(200).send({message: messageError});
               return;
           }
-
+          
             await InvoiceService.CreateInvoiceService({
               customer: customer_id,
               user: user?.id,
@@ -419,15 +420,15 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               data: data,
               numeroLote: numeroLote,
               identificacaoRpsnumero: identificacaoRpsnumero,
-            });   
+            });
 
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
-            break;
+            return;
+
         default:
            res.status(400).send({message: "Não atende a cidade informada"});
            return;
-        } 
-        res.status(400).send({message: "Não foi possivel gerar a nota fiscal"});      
+        }      
       } catch (error) {
         res.status(500).send({message: 'Erro interno no servidor', error});
         return;

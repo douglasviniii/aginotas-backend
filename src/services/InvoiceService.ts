@@ -1,4 +1,3 @@
-import axios from "axios";
 import Invoice from "../Models/InvoiceModel.ts";
 
 const CreateInvoiceService = (data: Object) => Invoice.create(data);
