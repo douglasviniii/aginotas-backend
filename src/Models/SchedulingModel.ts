@@ -28,6 +28,7 @@ const schedulingSchema = new Schema<Scheduling>({
     start_date: { type: String, required: true},
     end_date: { type: String, required: true},
     data: {
+      servico: {
       valor_unitario: {type: Number, required: true},
       quantidade: {type: Number, required: true},
       Discriminacao: {type: String, required: true},
@@ -35,6 +36,7 @@ const schedulingSchema = new Schema<Scheduling>({
       cnae: {type: Number, required: true},
       descricao: {type: String, required: true},
       desconto: {type: Number, required: true}
+      },
     },
     valor: {type: Number, required: true},
     status: {type: String, default: 'programado'},

@@ -113,7 +113,7 @@ const create_scheduling = async (req: CustomRequest, res: Response) => {
   try {
     const data = req.body;
 
-    if(!data.customer_id || !data.billing_day || !data.start_date || !data.end_date || !data.servico || !data.tributacao || !data.valor){
+    if(!data){
       res.status(400).send({message: 'Dados incompletos'});
       return;
     }
@@ -126,20 +126,21 @@ const create_scheduling = async (req: CustomRequest, res: Response) => {
       end_date: data.end_date,
       data: {
         servico: {
-          Discriminacao: data.servico.Discriminacao,
-          descricao: data.servico.descricao,
-          item_lista: data.servico.item_lista,
-          cnae: data.servico.cnae,
-          quantidade: data.servico.quantidade,
-          valor_unitario: data.servico.valor_unitario,
-          desconto: data.servico.desconto,
+          Discriminacao: data.data.servico.Discriminacao,
+          descricao: data.data.servico.descricao,
+          item_lista: data.data.servico.item_lista,
+          cnae: data.data.servico.cnae,
+          quantidade: data.data.servico.quantidade,
+          valor_unitario: data.data.servico.valor_unitario,
+          desconto: data.data.servico.desconto,
         },
       },
       valor: data.valor,          
     } 
 
     await SchedulingService.CreateSchedulingService(body);
-    res.status(200).send({ message: 'Agendamento criado com sucesso!' ,data});
+    res.status(200).send({ message: 'Agendamento criado com sucesso!'});
+
   } catch (error) {
     res.status(500).send({
       message: 'Não foi possivel criar agendamento',
@@ -243,9 +244,9 @@ const scheduling_controller = async () =>{
                       },
                       IssRetido: 2, 
                       Discriminacao: String(schedule.data.Discriminacao),
-                      CodigoMunicipio: db_customer.address.cityCode,
+                      CodigoMunicipio: '4115804', //CÓDIGO DE MEDIANEIRA
                       ExigibilidadeISS: 1,
-                      MunicipioIncidencia: db_customer.address.cityCode,
+                      MunicipioIncidencia: '4115804', //CÓDIGO DE MEDIANEIRA
                       ListaItensServico: [
                         {
                           ItemListaServico: String(schedule.data.item_lista),
@@ -299,10 +300,11 @@ const scheduling_controller = async () =>{
                                   console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
                                   return resolve(false);
                               }
-        
-                              if (resposta["ns2:Nfse"]) {
+
+                              return resolve(true);
+/*                               if (resposta["ns2:Nfse"]) {
                                   return resolve(true);
-                              }
+                              } */
               
                               resolve(false); 
                           } catch (e) {
@@ -336,7 +338,7 @@ const scheduling_controller = async () =>{
           await SendEmailService.SendEmailNFSe(`${db_customer.email}`, 'nota gerada automaticamente'); 
 
           console.log('Nota Fiscal gerada com sucesso!');
-          break;
+          return;
           default:
           console.log("Não atende a cidade informada");
           return;
