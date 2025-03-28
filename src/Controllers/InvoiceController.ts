@@ -245,7 +245,7 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
   const lastInvoice = await InvoiceService.FindLastInvoice(id);
 
   if (!lastInvoice) {
-    return { numeroLote: 35, identificacaoRpsnumero:35 };
+    return { numeroLote: 39, identificacaoRpsnumero:39 };
   }
 
   let numeroLote = lastInvoice.numeroLote + 1;
@@ -389,7 +389,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                           return resolve(true);
                       } */
       
-                      resolve(false); 
+                      //resolve(false); 
                   } catch (e) {
                       reject(e);
                   }

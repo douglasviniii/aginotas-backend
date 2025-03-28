@@ -173,7 +173,7 @@ const scheduling_controller = async () =>{
         const lastInvoice = await InvoiceService.FindLastInvoice(id);
       
         if (!lastInvoice) {
-          return { numeroLote: 1, identificacaoRpsnumero:1 };
+          return { numeroLote: 39, identificacaoRpsnumero:39 };
         }
       
         let numeroLote = lastInvoice.numeroLote + 1;
@@ -200,6 +200,8 @@ const scheduling_controller = async () =>{
         const day = String(date.getDate()).padStart(2, '0');
         const formattedDate = `${year}-${month}-${day}`;
 
+        console.log(JSON.stringify(schedule, null, 2));
+
         const data: GerarNfseEnvio = {
           Requerente: {
                     Cnpj: db_user!.cnpj,  
@@ -224,7 +226,7 @@ const scheduling_controller = async () =>{
                     Competencia: formattedDate,
                     Servico: {
                       Valores: {
-                        ValorServicos: schedule.data.valor_unitario * schedule.data.quantidade,
+                        ValorServicos: schedule.data.servico.valor_unitario * schedule.data.servico.quantidade,
                         ValorDeducoes: 0,
                         AliquotaPis: 0,
                         RetidoPis: 2,
@@ -243,20 +245,20 @@ const scheduling_controller = async () =>{
                         DescontoCondicionado: 0.00,
                       },
                       IssRetido: 2, 
-                      Discriminacao: String(schedule.data.Discriminacao),
+                      Discriminacao: String(schedule.data.servico.Discriminacao),
                       CodigoMunicipio: '4115804', //CÓDIGO DE MEDIANEIRA
                       ExigibilidadeISS: 1,
                       MunicipioIncidencia: '4115804', //CÓDIGO DE MEDIANEIRA
                       ListaItensServico: [
                         {
-                          ItemListaServico: String(schedule.data.item_lista),
-                          CodigoCnae: String(schedule.data.cnae),
-                          Descricao: String(schedule.data.descricao),
+                          ItemListaServico: String(schedule.data.servico.item_lista),
+                          CodigoCnae: String(schedule.data.servico.cnae),
+                          Descricao: String(schedule.data.servico.descricao),
                           Tributavel: 1,
-                          Quantidade: schedule.data.quantidade,
-                          ValorUnitario: schedule.data.valor_unitario,
-                          ValorDesconto: schedule.data.desconto, 
-                          ValorLiquido: (schedule.data.valor_unitario * schedule.data.quantidade) - (schedule.data.desconto || 0), 
+                          Quantidade: schedule.data.servico.quantidade,
+                          ValorUnitario: schedule.data.servico.valor_unitario,
+                          ValorDesconto: schedule.data.servico.desconto, 
+                          ValorLiquido: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0), 
                         },
                       ],
                     },
@@ -306,7 +308,7 @@ const scheduling_controller = async () =>{
                                   return resolve(true);
                               } */
               
-                              resolve(false); 
+                              //resolve(false); 
                           } catch (e) {
                               reject(e);
                           }
@@ -328,7 +330,7 @@ const scheduling_controller = async () =>{
           await InvoiceService.CreateInvoiceService({
             customer: db_customer._id,
             user: db_user._id,
-            valor: (schedule.data.valor_unitario * schedule.data.quantidade) - (schedule.data.desconto || 0),
+            valor: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0),
             xml: response,
             data: data,
             numeroLote: numeroLote,

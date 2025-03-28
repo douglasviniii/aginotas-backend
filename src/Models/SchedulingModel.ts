@@ -7,6 +7,7 @@ export interface Scheduling extends Document {
   start_date: String,
   end_date: String,
   data: {
+    servico:{
     valor_unitario: number,
     quantidade: number,
     Discriminacao: string,
@@ -14,6 +15,7 @@ export interface Scheduling extends Document {
     cnae: number,
     descricao: string,
     desconto: number,
+    },
   },
   valor: Number,
   status: String,
