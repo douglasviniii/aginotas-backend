@@ -456,6 +456,8 @@ const cancel_invoice = async (req: CustomRequest, res: Response) => {
         CodigoCancelamento: 1,
       }
 
+      console.log(data);
+
       const response = await NFseService.cancelarNfse(data);
 
       const id = body.IdInvoice;
