@@ -383,7 +383,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
       
                       if (resposta["ns2:ListaMensagemRetorno"]) {
                           console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
-                          messageError = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"];
+                          messageError = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]["ns2:Mensagem"];
                           return resolve(false);
                       }
 
@@ -406,7 +406,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
         
           if (!nfseGerada) {
-              res.status(400).send(messageError);
+              res.status(400).send({message: messageError});
               return;
           }
 
