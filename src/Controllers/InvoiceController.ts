@@ -406,7 +406,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
         
           if (!nfseGerada) {
-              res.status(400).send({message: messageError});
+              res.status(200).send({message: messageError});
               return;
           }
 
