@@ -241,8 +241,6 @@ interface DataUpdateObject {
   identificacaoRpsnumero: number;
 }
 
-
-
 async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
   const lastInvoice = await InvoiceService.FindLastInvoice(id);
 
@@ -256,7 +254,6 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
 
   return { numeroLote, identificacaoRpsnumero };
 }
-
 
 const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
@@ -386,7 +383,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                           messageError = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]["ns2:Mensagem"];
                           return resolve(false);
                       }
-                      
+
                       return resolve(true);
 /*                       if (resposta["ns2:Nfse"]) {
                           return resolve(true);
