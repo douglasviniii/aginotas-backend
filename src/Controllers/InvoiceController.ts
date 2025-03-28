@@ -483,7 +483,7 @@ const cancel_invoice = async (req: CustomRequest, res: Response) => {
       }
 
       const id = body.IdInvoice;
-      await InvoiceService.DeleteInvoice(id);
+      await InvoiceService.UpdateInvoice(id,{status: 'cancelada'});
       res.status(200).send({message: 'Nota Fiscal Cancelada com sucesso!'});
       
     } catch (error) {
