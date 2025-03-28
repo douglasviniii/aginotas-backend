@@ -134,15 +134,6 @@ const create_scheduling = async (req: CustomRequest, res: Response) => {
           valor_unitario: data.servico.valor_unitario,
           desconto: data.servico.desconto,
         },
-        tributacao: {
-          iss_retido: data.tributacao.iss_retido, 
-          aliquota_iss: data.tributacao.aliquota_iss, 
-          retencoes: {
-            irrf: data.tributacao.retencoes.irrf, 
-            pis: data.tributacao.retencoes.pis,
-            cofins: data.tributacao.retencoes.cofins,            
-          }
-        }
       },
       valor: data.valor,          
     } 

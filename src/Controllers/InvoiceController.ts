@@ -262,6 +262,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
         const user = req.userObject;
         const {customer_id, servico} = req.body;
+        let messageError = '';
         
         if(!customer_id || !servico){
           res.status(400).send({message:'customer_id or service or taxation is null!'});
@@ -382,6 +383,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
       
                       if (resposta["ns2:ListaMensagemRetorno"]) {
                           console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
+                          messageError = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"];
                           return resolve(false);
                       }
 
@@ -404,7 +406,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
         
           if (!nfseGerada) {
-              res.status(400).send({ message: "Erro na emissão da NFS-e. Verifique os dados." });
+              res.status(400).send(messageError);
               return;
           }
 
