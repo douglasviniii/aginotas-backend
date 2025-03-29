@@ -108,6 +108,7 @@ const updatecustomer = async (req: Request, res: Response) =>{
       },
     };
 
+
     await CustomerService.UpdateCustomer(id, data);
     res.status(200).send({message: "Cliente atualizado com sucesso"});
   }catch(error){
