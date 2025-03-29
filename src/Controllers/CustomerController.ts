@@ -85,11 +85,42 @@ const desactivatecustomer = async (req: Request, res: Response) =>{
   }
 }
 
+const updatecustomer = async (req: Request, res: Response) =>{
+  try{
+    const id = req.params.id;
+    const body = req.body;
+
+    const data = {
+      name: body.name,
+      cnpj: body.cnpj,
+      email: body.email,
+      phone: body.phone,
+      inscricaoMunicipal: body.inscricaoMunicipal,
+      status: body.status,
+      address: {
+        street: body.address.street,
+        number: body.address.number,
+        neighborhood: body.address.neighborhood,
+        cityCode: body.address.cityCode,
+        city: body.address.city,
+        state: body.address.state,
+        zipCode: body.address.zipCode,
+      },
+    };
+
+    await CustomerService.UpdateCustomer(id, data);
+    res.status(200).send({message: "Cliente atualizado com sucesso"});
+  }catch(error){
+    res.status(500).send({message: "Não foi possivel atualizar cliente"});
+  }
+}
+
 export default 
 {
   create_customer, 
   findcustomers,
   deletecustomer,
   desactivatecustomer,
-  findcustomersactives
+  findcustomersactives,
+  updatecustomer
 };
