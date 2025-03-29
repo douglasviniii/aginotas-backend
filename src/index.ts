@@ -105,8 +105,6 @@ io.on("connection", (socket) => {
       const ticket = await Ticket.findById(ticketId);
       if (!ticket) return;
 
-      console.log(ticketId, sender, message);
-
       ticket.messages.push({ sender, text: message });
       await ticket.save();
 
@@ -118,10 +116,13 @@ io.on("connection", (socket) => {
 
   socket.on("close_ticket", async (ticketId) => {
     try {
-      const ticket = await Ticket.findByIdAndUpdate(ticketId, { status: "closed" }, { new: true });
+/*       const ticket = await Ticket.findByIdAndUpdate(ticketId, { status: "closed" }, { new: true });
+
       if (ticket) {
         io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket);
-      }
+      } */
+      await Ticket.findByIdAndDelete(ticketId);
+      console.log(`Ticket ${ticketId} foi excluído.`);
     } catch (error) {
       console.error("Erro ao fechar ticket:", error);
     }
