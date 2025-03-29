@@ -105,6 +105,8 @@ io.on("connection", (socket) => {
       const ticket = await Ticket.findById(ticketId);
       if (!ticket) return;
 
+      console.log(ticketId, sender, message);
+
       ticket.messages.push({ sender, text: message });
       await ticket.save();
 
