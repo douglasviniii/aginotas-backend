@@ -60,7 +60,7 @@ interface GerarNfseEnvio {
       ExigibilidadeISS: number;
       MunicipioIncidencia: string;
       ListaItensServico: Array<{
-        ItemListaServico: string;
+        ItemServico: string;
         CodigoCnae: string;
         Descricao: string;
         Tributavel: number;
@@ -82,9 +82,9 @@ interface GerarNfseEnvio {
     };
     Tomador: {
       IdentificacaoTomador: {
-        Cnpj: string;
         InscricaoMunicipal: string;
         InscricaoEstadual: string;
+        Cnpj: string;
       };
       RazaoSocial: string;
       Endereco: {

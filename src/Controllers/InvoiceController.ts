@@ -69,7 +69,7 @@ interface GerarNfseEnvio {
       ExigibilidadeISS: number;
       MunicipioIncidencia: string;
       ListaItensServico: Array<{
-        ItemListaServico: string;
+        ItemServico: string;
         CodigoCnae: string;
         Descricao: string;
         Tributavel: number;
@@ -341,7 +341,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               MunicipioIncidencia: '4115804' /* customer.address.cityCode */, //CÓDIGO DE MEDIANEIRA
               ListaItensServico: [
                 {
-                  ItemServico: {
+                  ItemServico: JSON.stringify({
                     ItemListaServico: servico.item_lista,
                     CodigoCnae: servico.cnae,
                     Descricao: servico.descricao,
@@ -349,7 +349,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                     Quantidade: servico.quantidade,
                     ValorUnitario: servico.valor_unitario,
                     ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
-                  },
+                  }),
                   CodigoCnae: servico.cnae,
                   Descricao: servico.descricao,
                   Tributavel: 1,

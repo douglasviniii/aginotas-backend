@@ -87,6 +87,8 @@ interface GerarNfseEnvio {
     };
     Tomador: {
       IdentificacaoTomador: {
+        InscricaoMunicipal: string;
+        InscricaoEstadual: string;
         Cnpj: string;
       };
       RazaoSocial: string;
@@ -200,7 +202,7 @@ const scheduling_controller = async () =>{
         const day = String(date.getDate()).padStart(2, '0');
         const formattedDate = `${year}-${month}-${day}`;
 
-        console.log(JSON.stringify(schedule, null, 2));
+        //console.log(JSON.stringify(schedule, null, 2));
 
         const data: GerarNfseEnvio = {
           Requerente: {
@@ -269,6 +271,8 @@ const scheduling_controller = async () =>{
                     Tomador: {
                       IdentificacaoTomador: {
                         Cnpj: db_customer.cnpj,
+                        InscricaoMunicipal: db_customer.inscricaoMunicipal,
+                        InscricaoEstadual: db_customer.inscricaoEstadual,
                       },
                       RazaoSocial: db_customer.name,
                       Endereco: {
