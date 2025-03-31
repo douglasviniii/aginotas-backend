@@ -435,7 +435,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               return;
           }
 
-            console.log(data);
+            //console.log(data);
           
             await InvoiceService.CreateInvoiceService({
               customer: customer_id,
