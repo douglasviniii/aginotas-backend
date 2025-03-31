@@ -351,7 +351,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             Tomador: {
               IdentificacaoTomador: {
                 Cnpj: customer.cnpj,
-                InscricaoMunicipal: customer.inscricaoMunicipal,
+                InscricaoMunicipal: customer.inscricaoMunicipal ,
                 InscricaoEstadual: customer.inscricaoEstadual,
               },
               RazaoSocial: customer.name,
@@ -388,6 +388,17 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                           return resolve(false);
                       }
 
+                      if (resposta["ns2:ListaMensagemRetornoLote"]) {
+                        console.error("Erro no lote da NFS-e:", resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"]);
+                        const mensagens = resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"];
+                        if (Array.isArray(mensagens)) {
+                          messageError = mensagens.map((msg: any) => msg["ns2:Mensagem"]).join("; ");
+                        } else {
+                          messageError = mensagens["ns2:Mensagem"];
+                        }
+                        return resolve(false);
+                      }
+
                       return resolve(true);
                   } catch (e) {
                       reject(e);
@@ -407,6 +418,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               res.status(200).send({message: messageError});
               return;
           }
+
+            console.log(data);
           
             await InvoiceService.CreateInvoiceService({
               customer: customer_id,
@@ -560,24 +573,47 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
             Status: 1,
           },
           Competencia: formattedDate,
-          Valores: {
-            ValorServicos: servico.valor_unitario * servico.quantidade,
-            ValorDeducoes: 0,
-            AliquotaPis: 0,
-            RetidoPis: 2,
-            AliquotaCofins: 0,
-            RetidoCofins: 2,
-            AliquotaInss: 0,
-            RetidoInss: 2,
-            AliquotaIr: 0, 
-            RetidoIr: 2, 
-            AliquotaCsll: 0,
-            RetidoCsll: 2,
-            RetidoCpp: 2,
-            RetidoOutrasRetencoes: 2,
-            Aliquota: 4.41,
-            DescontoIncondicionado: 0.00,
-            DescontoCondicionado: 0.00,
+          Servico: {
+            Valores: {
+              ValorServicos: servico.valor_unitario * servico.quantidade,
+              AliquotaPis: 0,
+              RetidoPis: 2,
+              ValorPis: 0,
+              AliquotaCofins: 0,
+              RetidoCofins: 2,
+              ValorCofins: 0,
+              AliquotaInss: 0,
+              RetidoInss: 2,
+              ValorInss: 0,
+              AliquotaIr: 0,
+              RetidoIr: 2,
+              ValorIr: 0,
+              AliquotaCsll: 0,
+              RetidoCsll: 2,
+              ValorCsll: 0,
+              AliquotaCpp: 0,
+              RetidoCpp: 2,
+              ValorCpp: 0,
+              OutrasRetencoes: 0,
+              RetidoOutrasRetencoes: 2,
+            },
+            IssRetido: 2,
+            Discriminacao: servico.Discriminacao,
+            CodigoNbs: "",
+            CodigoMunicipio: "4115804",
+            ExigibilidadeISS: 1,
+            MunicipioIncidencia: "4115804",
+            ListaItensServico: [
+              {
+                ItemListaServico: servico.item_lista,
+                CodigoCnae: servico.cnae,
+                Descricao: servico.descricao,
+                Tributavel: 1,
+                Quantidade: servico.quantidade,
+                ValorUnitario: servico.valor_unitario,
+                ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+              },
+            ],
           },
           Prestador: {
             CpfCnpj: {
@@ -591,7 +627,6 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
                 Cnpj: customer.cnpj,
               },
               InscricaoMunicipal: customer.inscricaoMunicipal,
-              InscricaoEstadual: customer.inscricaoEstadual,
             },
             RazaoSocial: customer.name,
             Endereco: {
@@ -606,6 +641,7 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
               Telefone: customer.phone,
               Email: customer.email,
             },
+            InscricaoEstadual: customer.inscricaoEstadual,
           },
           IncentivoFiscal: user!.IncentivoFiscal,
         },
@@ -708,7 +744,7 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
   
               try {
                   const body = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"];
-                  const resposta = body["ns2:EnviarLoteRpsSincronoResposta"];
+                  const resposta = body["ns2:SubstituirNfseResposta"];
   
                   if (resposta["ns2:ListaMensagemRetorno"]) {
                       console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
@@ -724,7 +760,11 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
       });
     } 
 
+    //console.log(JSON.stringify(substituirNfseEnvio, null, 2));
+
     const response = await NFseService.SubstituirNfse(substituirNfseEnvio);
+
+    console.log(response);
 
     const nfseGerada = await verificarNFSe(response);
 
@@ -736,7 +776,7 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
     await InvoiceService.UpdateInvoice(IdInvoice, {xml: response, data: data, status: 'substituida'});
     res.status(200).send({message: 'Nota Fiscal Substituida com sucesso!'});
 
-    
+
     return;
   } catch (error) {
     res.status(500).send({message: 'Não foi possivel substituir Nota Fiscal', error});
