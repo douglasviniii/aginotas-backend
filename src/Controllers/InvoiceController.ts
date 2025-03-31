@@ -138,7 +138,9 @@ interface DataCancelarNfseEnvio{
 
 interface DataSubstituirNfse {
   IdentificacaoRequerente: {
-    Cnpj: string;
+    CpfCnpj: {
+      Cnpj: string;
+    };
     InscricaoMunicipal: string;
     Senha: string;
     Homologa: boolean;
@@ -147,12 +149,14 @@ interface DataSubstituirNfse {
     InfPedidoCancelamento: {
       IdentificacaoNfse: {
         Numero: string;
-        Cnpj: string;
+        CpfCnpj: {
+          Cnpj: string;
+        };
         InscricaoMunicipal: string;
         CodigoMunicipio: string;
       };
       ChaveAcesso: string;
-      CodigoCancelamento: string;
+      CodigoCancelamento: number;
     };
   };
   DeclaracaoPrestacaoServico: {
@@ -161,10 +165,10 @@ interface DataSubstituirNfse {
         IdentificacaoRps: {
           Numero: string;
           Serie: string;
-          Tipo: string;
+          Tipo: number;
         };
         DataEmissao: string;
-        Status: string;
+        Status: number;
       };
       Competencia: string;
       Servico: {
@@ -197,25 +201,29 @@ interface DataSubstituirNfse {
         CodigoMunicipio: string;
         ExigibilidadeISS: number;
         MunicipioIncidencia: string;
-        ListaItensServico: {
+        ListaItensServico: [
           ItemServico: {
             ItemListaServico: string;
             CodigoCnae: string;
             Descricao: string;
-            Tributavel: string;
+            Tributavel: number;
             Quantidade: number;
             ValorUnitario: number;
             ValorLiquido: number;
-          };
-        };
+          }
+        ];
       };
       Prestador: {
-        Cnpj: string;
+        CpfCnpj: {
+          Cnpj: string;
+        };
         InscricaoMunicipal: string;
       };
       Tomador: {
         IdentificacaoTomador: {
-          Cnpj: string;
+          CpfCnpj: {
+            Cnpj: string;
+          };
           InscricaoMunicipal: string;
         };
         RazaoSocial: string;
@@ -333,7 +341,15 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               MunicipioIncidencia: '4115804' /* customer.address.cityCode */, //CÓDIGO DE MEDIANEIRA
               ListaItensServico: [
                 {
-                  ItemListaServico: servico.item_lista,
+                  ItemServico: {
+                    ItemListaServico: servico.item_lista,
+                    CodigoCnae: servico.cnae,
+                    Descricao: servico.descricao,
+                    Tributavel: "1",
+                    Quantidade: servico.quantidade,
+                    ValorUnitario: servico.valor_unitario,
+                    ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+                  },
                   CodigoCnae: servico.cnae,
                   Descricao: servico.descricao,
                   Tributavel: 1,
@@ -538,7 +554,7 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
       return;
     }
 
-    const substituirNfseEnvio = {
+    const substituirNfseEnvio: DataSubstituirNfse = {
       IdentificacaoRequerente: {
         CpfCnpj: {
           Cnpj: user!.cnpj,
@@ -764,7 +780,7 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
 
     const response = await NFseService.SubstituirNfse(substituirNfseEnvio);
 
-    console.log(response);
+    //console.log(response);
 
     const nfseGerada = await verificarNFSe(response);
 
