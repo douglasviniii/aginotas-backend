@@ -2,7 +2,7 @@ import Customer from "../Models/CustomerModel.ts";
 
 const CreateCustomer = (data: Object) => Customer.create(data);
 
-const UpdateCustomer = (id: string, data: Object) => Customer.findOneAndUpdate({ _id: id }, data, { new: true });
+const UpdateCustomer = (id: string, data: Object) => Customer.findOneAndUpdate({ _id: id }, data);
 
 const FindCustomer = () => Customer.find().sort({ _id: -1 }).populate("user");
 
