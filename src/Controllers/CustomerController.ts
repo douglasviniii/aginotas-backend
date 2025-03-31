@@ -22,6 +22,7 @@ const create_customer = async (req: CustomRequest, res: Response) => {
           email: body.email,
           phone: body.phone,
           inscricaoMunicipal: body.inscricaoMunicipal,
+          inscricaoEstadual: body.inscricaoEstadual,
           status: 'active',
           address: {
             street: body.address.street,
@@ -96,6 +97,7 @@ const updatecustomer = async (req: Request, res: Response) =>{
       email: body.email,
       phone: body.phone,
       inscricaoMunicipal: body.inscricaoMunicipal,
+      inscricaoEstadual: body.inscricaoEstadual,
       status: body.status,
       address: {
         street: body.address.street,
