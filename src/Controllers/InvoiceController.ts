@@ -498,6 +498,7 @@ const cancel_invoice = async (req: CustomRequest, res: Response) => {
 const replace_invoice = async  (req: CustomRequest, res: Response) => {
   try {
     const user = req.userObject;
+    let messageError = '';
 
     const {
       IdInvoice,
@@ -518,6 +519,7 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
 
 
     const customer = await CustomerService.FindCostumerByIdService(customer_id);
+
     if(!customer){
       res.status(400).send({message: 'User is no found!'});
       return;
@@ -699,9 +701,42 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
       },
     };    
 
+    async function verificarNFSe(xml: any) {
+      return new Promise((resolve, reject) => {
+          xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+              if (err) return reject(err);
+  
+              try {
+                  const body = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"];
+                  const resposta = body["ns2:EnviarLoteRpsSincronoResposta"];
+  
+                  if (resposta["ns2:ListaMensagemRetorno"]) {
+                      console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
+                      messageError = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]["ns2:Mensagem"];
+                      return resolve(false);
+                  }
+
+                  return resolve(true);
+              } catch (e) {
+                  reject(e);
+              }
+          });
+      });
+    } 
+
     const response = await NFseService.SubstituirNfse(substituirNfseEnvio);
+
+    const nfseGerada = await verificarNFSe(response);
+
+    if (!nfseGerada) {
+      res.status(200).send({message: messageError});
+      return;
+    }
+
     await InvoiceService.UpdateInvoice(IdInvoice, {xml: response, data: data, status: 'substituida'});
     res.status(200).send({message: 'Nota Fiscal Substituida com sucesso!'});
+
+    
     return;
   } catch (error) {
     res.status(500).send({message: 'Não foi possivel substituir Nota Fiscal', error});
