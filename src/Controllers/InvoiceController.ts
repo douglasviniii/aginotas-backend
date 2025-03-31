@@ -768,6 +768,19 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
                       return resolve(false);
                   }
 
+                  if (resposta["ns2:ListaMensagemRetorno"]) {
+                    const mensagemRetorno = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"];
+                    if (mensagemRetorno) {
+                      console.error("Erro na substituição da NFS-e:", mensagemRetorno);
+                      if (Array.isArray(mensagemRetorno)) {
+                        messageError = mensagemRetorno.map((msg: any) => msg["ns2:Mensagem"]).join("; ");
+                      } else {
+                        messageError = mensagemRetorno["ns2:Mensagem"];
+                      }
+                      return resolve(false);
+                    }
+                  }
+
                   return resolve(true);
               } catch (e) {
                   reject(e);
