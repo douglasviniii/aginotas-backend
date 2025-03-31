@@ -353,7 +353,7 @@ class NfseService {
                     <ListaItensServico>
                       ${data.Rps.Servico.ListaItensServico.map(item => `
                       <ItemServico>
-                        <ItemListaServico>${item.ItemListaServico}</ItemListaServico>
+                        <ItemServico>${item.ItemServico}</ItemServico>
                         <CodigoCnae>${item.CodigoCnae}</CodigoCnae>
                         <Descricao>${item.Descricao}</Descricao>
                         <Tributavel>${item.Tributavel}</Tributavel>

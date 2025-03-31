@@ -342,7 +342,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               ListaItensServico: [
                 {
                   ItemServico: JSON.stringify({
-                    ItemListaServico: servico.item_lista,
+                    ItemServico: servico.item_lista,
                     CodigoCnae: servico.cnae,
                     Descricao: servico.descricao,
                     Tributavel: "1",
@@ -621,7 +621,7 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
             MunicipioIncidencia: "4115804",
             ListaItensServico: [
               {
-                ItemListaServico: servico.item_lista,
+                ItemServico: servico.item_lista,
                 CodigoCnae: servico.cnae,
                 Descricao: servico.descricao,
                 Tributavel: 1,
@@ -713,7 +713,15 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
           MunicipioIncidencia: '4115804' /* customer.address.cityCode */, //CÓDIGO DE MEDIANEIRA
           ListaItensServico: [
             {
-              ItemListaServico: servico.item_lista,
+              ItemServico: JSON.stringify({
+                ItemServico: servico.item_lista,
+                CodigoCnae: servico.cnae,
+                Descricao: servico.descricao,
+                Tributavel: "1",
+                Quantidade: servico.quantidade,
+                ValorUnitario: servico.valor_unitario,
+                ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+              }),
               CodigoCnae: servico.cnae,
               Descricao: servico.descricao,
               Tributavel: 1,
