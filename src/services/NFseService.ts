@@ -83,6 +83,8 @@ interface GerarNfseEnvio {
     Tomador: {
       IdentificacaoTomador: {
         Cnpj: string;
+        InscricaoMunicipal: string;
+        InscricaoEstadual: string;
       };
       RazaoSocial: string;
       Endereco: {
@@ -374,6 +376,7 @@ class NfseService {
                       <CpfCnpj>
                         <Cnpj>${data.Rps.Tomador.IdentificacaoTomador.Cnpj}</Cnpj>
                       </CpfCnpj>
+                      <InscricaoMunicipal>${data.Rps.Tomador.IdentificacaoTomador.InscricaoMunicipal}</InscricaoMunicipal>
                     </IdentificacaoTomador>
                     <RazaoSocial>${data.Rps.Tomador.RazaoSocial}</RazaoSocial>
                     <Endereco>
@@ -388,6 +391,7 @@ class NfseService {
                       <Telefone>${data.Rps.Tomador.Contato.Telefone}</Telefone>
                       <Email>${data.Rps.Tomador.Contato.Email}</Email>
                     </Contato>
+                    <InscricaoEstadual>${data.Rps.Tomador.IdentificacaoTomador.InscricaoEstadual}</InscricaoEstadual>
                   </Tomador>
                   <RegimeEspecialTributacao>${data.Rps.RegimeEspecialTributacao}</RegimeEspecialTributacao>
                   <IncentivoFiscal>${data.Rps.IncentivoFiscal}</IncentivoFiscal>
@@ -690,6 +694,7 @@ class NfseService {
                   <Telefone>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Contato.Telefone}</Telefone>
                   <Email>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.Contato.Email}</Email>
                 </Contato>
+                <InscricaoEstadual>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.IdentificacaoTomador.InscricaoEstadual}</InscricaoEstadual>
               </Tomador>
               <IncentivoFiscal>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.IncentivoFiscal}</IncentivoFiscal>
             </InfDeclaracaoPrestacaoServico>
