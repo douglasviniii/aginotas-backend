@@ -283,12 +283,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           res.status(400).send({message: 'User is no found!'});
           return;
         }
-
         const date = new Date();
-        const year = date.getFullYear(); 
-        const month = String(date.getMonth() + 1).padStart(2, '0'); 
-        const day = String(date.getDate()).padStart(2, '0');
-        const formattedDate = `${year}-${month}-${day}`;
+        const options = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' } as const;
+        const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date);
 
         const data: GerarNfseEnvio = {
           Requerente: {
