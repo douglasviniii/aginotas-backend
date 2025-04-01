@@ -77,6 +77,23 @@ const AuthUserController = async (req: Request, res: Response) => {
         const token = await UserService.GeradorDeToken(user.id);
         const userdb = await UserService.FindUserByIdService(user.id);
 
+        if(!userdb){
+          res.status(400).send({message: 'User not found!'});
+          return;
+        }
+
+        const subscription = await PagarmeService.GetSubscription(userdb.subscription_id);
+
+        if(!subscription){
+          res.status(400).send({message: 'Subscription not found!'});
+          return;
+        }
+
+        if(subscription.status != 'active'){
+          res.status(400).send({message: 'Subscription inactive!'});
+          return;
+        }
+
         res.status(200).send({ token, userdb });        
     }catch(error){
         res.status(500).send("Falha na autênticação");
