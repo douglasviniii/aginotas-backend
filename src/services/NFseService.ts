@@ -307,7 +307,7 @@ class NfseService {
         <QuantidadeRps>${data.LoteRps.QuantidadeRps}</QuantidadeRps>
         <ListaRps>
           <Rps>
-          <InfDeclaracaoPrestacaoServico>
+          <InfDeclaracaoPrestacaoServico Id="_0">
             <Rps>
             <IdentificacaoRps>
               <Numero>${data.Rps.IdentificacaoRps.Numero}</Numero>
@@ -358,12 +358,16 @@ class NfseService {
             </ListaItensServico>
             </Servico>
             <Prestador>
-            <Cnpj>${data.Rps.Prestador.Cnpj}</Cnpj>
+            <CpfCnpj>
+              <Cnpj>${data.Rps.Prestador.Cnpj}</Cnpj>
+            </CpfCnpj>
             <InscricaoMunicipal>${data.Rps.Prestador.InscricaoMunicipal}</InscricaoMunicipal>
             </Prestador>
             <Tomador>
             <IdentificacaoTomador>
+              <CpfCnpj>
               <Cnpj>${data.Rps.Tomador.IdentificacaoTomador.CpfCnpj}</Cnpj>
+              </CpfCnpj>
               <InscricaoMunicipal>${data.Rps.Tomador.IdentificacaoTomador.InscricaoMunicipal}</InscricaoMunicipal>
             </IdentificacaoTomador>
             <RazaoSocial>${data.Rps.Tomador.RazaoSocial}</RazaoSocial>
