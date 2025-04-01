@@ -67,11 +67,13 @@ const AuthUserController = async (req: Request, res: Response) => {
         const passwordIsValid = bcrypt.compareSync(Data.password, user!.password);
     
         if (!passwordIsValid) {
-          return res.status(404).send("Email ou senha inválidos");
+           res.status(404).send("Email ou senha inválidos");
+           return;
         }
     
         if (!user) {
-          return res.status(404).send("Email ou senha inválidos");
+          res.status(404).send("Email ou senha inválidos");
+          return;
         }
     
         const token = await UserService.GeradorDeToken(user.id);
