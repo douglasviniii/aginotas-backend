@@ -393,7 +393,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                           return resolve(false);
                       }
 
-                      if (resposta["ns2:ListaMensagemRetornoLote"]) {
+                        if (resposta["ns2:ListaMensagemRetornoLote"]) {
                         console.error("Erro no lote da NFS-e:", resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"]);
                         const mensagens = resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"];
                         if (Array.isArray(mensagens)) {
@@ -402,7 +402,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                           messageError = mensagens["ns2:Mensagem"];
                         }
                         return resolve(false);
-                      }
+                        }
 
                       return resolve(true);
                   } catch (e) {
