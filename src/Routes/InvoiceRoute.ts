@@ -8,6 +8,7 @@ InvoiceRoute.post('/create',MiddlewareUser,InvoiceController.create_invoice);
 InvoiceRoute.post('/cancel',MiddlewareUser,InvoiceController.cancel_invoice);
 InvoiceRoute.post('/replace',MiddlewareUser,InvoiceController.replace_invoice);
 
+InvoiceRoute.get('/find',InvoiceController.findinvoices);
 InvoiceRoute.get('/findinvoices',MiddlewareUser,InvoiceController.findinvoicesuser);
 InvoiceRoute.get('/findinvoicescustomer/:id',InvoiceController.findinvoicescustomer);
 
