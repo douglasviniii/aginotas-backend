@@ -23,6 +23,20 @@ interface CustomerData {
   customer_id: String;
 }
 
+interface CustomerDataSubscription {
+  card:{
+    number: String;
+    holder_name: String;
+    exp_month: Number;
+    exp_year: Number;
+    cvv: String;
+  },
+  installments: Number;
+  plan_id: String;
+  payment_method: String;
+  customer_id: String;
+}
+
 interface CustomerClient {
   name: String;
   email: String;
@@ -209,7 +223,7 @@ const ListClients = async () => {
 }
 
 //ASSINATURA
- const CreateSubscription = async (data: CustomerData) => {
+ const CreateSubscription = async (data: CustomerDataSubscription) => {
 
   const options = {
     method: 'POST',

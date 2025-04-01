@@ -1,6 +1,20 @@
 import { Request, Response } from 'express';
 import PagarmeService from '../services/Pagarme.service.ts';
 
+interface CustomerData {
+  card:{
+    number: String;
+    holder_name: String;
+    exp_month: Number;
+    exp_year: Number;
+    cvv: String;
+  },
+  installments: Number;
+  plan_id: String;
+  payment_method: String;
+  customer_id: String;
+}
+
 //PLANOS
 const CreatePlan = async (req: Request, res: Response) => {
     try {
@@ -76,22 +90,27 @@ const CreateSubscription = async (req: Request, res: Response) => {
   try {
       const data = req.body;
 
-      const exmp = {
+      if(!data){
+        res.status(400).send({message: 'Invalid data'});
+        return;
+      }
+
+      const subscription: CustomerData = {
       card: {
-        number: '4350870594383048',
-        holder_name: 'Edvandro D P Lopes',
-        exp_month: 3,
-        exp_year: 30,
-        cvv: '022'
+        number: data.cardNumber,
+        holder_name: data.holderName,
+        exp_month: data.expMonth,
+        exp_year: data.expYear,
+        cvv: data.cvv
       },
       installments: 1,
-      plan_id: 'plan_2kjb0w9U1Mf6OVxY',
+      plan_id: data.id_plan,
       payment_method: 'credit_card',
-      customer_id: 'cus_pLb0QbjHrHoQzkZV'
+      customer_id: data.id_customer
     }
 
       if(data){
-        const response = await PagarmeService.CreateSubscription(data);
+        const response = await PagarmeService.CreateSubscription(subscription);
         res.status(200).send({message: 'Subscription created with success', response });
         return;
       }
