@@ -44,8 +44,8 @@ const create_user = async (req: Request<{}, {}, User>, res: Response) => {
         inscricaoMunicipal,
         
       };
-      await UserService.CreateUserService(data);
-      res.status(200).send({ message: 'Usuário criado com sucesso!' });
+      const user_created = await UserService.CreateUserService(data);
+      res.status(200).send(user_created);
       return;
     }
     res.status(400).send({ message: 'Ocorreu um erro ao criar a conta do usuário!' });
