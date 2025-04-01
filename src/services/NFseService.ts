@@ -408,6 +408,8 @@ class NfseService {
 
       } else {
         const xmlAssinado = await this.assinarXml(xml);
+        console.log('XML GERAR UMA NFSE: ',xmlAssinado);
+
 
          const response = await axios.post(
           `${this.ElotechUrl}`, xmlAssinado,
@@ -562,6 +564,7 @@ class NfseService {
       const xmlCancelamento = await this.gerarXmlCancelarNfseEnvio(data);
 
       const xmlAssinado = await this.assinarXmlCancelar(xmlCancelamento);
+      console.log('XML CANCELAR NFSE: ',xmlAssinado);
 
         const response = await axios.post(
         `${this.ElotechUrl}`, xmlAssinado,
@@ -734,7 +737,7 @@ class NfseService {
       const xmlCancelamento = await this.gerarXmlSubstituirNfseEnvio(data);
 
        const xmlAssinado = await this.assinarXmlSubstituir(xmlCancelamento);
-       //return xmlAssinado;
+       console.log('XML SUBSTITUIÇÃO DE NFSE: ',xmlAssinado);
        
          const response = await axios.post(
         `${this.ElotechUrl}`, xmlAssinado,
