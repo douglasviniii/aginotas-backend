@@ -71,14 +71,7 @@ interface GerarNfseEnvio {
         Tributavel: number;
         Quantidade: number;
         ValorUnitario: number;
-        ValorDesconto: number;
         ValorLiquido: number;
-        DadosDeducao?: {
-          TipoDeducao: string;
-          Cpf: string;
-          ValorTotalNotaFiscal: number;
-          ValorADeduzir: number;
-        };
       }>;
     };
     Prestador: {
@@ -206,90 +199,91 @@ const scheduling_controller = async () =>{
 
         const data: GerarNfseEnvio = {
           Requerente: {
-                    Cnpj: db_user!.cnpj,  
-                    InscricaoMunicipal: db_user!.inscricaoMunicipal, 
-                    Senha: db_user!.senhaelotech,
-                    Homologa: db_user!.homologa 
-           },
+            Cnpj: db_user!.cnpj,
+            InscricaoMunicipal: db_user!.inscricaoMunicipal,
+            Senha: db_user!.senhaelotech,
+            Homologa: db_user!.homologa,
+          },
           LoteRps: {
-                    NumeroLote: numeroLote.toLocaleString(),
-                    Cnpj: db_user!.cnpj,
-                    InscricaoMunicipal: db_user!.inscricaoMunicipal, 
-                    QuantidadeRps: 1,
+            NumeroLote: numeroLote.toString(),
+            Cnpj: db_user!.cnpj,
+            InscricaoMunicipal: db_user!.inscricaoMunicipal,
+            QuantidadeRps: 1,
           },
           Rps: {
-                    IdentificacaoRps: {
-                      Numero: identificacaoRpsnumero.toLocaleString(),
-                      Serie: "D",
-                      Tipo: 1,
-                    },
-                    DataEmissao: formattedDate,
-                    Status: 1,
-                    Competencia: formattedDate,
-                    Servico: {
-                      Valores: {
-                        ValorServicos: schedule.data.servico.valor_unitario * schedule.data.servico.quantidade,
-                        ValorDeducoes: 0,
-                        AliquotaPis: 0,
-                        RetidoPis: 2,
-                        AliquotaCofins: 0,
-                        RetidoCofins: 2,
-                        AliquotaInss: 0,
-                        RetidoInss: 2,
-                        AliquotaIr: 0, 
-                        RetidoIr: 2, 
-                        AliquotaCsll: 0,
-                        RetidoCsll: 2,
-                        RetidoCpp: 2,
-                        RetidoOutrasRetencoes: 2,
-                        Aliquota: 4.41,
-                        DescontoIncondicionado: 0.00,
-                        DescontoCondicionado: 0.00,
-                      },
-                      IssRetido: 2, 
-                      Discriminacao: String(schedule.data.servico.Discriminacao),
-                      CodigoMunicipio: '4115804', //CÓDIGO DE MEDIANEIRA
-                      ExigibilidadeISS: 1,
-                      MunicipioIncidencia: '4115804', //CÓDIGO DE MEDIANEIRA
-                      ListaItensServico: [
-                        {
-                          ItemListaServico: String(schedule.data.servico.item_lista),
-                          CodigoCnae: String(schedule.data.servico.cnae),
-                          Descricao: String(schedule.data.servico.descricao),
-                          Tributavel: 1,
-                          Quantidade: schedule.data.servico.quantidade,
-                          ValorUnitario: schedule.data.servico.valor_unitario,
-                          ValorDesconto: schedule.data.servico.desconto, 
-                          ValorLiquido: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0), 
-                        },
-                      ],
-                    },
-                    Prestador: {
-                      Cnpj: db_user!.cnpj,  
-                      InscricaoMunicipal: db_user!.inscricaoMunicipal, 
-                    },
-                    Tomador: {
-                      IdentificacaoTomador: {
-                        Cnpj: db_customer.cnpj,
-                        InscricaoMunicipal: db_customer.inscricaoMunicipal,
-                        InscricaoEstadual: db_customer.inscricaoEstadual,
-                      },
-                      RazaoSocial: db_customer.name,
-                      Endereco: {
-                        Endereco: db_customer.address.street,
-                        Numero: db_customer.address.number,
-                        Bairro: db_customer.address.neighborhood,
-                        CodigoMunicipio: db_customer.address.cityCode,
-                        Uf: db_customer.address.state,
-                        Cep: db_customer.address.zipCode,
-                      },
-                      Contato: {
-                        Telefone: db_customer.phone,
-                        Email: db_customer.email,
-                      },
-                    },
-                    RegimeEspecialTributacao: db_user!.RegimeEspecialTributacao,
-                    IncentivoFiscal: db_user!.IncentivoFiscal,
+            IdentificacaoRps: {
+              Numero: identificacaoRpsnumero.toString(),
+              Serie: "D",
+              Tipo: 1,
+            },
+            DataEmissao: formattedDate,
+            Status: 1,
+            Competencia: formattedDate,
+            Servico: {
+              Valores: {
+          ValorServicos: schedule.data.servico.valor_unitario * schedule.data.servico.quantidade,
+          ValorDeducoes: 0,
+          AliquotaPis: 0,
+          RetidoPis: 2,
+          AliquotaCofins: 0,
+          RetidoCofins: 2,
+          AliquotaInss: 0,
+          RetidoInss: 2,
+          AliquotaIr: 0,
+          RetidoIr: 2,
+          AliquotaCsll: 0,
+          RetidoCsll: 2,
+          RetidoCpp: 2,
+          RetidoOutrasRetencoes: 2,
+          Aliquota: 4.41,
+          DescontoIncondicionado: 0.0,
+          DescontoCondicionado: 0.0,
+              },
+              IssRetido: 2,
+              Discriminacao: schedule.data.servico.Discriminacao,
+              CodigoMunicipio: "4115804", // CÓDIGO DE MEDIANEIRA
+              ExigibilidadeISS: 1,
+              MunicipioIncidencia: "4115804", // CÓDIGO DE MEDIANEIRA
+              ListaItensServico: [
+          {
+            ItemListaServico: (schedule.data.servico.item_lista).toString(),
+            CodigoCnae: (schedule.data.servico.cnae).toString(),
+            Descricao: schedule.data.servico.descricao,
+            Tributavel: 1,
+            Quantidade: schedule.data.servico.quantidade,
+            ValorUnitario: schedule.data.servico.valor_unitario,
+            ValorLiquido:
+              schedule.data.servico.valor_unitario * schedule.data.servico.quantidade -
+              (schedule.data.servico.desconto || 0),
+          },
+              ],
+            },
+            Prestador: {
+              Cnpj: db_user!.cnpj,
+              InscricaoMunicipal: db_user!.inscricaoMunicipal,
+            },
+            Tomador: {
+              IdentificacaoTomador: {
+          Cnpj: db_customer.cnpj,
+          InscricaoMunicipal: db_customer.inscricaoMunicipal,
+          InscricaoEstadual: db_customer.inscricaoEstadual,
+              },
+              RazaoSocial: db_customer.name,
+              Endereco: {
+          Endereco: db_customer.address.street,
+          Numero: db_customer.address.number,
+          Bairro: db_customer.address.neighborhood,
+          CodigoMunicipio: db_customer.address.cityCode,
+          Uf: db_customer.address.state,
+          Cep: db_customer.address.zipCode,
+              },
+              Contato: {
+          Telefone: db_customer.phone,
+          Email: db_customer.email,
+              },
+            },
+            RegimeEspecialTributacao: db_user!.RegimeEspecialTributacao,
+            IncentivoFiscal: db_user!.IncentivoFiscal,
           },
         };
         

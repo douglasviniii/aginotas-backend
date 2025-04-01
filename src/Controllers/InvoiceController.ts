@@ -69,20 +69,13 @@ interface GerarNfseEnvio {
       ExigibilidadeISS: number;
       MunicipioIncidencia: string;
       ListaItensServico: Array<{
-        ItemServico: string;
+        ItemListaServico: string;
         CodigoCnae: string;
         Descricao: string;
         Tributavel: number;
         Quantidade: number;
         ValorUnitario: number;
-        ValorDesconto: number;
         ValorLiquido: number;
-        DadosDeducao?: {
-          TipoDeducao: string;
-          Cpf: string;
-          ValorTotalNotaFiscal: number;
-          ValorADeduzir: number;
-        };
       }>;
     };
     Prestador: {
@@ -113,6 +106,8 @@ interface GerarNfseEnvio {
     IncentivoFiscal: number;
   };
 }
+
+
 interface DataConsultaNFSE{
   NumeroRps: string;
   SerieRps: string;
@@ -316,7 +311,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             Competencia: formattedDate,
             Servico: {
               Valores: {
-                ValorServicos:  servico.valor_unitario * servico.quantidade,
+                ValorServicos: servico.valor_unitario * servico.quantidade,
                 ValorDeducoes: 0,
                 AliquotaPis: 0,
                 RetidoPis: 2,
@@ -334,30 +329,21 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                 DescontoIncondicionado: 0.00,
                 DescontoCondicionado: 0.00,
               },
-              IssRetido: 2, 
-              Discriminacao: servico.Discriminacao,
-              CodigoMunicipio: '4115804' /* customer.address.cityCode */, //CÓDIGO DE MEDIANEIRA
-              ExigibilidadeISS: 1,
-              MunicipioIncidencia: '4115804' /* customer.address.cityCode */, //CÓDIGO DE MEDIANEIRA
-              ListaItensServico: [
-                {
-                  ItemServico: JSON.stringify({
-                    ItemServico: servico.item_lista,
-                    CodigoCnae: servico.cnae,
-                    Descricao: servico.descricao,
-                    Tributavel: "1",
-                    Quantidade: servico.quantidade,
-                    ValorUnitario: servico.valor_unitario,
-                    ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
-                  }),
-                  CodigoCnae: servico.cnae,
-                  Descricao: servico.descricao,
-                  Tributavel: 1,
-                  Quantidade: servico.quantidade,
-                  ValorUnitario: servico.valor_unitario,
-                  ValorDesconto: servico.desconto, 
-                  ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0), 
-                },
+                IssRetido: 2, 
+                Discriminacao: servico.Discriminacao,
+                CodigoMunicipio: '4115804', // Código de Medianeira
+                ExigibilidadeISS: 1,
+                MunicipioIncidencia: '4115804', // Código de Medianeira
+                ListaItensServico: [
+              {
+                ItemListaServico: servico.item_lista,
+                CodigoCnae: servico.cnae,
+                Descricao: servico.descricao,
+                Tributavel: 1,
+                Quantidade: servico.quantidade,
+                ValorUnitario: servico.valor_unitario,
+                ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+              },
               ],
             },
             Prestador: {
@@ -366,22 +352,22 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             },
             Tomador: {
               IdentificacaoTomador: {
-                Cnpj: customer.cnpj,
-                InscricaoMunicipal: customer.inscricaoMunicipal ,
-                InscricaoEstadual: customer.inscricaoEstadual,
+              Cnpj: customer.cnpj,
+              InscricaoMunicipal: customer.inscricaoMunicipal,
+              InscricaoEstadual: customer.inscricaoEstadual,
               },
               RazaoSocial: customer.name,
               Endereco: {
-                Endereco: customer.address.street,
-                Numero: customer.address.number,
-                Bairro: customer.address.neighborhood,
-                CodigoMunicipio: customer.address.cityCode,
-                Uf: customer.address.state,
-                Cep: customer.address.zipCode,
+              Endereco: customer.address.street,
+              Numero: customer.address.number,
+              Bairro: customer.address.neighborhood,
+              CodigoMunicipio: customer.address.cityCode,
+              Uf: customer.address.state,
+              Cep: customer.address.zipCode,
               },
               Contato: {
-                Telefone: customer.phone,
-                Email: customer.email,
+              Telefone: customer.phone,
+              Email: customer.email,
               },         
             },
             RegimeEspecialTributacao: user!.RegimeEspecialTributacao,
@@ -434,9 +420,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               res.status(200).send({message: messageError});
               return;
           }
-
-            //console.log(data);
-          
+        
             await InvoiceService.CreateInvoiceService({
               customer: customer_id,
               user: user?.id,
@@ -556,210 +540,201 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
 
     const substituirNfseEnvio: DataSubstituirNfse = {
       IdentificacaoRequerente: {
+      CpfCnpj: {
+        Cnpj: user!.cnpj,
+      },
+      InscricaoMunicipal: user!.inscricaoMunicipal,
+      Senha: user!.senhaelotech,
+      Homologa: user!.homologa,
+      },
+      Pedido: {
+      InfPedidoCancelamento: {
+        IdentificacaoNfse: {
+        Numero: numeroNfse,
         CpfCnpj: {
           Cnpj: user!.cnpj,
         },
         InscricaoMunicipal: user!.inscricaoMunicipal,
-        Senha: user!.senhaelotech,
-        Homologa: user!.homologa,
-      },
-      Pedido: {
-        InfPedidoCancelamento: {
-          IdentificacaoNfse: {
-            Numero: numeroNfse,
-            CpfCnpj: {
-              Cnpj: user!.cnpj,
-            },
-            InscricaoMunicipal: user!.inscricaoMunicipal,
-            CodigoMunicipio: CodigoMunicipio,
-          },
-          ChaveAcesso: ChaveAcesso,
-          CodigoCancelamento: 4,
+        CodigoMunicipio: CodigoMunicipio,
         },
+        ChaveAcesso: ChaveAcesso,
+        CodigoCancelamento: 4,
+      },
       },
       DeclaracaoPrestacaoServico: {
-        InfDeclaracaoPrestacaoServico: {
-          Rps: {
-            IdentificacaoRps: {
-              Numero: IdentificacaoRpsnumero,
-              Serie: "D",
-              Tipo: 1,
-            },
-            DataEmissao: formattedDate,
-            Status: 1,
-          },
-          Competencia: formattedDate,
-          Servico: {
-            Valores: {
-              ValorServicos: servico.valor_unitario * servico.quantidade,
-              AliquotaPis: 0,
-              RetidoPis: 2,
-              ValorPis: 0,
-              AliquotaCofins: 0,
-              RetidoCofins: 2,
-              ValorCofins: 0,
-              AliquotaInss: 0,
-              RetidoInss: 2,
-              ValorInss: 0,
-              AliquotaIr: 0,
-              RetidoIr: 2,
-              ValorIr: 0,
-              AliquotaCsll: 0,
-              RetidoCsll: 2,
-              ValorCsll: 0,
-              AliquotaCpp: 0,
-              RetidoCpp: 2,
-              ValorCpp: 0,
-              OutrasRetencoes: 0,
-              RetidoOutrasRetencoes: 2,
-            },
-            IssRetido: 2,
-            Discriminacao: servico.Discriminacao,
-            CodigoNbs: "",
-            CodigoMunicipio: "4115804",
-            ExigibilidadeISS: 1,
-            MunicipioIncidencia: "4115804",
-            ListaItensServico: [
-              {
-                ItemServico: servico.item_lista,
-                CodigoCnae: servico.cnae,
-                Descricao: servico.descricao,
-                Tributavel: 1,
-                Quantidade: servico.quantidade,
-                ValorUnitario: servico.valor_unitario,
-                ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
-              },
-            ],
-          },
-          Prestador: {
-            CpfCnpj: {
-              Cnpj: user!.cnpj,
-            },
-            InscricaoMunicipal: user!.inscricaoMunicipal,
-          },
-          Tomador: {
-            IdentificacaoTomador: {
-              CpfCnpj: {
-                Cnpj: customer.cnpj,
-              },
-              InscricaoMunicipal: customer.inscricaoMunicipal,
-            },
-            RazaoSocial: customer.name,
-            Endereco: {
-              Endereco: customer.address.street,
-              Numero: customer.address.number,
-              Bairro: customer.address.neighborhood,
-              CodigoMunicipio: customer.address.cityCode,
-              Uf: customer.address.state,
-              Cep: customer.address.zipCode,
-            },
-            Contato: {
-              Telefone: customer.phone,
-              Email: customer.email,
-            },
-            InscricaoEstadual: customer.inscricaoEstadual,
-          },
-          IncentivoFiscal: user!.IncentivoFiscal,
-        },
-      },
-    };
-
-    const data: GerarNfseEnvio = {
-      Requerente: {
-        Cnpj: user!.cnpj,  
-        InscricaoMunicipal: user!.inscricaoMunicipal, 
-        Senha: user!.senhaelotech,
-        Homologa: user!.homologa 
-      },
-      LoteRps: {
-        NumeroLote: NumeroLote.toLocaleString(),
-        Cnpj: user!.cnpj,
-        InscricaoMunicipal: user!.inscricaoMunicipal, 
-        QuantidadeRps: 1,
-      },
-      Rps: {
+      InfDeclaracaoPrestacaoServico: {
+        Rps: {
         IdentificacaoRps: {
-          Numero: IdentificacaoRpsnumero.toLocaleString(),
+          Numero: IdentificacaoRpsnumero.toString(),
           Serie: "D",
           Tipo: 1,
         },
         DataEmissao: formattedDate,
         Status: 1,
+        },
         Competencia: formattedDate,
         Servico: {
-          Valores: {
-            ValorServicos:  servico.valor_unitario * servico.quantidade,
-            ValorDeducoes: 0,
-            AliquotaPis: 0,
-            RetidoPis: 2,
-            AliquotaCofins: 0,
-            RetidoCofins: 2,
-            AliquotaInss: 0,
-            RetidoInss: 2,
-            AliquotaIr: 0, 
-            RetidoIr: 2, 
-            AliquotaCsll: 0,
-            RetidoCsll: 2,
-            RetidoCpp: 2,
-            RetidoOutrasRetencoes: 2,
-            Aliquota: 4.41,
-            DescontoIncondicionado: 0.00,
-            DescontoCondicionado: 0.00,
+        Valores: {
+          ValorServicos: servico.valor_unitario * servico.quantidade,
+          AliquotaPis: 0,
+          RetidoPis: 2,
+          ValorPis: 0,
+          AliquotaCofins: 0,
+          RetidoCofins: 2,
+          ValorCofins: 0,
+          AliquotaInss: 0,
+          RetidoInss: 2,
+          ValorInss: 0,
+          AliquotaIr: 0,
+          RetidoIr: 2,
+          ValorIr: 0,
+          AliquotaCsll: 0,
+          RetidoCsll: 2,
+          ValorCsll: 0,
+          AliquotaCpp: 0,
+          RetidoCpp: 2,
+          ValorCpp: 0,
+          OutrasRetencoes: 0,
+          RetidoOutrasRetencoes: 2,
+        },
+        IssRetido: 2,
+        Discriminacao: servico.Discriminacao,
+        CodigoNbs: "",
+        CodigoMunicipio: customer.address.cityCode,
+        ExigibilidadeISS: 1,
+        MunicipioIncidencia: customer.address.cityCode,
+        ListaItensServico: [
+          {
+          ItemListaServico: servico.item_lista,
+          CodigoCnae: servico.cnae,
+          Descricao: servico.descricao,
+          Tributavel: 1,
+          Quantidade: servico.quantidade,
+          ValorUnitario: servico.valor_unitario,
+          ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
           },
-          IssRetido: 2, 
-          Discriminacao: servico.Discriminacao,
-          CodigoMunicipio: '4115804' /* customer.address.cityCode */, //CÓDIGO DE MEDIANEIRA
-          ExigibilidadeISS: 1,
-          MunicipioIncidencia: '4115804' /* customer.address.cityCode */, //CÓDIGO DE MEDIANEIRA
-          ListaItensServico: [
-            {
-              ItemServico: JSON.stringify({
-                ItemServico: servico.item_lista,
-                CodigoCnae: servico.cnae,
-                Descricao: servico.descricao,
-                Tributavel: "1",
-                Quantidade: servico.quantidade,
-                ValorUnitario: servico.valor_unitario,
-                ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
-              }),
-              CodigoCnae: servico.cnae,
-              Descricao: servico.descricao,
-              Tributavel: 1,
-              Quantidade: servico.quantidade,
-              ValorUnitario: servico.valor_unitario,
-              ValorDesconto: servico.desconto, 
-              ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0), 
-            },
-          ],
+        ],
         },
         Prestador: {
-          Cnpj: user!.cnpj,  
-          InscricaoMunicipal: user!.inscricaoMunicipal, 
+        CpfCnpj: {
+          Cnpj: user!.cnpj,
+        },
+        InscricaoMunicipal: user!.inscricaoMunicipal,
         },
         Tomador: {
-          IdentificacaoTomador: {
-            Cnpj: customer.cnpj,
-            InscricaoMunicipal: customer.inscricaoMunicipal,
-            InscricaoEstadual: customer.inscricaoEstadual,
+        IdentificacaoTomador: {
+          CpfCnpj: {
+          Cnpj: customer.cnpj,
           },
-          RazaoSocial: customer.name,
-          Endereco: {
-            Endereco: customer.address.street,
-            Numero: customer.address.number,
-            Bairro: customer.address.neighborhood,
-            CodigoMunicipio: customer.address.cityCode,
-            Uf: customer.address.state,
-            Cep: customer.address.zipCode,
-          },
-          Contato: {
-            Telefone: customer.phone,
-            Email: customer.email,
-          },
+          InscricaoMunicipal: customer.inscricaoMunicipal,
         },
-        RegimeEspecialTributacao: user!.RegimeEspecialTributacao,
+        RazaoSocial: customer.name,
+        Endereco: {
+          Endereco: customer.address.street,
+          Numero: customer.address.number,
+          Bairro: customer.address.neighborhood,
+          CodigoMunicipio: customer.address.cityCode,
+          Uf: customer.address.state,
+          Cep: customer.address.zipCode,
+        },
+        Contato: {
+          Telefone: customer.phone,
+          Email: customer.email,
+        },
+        InscricaoEstadual: customer.inscricaoEstadual,
+        },
         IncentivoFiscal: user!.IncentivoFiscal,
       },
-    };    
+      },
+    };
+
+    const data: GerarNfseEnvio = {
+      Requerente: {
+      Cnpj: user!.cnpj,
+      InscricaoMunicipal: user!.inscricaoMunicipal,
+      Senha: user!.senhaelotech,
+      Homologa: user!.homologa,
+      },
+      LoteRps: {
+      NumeroLote: NumeroLote.toString(),
+      Cnpj: user!.cnpj,
+      InscricaoMunicipal: user!.inscricaoMunicipal,
+      QuantidadeRps: 1,
+      },
+      Rps: {
+      IdentificacaoRps: {
+        Numero: IdentificacaoRpsnumero.toString(),
+        Serie: "D",
+        Tipo: 1,
+      },
+      DataEmissao: formattedDate,
+      Status: 1,
+      Competencia: formattedDate,
+      Servico: {
+        Valores: {
+        ValorServicos: servico.valor_unitario * servico.quantidade,
+        ValorDeducoes: 0,
+        AliquotaPis: 0,
+        RetidoPis: 2,
+        AliquotaCofins: 0,
+        RetidoCofins: 2,
+        AliquotaInss: 0,
+        RetidoInss: 2,
+        AliquotaIr: 0,
+        RetidoIr: 2,
+        AliquotaCsll: 0,
+        RetidoCsll: 2,
+        RetidoCpp: 2,
+        RetidoOutrasRetencoes: 2,
+        Aliquota: 4.41,
+        DescontoIncondicionado: 0.0,
+        DescontoCondicionado: 0.0,
+        },
+        IssRetido: 2,
+        Discriminacao: servico.Discriminacao,
+        CodigoMunicipio: customer.address.cityCode,
+        ExigibilidadeISS: 1,
+        MunicipioIncidencia: customer.address.cityCode,
+        ListaItensServico: [
+        {
+          ItemListaServico: servico.item_lista,
+          CodigoCnae: servico.cnae,
+          Descricao: servico.descricao,
+          Tributavel: 1,
+          Quantidade: servico.quantidade,
+          ValorUnitario: servico.valor_unitario,
+          ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+        },
+        ],
+      },
+      Prestador: {
+        Cnpj: user!.cnpj,
+        InscricaoMunicipal: user!.inscricaoMunicipal,
+      },
+      Tomador: {
+        IdentificacaoTomador: {
+        InscricaoMunicipal: customer.inscricaoMunicipal,
+        InscricaoEstadual: customer.inscricaoEstadual,
+        Cnpj: customer.cnpj,
+        },
+        RazaoSocial: customer.name,
+        Endereco: {
+        Endereco: customer.address.street,
+        Numero: customer.address.number,
+        Bairro: customer.address.neighborhood,
+        CodigoMunicipio: customer.address.cityCode,
+        Uf: customer.address.state,
+        Cep: customer.address.zipCode,
+        },
+        Contato: {
+        Telefone: customer.phone,
+        Email: customer.email,
+        },
+      },
+      RegimeEspecialTributacao: user!.RegimeEspecialTributacao,
+      IncentivoFiscal: user!.IncentivoFiscal,
+      },
+    };
 
     async function verificarNFSe(xml: any) {
       return new Promise((resolve, reject) => {
