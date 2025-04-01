@@ -86,7 +86,7 @@ interface GerarNfseEnvio {
       IdentificacaoTomador: {
         InscricaoMunicipal: string;
         InscricaoEstadual: string;
-        Cnpj: string;
+        CpfCnpj: string;
       };
       RazaoSocial: string;
       Endereco: {
@@ -352,7 +352,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             },
             Tomador: {
               IdentificacaoTomador: {
-              Cnpj: customer.cnpj,
+              CpfCnpj: customer.cnpj,
               InscricaoMunicipal: customer.inscricaoMunicipal,
               InscricaoEstadual: customer.inscricaoEstadual,
               },
@@ -715,7 +715,7 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
         IdentificacaoTomador: {
         InscricaoMunicipal: customer.inscricaoMunicipal,
         InscricaoEstadual: customer.inscricaoEstadual,
-        Cnpj: customer.cnpj,
+        CpfCnpj: customer.cnpj,
         },
         RazaoSocial: customer.name,
         Endereco: {

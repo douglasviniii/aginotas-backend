@@ -77,7 +77,7 @@ interface GerarNfseEnvio {
       IdentificacaoTomador: {
         InscricaoMunicipal: string;
         InscricaoEstadual: string;
-        Cnpj: string;
+        CpfCnpj: string;
       };
       RazaoSocial: string;
       Endereco: {
@@ -363,7 +363,7 @@ class NfseService {
             </Prestador>
             <Tomador>
             <IdentificacaoTomador>
-              <Cnpj>${data.Rps.Tomador.IdentificacaoTomador.Cnpj}</Cnpj>
+              <Cnpj>${data.Rps.Tomador.IdentificacaoTomador.CpfCnpj}</Cnpj>
               <InscricaoMunicipal>${data.Rps.Tomador.IdentificacaoTomador.InscricaoMunicipal}</InscricaoMunicipal>
             </IdentificacaoTomador>
             <RazaoSocial>${data.Rps.Tomador.RazaoSocial}</RazaoSocial>
@@ -408,7 +408,6 @@ class NfseService {
 
       } else {
         const xmlAssinado = await this.assinarXml(xml);
-        console.log(xmlAssinado);
 
          const response = await axios.post(
           `${this.ElotechUrl}`, xmlAssinado,

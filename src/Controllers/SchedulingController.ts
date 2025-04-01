@@ -82,7 +82,7 @@ interface GerarNfseEnvio {
       IdentificacaoTomador: {
         InscricaoMunicipal: string;
         InscricaoEstadual: string;
-        Cnpj: string;
+        CpfCnpj: string;
       };
       RazaoSocial: string;
       Endereco: {
@@ -190,10 +190,8 @@ const scheduling_controller = async () =>{
         }
 
         const date = new Date();
-        const year = date.getFullYear(); 
-        const month = String(date.getMonth() + 1).padStart(2, '0'); 
-        const day = String(date.getDate()).padStart(2, '0');
-        const formattedDate = `${year}-${month}-${day}`;
+        const options = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' } as const;
+        const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date);
 
         //console.log(JSON.stringify(schedule, null, 2));
 
@@ -264,18 +262,18 @@ const scheduling_controller = async () =>{
             },
             Tomador: {
               IdentificacaoTomador: {
-          Cnpj: db_customer.cnpj,
-          InscricaoMunicipal: db_customer.inscricaoMunicipal,
-          InscricaoEstadual: db_customer.inscricaoEstadual,
+              CpfCnpj: db_customer.cnpj,
+              InscricaoMunicipal: db_customer.inscricaoMunicipal,
+              InscricaoEstadual: db_customer.inscricaoEstadual,
               },
               RazaoSocial: db_customer.name,
               Endereco: {
-          Endereco: db_customer.address.street,
-          Numero: db_customer.address.number,
-          Bairro: db_customer.address.neighborhood,
-          CodigoMunicipio: db_customer.address.cityCode,
-          Uf: db_customer.address.state,
-          Cep: db_customer.address.zipCode,
+              Endereco: db_customer.address.street,
+              Numero: db_customer.address.number,
+              Bairro: db_customer.address.neighborhood,
+              CodigoMunicipio: db_customer.address.cityCode,
+              Uf: db_customer.address.state,
+              Cep: db_customer.address.zipCode,
               },
               Contato: {
           Telefone: db_customer.phone,
