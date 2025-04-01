@@ -10,5 +10,6 @@ UserRoute.post('/find', UserController.Exist_user_controller);
 UserRoute.patch('/update',AuthMiddlewareUser,UserController.Update_User);
 UserRoute.post('/recover/email', UserController.Send_code_email);
 UserRoute.put('/recover/password', UserController.Recover_Password);
+UserRoute.get('/findall', UserController.FindAllUser);
 
 export default UserRoute;

@@ -117,6 +117,18 @@ const Exist_user_controller = async (req: Request, res: Response) =>{
   }
 }
 
+const FindAllUser = async (req: Request, res: Response) =>{
+  try {
+    const user = await UserService.FindAllUsers();
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send({
+      message: 'Não foi possivel encontrar conta do usuário',
+      error: error,
+    });    
+  }
+}
+
 const Send_code_email = async (req: Request, res: Response) =>{
   try {
     const data = req.body;
@@ -155,5 +167,6 @@ export default
   Send_code_email,
   Recover_Password,
   AuthUserController,
-  Update_User
+  Update_User,
+  FindAllUser
 };
