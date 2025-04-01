@@ -86,7 +86,7 @@ const AuthUserController = async (req: Request, res: Response) => {
 
         const subscription = await PagarmeService.GetSubscription(userdb.subscription_id);
 
-        if(!subscription){
+/*         if(!subscription){
           res.status(400).send({message: 'Subscription not found!'});
           return;
         }
@@ -94,7 +94,7 @@ const AuthUserController = async (req: Request, res: Response) => {
         if(subscription.status != 'active'){
           res.status(400).send({message: 'Subscription inactive!'});
           return;
-        }
+        } */
 
         res.status(200).send({ token, userdb });        
     }catch(error){
