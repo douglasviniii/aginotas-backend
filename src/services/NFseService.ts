@@ -365,7 +365,6 @@ class NfseService {
             <IdentificacaoTomador>
               <Cnpj>${data.Rps.Tomador.IdentificacaoTomador.Cnpj}</Cnpj>
               <InscricaoMunicipal>${data.Rps.Tomador.IdentificacaoTomador.InscricaoMunicipal}</InscricaoMunicipal>
-              <InscricaoEstadual>${data.Rps.Tomador.IdentificacaoTomador.InscricaoEstadual}</InscricaoEstadual>
             </IdentificacaoTomador>
             <RazaoSocial>${data.Rps.Tomador.RazaoSocial}</RazaoSocial>
             <Endereco>
@@ -759,5 +758,6 @@ class NfseService {
 
 export default new NfseService();
 
+/* <InscricaoEstadual>${data.Rps.Tomador.IdentificacaoTomador.InscricaoEstadual}</InscricaoEstadual> */
 
 /* <InscricaoEstadual>${data.DeclaracaoPrestacaoServico.InfDeclaracaoPrestacaoServico.Tomador.InscricaoEstadual}</InscricaoEstadual> */
