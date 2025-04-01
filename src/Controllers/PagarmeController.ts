@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import PagarmeService from '../services/Pagarme.service.ts';
+import UserService from '../services/UserService.ts';
 
 interface CustomerData {
   card:{
@@ -111,6 +112,8 @@ const CreateSubscription = async (req: Request, res: Response) => {
 
       if(data){
         const response = await PagarmeService.CreateSubscription(subscription);
+        const idUser = data.idUser;
+        await UserService.UpdateUser(idUser, {subscription_id: response.id})
         res.status(200).send({message: 'Subscription created with success', response });
         return;
       }
