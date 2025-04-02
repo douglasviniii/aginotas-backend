@@ -61,8 +61,8 @@ const CreatePlan = async (data: CustomerData) => {
             payment_methods: ['credit_card'],
             currency: 'BRL',
             trial_period_days: data.trial_period_days,
-            billing_type: 'exact_day',
-            billing_days: [data.billing_days],
+            billing_type: 'postpaid',
+            /* billing_days: [data.billing_days], */
             statement_descriptor: data.statement_descriptor
           })
       };
