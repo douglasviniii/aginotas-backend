@@ -52,19 +52,18 @@ const CreatePlan = async (data: CustomerData) => {
           'content-type': 'application/json',
           authorization: `Basic ${process.env.TOKEN_PAGARME}`
         },
-        body: JSON.stringify({
+         body: JSON.stringify({
             interval: 'month',
             interval_count: 1,
             pricing_scheme: {scheme_type: 'Unit', price: data.price, mininum_price: data.price},
             quantity: 1,
-            name: data.name,
             payment_methods: ['credit_card'],
+            billing_type: 'postpaid',
+            name: data.name,
+            statement_descriptor: data.statement_descriptor,
             currency: 'BRL',
             trial_period_days: data.trial_period_days,
-            billing_type: 'postpaid',
-            /* billing_days: [data.billing_days], */
-            statement_descriptor: data.statement_descriptor
-          })
+          }) 
       };
       
       const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}`, options);
