@@ -62,7 +62,8 @@ const DeletePlan = async (req: Request, res: Response) => {
 const EditItemPlan = async (req: Request, res: Response) => {
   try {
       const data = req.body;
-
+      console.log(data);
+      
       if(data){
         const response = await PagarmeService.EditItemPlan(data);
         res.status(200).send({message: 'Plan updated with success', response });

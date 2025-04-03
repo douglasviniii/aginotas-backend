@@ -8,6 +8,7 @@ interface CustomerData {
   statement_descriptor: String;
   Id_Plan: String;
   Id_Item: String;
+  item_id: String;
   quantity: Number;
   card_id: String;
   card_descripton: String;
@@ -129,7 +130,7 @@ const EditItemPlan = async (data: CustomerData) =>{
     })
   };
 
-  const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}/${data.Id_Plan}/items/${data.Id_Item}`, options);
+  const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}/${data.plan_id}/items/${data.item_id}`, options);
 
   if (response.ok) {
     const data = await response.json();
