@@ -57,17 +57,13 @@ const CreatePlan = async (data: CustomerData) => {
             interval_count: 1,
             pricing_scheme: {scheme_type: 'Unit', price: data.price, mininum_price: data.price},
             quantity: 1,
-            payment_methods: ['credit_card'],
-            billing_type: 'postpaid',
             name: data.name,
+            payment_methods: ['credit_card'],
             statement_descriptor: data.statement_descriptor,
             currency: 'BRL',
             trial_period_days: data.trial_period_days,
-            //billing_type: 'exact_day',
-            billing_days: [data.billing_days],
-            statement_descriptor: data.statement_descriptor
+            billing_type: 'postpaid',
           })
-          }) 
       };
       
       const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}`, options);
