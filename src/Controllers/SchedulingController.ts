@@ -10,8 +10,8 @@ import xml2js from 'xml2js';
 
 interface CustomRequest extends Request {
   userid?: string;
-  numeroLote: number;
-  identificacaoRpsnumero: number;
+  numeroLote?: number;
+  identificacaoRpsnumero?: number;
 }
 
 interface DataUpdateObject {
