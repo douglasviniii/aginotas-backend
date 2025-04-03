@@ -20,9 +20,11 @@ interface CustomerData {
 const CreatePlan = async (req: Request, res: Response) => {
     try {
         const data = req.body;
+        console.log(data);
 
         if(data){
           const response = await PagarmeService.CreatePlan(data);
+          console.log(response);
           res.status(200).send({message: 'Plan created with success', response });
           return;
         }
