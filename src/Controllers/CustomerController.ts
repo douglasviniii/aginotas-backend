@@ -18,7 +18,7 @@ const create_customer = async (req: CustomRequest, res: Response) => {
         const data = {
           user: user!.id,
           name: body.name,
-          cnpj: body.cnpj,
+          cnpj: body.cnpj.replace(/[^\d]/g, ''),
           email: body.email,
           phone: body.phone,
           inscricaoMunicipal: body.inscricaoMunicipal,
@@ -93,20 +93,20 @@ const updatecustomer = async (req: Request, res: Response) =>{
 
     const data = {
       name: body.name,
-      cnpj: body.cnpj,
+      cnpj: body.cnpj.replace(/[^\d]/g, ''),
       email: body.email,
       phone: body.phone,
       inscricaoMunicipal: body.inscricaoMunicipal,
       inscricaoEstadual: body.inscricaoEstadual,
       status: body.status,
       address: {
-        street: body.address.street,
-        number: body.address.number,
-        neighborhood: body.address.neighborhood,
-        cityCode: body.address.cityCode,
-        city: body.address.city,
-        state: body.address.state,
-        zipCode: body.address.zipCode,
+      street: body.address.street,
+      number: body.address.number,
+      neighborhood: body.address.neighborhood,
+      cityCode: body.address.cityCode,
+      city: body.address.city,
+      state: body.address.state,
+      zipCode: body.address.zipCode,
       },
     };
 
