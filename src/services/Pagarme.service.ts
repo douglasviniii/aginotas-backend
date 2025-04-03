@@ -1,6 +1,8 @@
 interface CustomerData {
   price: Number;
   name: String;
+  description: String;
+  status: String;
   trial_period_days: Number;
   billing_days: Number;
   statement_descriptor: String;
@@ -120,9 +122,10 @@ const EditItemPlan = async (data: CustomerData) =>{
 
     body: JSON.stringify({
       pricing_scheme: {scheme_type: 'Unit', price: data.price},
-      status: 'active',
       name: data.name,
+      description: data.description,
       quantity: data.quantity,
+      status: data.status,
     })
   };
 
