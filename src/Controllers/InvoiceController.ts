@@ -426,6 +426,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
         
           if (!nfseGerada) {
+              await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
               res.status(200).send({message: messageError});
               return;
           }
@@ -440,7 +441,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               identificacaoRpsnumero: /* identificacaoRpsnumero */ user.identificacaoRpsnumero,
             });
 
-            await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1})
+            await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
 
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
             return;

@@ -329,6 +329,7 @@ const scheduling_controller = async () =>{
           const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
                 
           if (!nfseGerada) {
+            await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
             console.log("Erro na emissão da NFS-e. Verifique os dados.");
             return;
           }
@@ -345,7 +346,7 @@ const scheduling_controller = async () =>{
 
           await SendEmailService.SendEmailNFSe(`${db_customer.email}`, 'nota gerada automaticamente'); 
 
-          await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1})
+          await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
           
           console.log('Nota Fiscal gerada com sucesso!');
           return;
