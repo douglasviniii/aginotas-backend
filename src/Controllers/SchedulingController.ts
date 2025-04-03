@@ -10,6 +10,8 @@ import xml2js from 'xml2js';
 
 interface CustomRequest extends Request {
   userid?: string;
+  numeroLote: number;
+  identificacaoRpsnumero: number;
 }
 
 interface DataUpdateObject {
@@ -164,7 +166,7 @@ const scheduling_controller = async () =>{
         return today >= start && today <= end;
       }
 
-      async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
+/*       async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
         const lastInvoice = await InvoiceService.FindLastInvoice(id);
       
         if (!lastInvoice) {
@@ -176,13 +178,14 @@ const scheduling_controller = async () =>{
         
       
         return { numeroLote, identificacaoRpsnumero };
-      }
+      } */
 
       if(isTodayDay(Number(schedule.billing_day)) && isWithinSchedule(`${schedule.start_date}`, `${schedule.end_date}`)){
         
         const db_user = await UserService.FindUserByIdService(schedule.user_id);
         const db_customer = await CustomerService.FindCostumerByIdService(schedule.customer_id);
-        let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(`${schedule.user_id}`);
+
+        /* let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(`${schedule.user_id}`); */
 
         if(!db_user || !db_customer){
           console.log('Usuário ou cliente não encontrado'); 
@@ -203,14 +206,14 @@ const scheduling_controller = async () =>{
             Homologa: db_user!.homologa,
           },
           LoteRps: {
-            NumeroLote: numeroLote.toString(),
+            NumeroLote: /* numeroLote.toString() */ db_user.numeroLote.toString(),
             Cnpj: db_user!.cnpj,
             InscricaoMunicipal: db_user!.inscricaoMunicipal,
             QuantidadeRps: 1,
           },
           Rps: {
             IdentificacaoRps: {
-              Numero: identificacaoRpsnumero.toString(),
+              Numero: /* identificacaoRpsnumero.toString() */ db_user.identificacaoRpsnumero.toString(),
               Serie: "D",
               Tipo: 1,
             },
@@ -336,12 +339,14 @@ const scheduling_controller = async () =>{
             valor: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0),
             xml: response,
             data: data,
-            numeroLote: numeroLote,
-            identificacaoRpsnumero: identificacaoRpsnumero,
+            numeroLote: /* numeroLote */ db_user.numeroLote,
+            identificacaoRpsnumero: /* identificacaoRpsnumero */ db_user.identificacaoRpsnumero,
           });  
 
           await SendEmailService.SendEmailNFSe(`${db_customer.email}`, 'nota gerada automaticamente'); 
 
+          await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1})
+          
           console.log('Nota Fiscal gerada com sucesso!');
           return;
           default:

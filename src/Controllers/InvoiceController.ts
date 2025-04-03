@@ -17,6 +17,8 @@ interface CustomRequest extends Request {
       homologa: boolean;
       IncentivoFiscal: number;
       RegimeEspecialTributacao: number;
+      numeroLote: number;
+      identificacaoRpsnumero: number;
 
     }; 
 }
@@ -246,7 +248,7 @@ interface DataUpdateObject {
   identificacaoRpsnumero: number;
 }
 
-async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
+/* async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
   const lastInvoice = await InvoiceService.FindLastInvoice(id);
 
   if (!lastInvoice) {
@@ -258,7 +260,7 @@ async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
   
 
   return { numeroLote, identificacaoRpsnumero };
-}
+} */
 
 const create_invoice = async (req: CustomRequest, res: Response) => {
     try {
@@ -272,17 +274,24 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         }
 
         const id = user?.id;
-        let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(id!);
+        if(!id){
+          res.status(400).send({message: 'User ID is no found!'});
+          return;          
+        }
 
+
+/*         let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(id);
         console.log('numeroLote', numeroLote);
-        console.log('identificacaoRpsnumero', identificacaoRpsnumero);
+        console.log('identificacaoRpsnumero', identificacaoRpsnumero); */
+
+
 
         const customer = await CustomerService.FindCostumerByIdService(customer_id);
-
         if(!customer){
           res.status(400).send({message: 'User is no found!'});
           return;
         }
+        
         const date = new Date();
         const options = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' } as const;
         const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date);
@@ -295,14 +304,14 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             Homologa: user!.homologa 
           },
           LoteRps: {
-            NumeroLote: numeroLote.toLocaleString(),
+            NumeroLote: /* numeroLote.toLocaleString() */ user.numeroLote.toLocaleString(),
             Cnpj: user!.cnpj,
             InscricaoMunicipal: user!.inscricaoMunicipal, 
             QuantidadeRps: 1,
           },
           Rps: {
             IdentificacaoRps: {
-              Numero: identificacaoRpsnumero.toLocaleString(),
+              Numero: /* identificacaoRpsnumero.toLocaleString(), */  user.identificacaoRpsnumero.toLocaleString(),
               Serie: "D",
               Tipo: 1,
             },
@@ -427,9 +436,11 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               valor: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
               xml: response,
               data: data,
-              numeroLote: numeroLote,
-              identificacaoRpsnumero: identificacaoRpsnumero,
+              numeroLote: /* numeroLote */ user.numeroLote,
+              identificacaoRpsnumero: /* identificacaoRpsnumero */ user.identificacaoRpsnumero,
             });
+
+            await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1})
 
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
             return;

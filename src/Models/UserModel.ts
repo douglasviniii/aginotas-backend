@@ -17,6 +17,9 @@ export interface IUser extends Document {
   RegimeEspecialTributacao: number;
   IncentivoFiscal: number;
   status: string;
+
+  numeroLote:number;
+  identificacaoRpsnumero: number;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -39,7 +42,10 @@ const UserSchema = new Schema<IUser>({
   homologa: {type: Boolean, default: true},
 
   date_created: { type: Date, default: Date.now },
-  status: {type: String, default: 'active'}
+  status: {type: String, default: 'active'},
+
+  numeroLote: { type: Number, default: 0},
+  identificacaoRpsnumero: { type: Number, default: 0},
 });
 
 // Middleware para hash da senha antes de salvar
