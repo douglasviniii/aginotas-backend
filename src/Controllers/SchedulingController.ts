@@ -168,7 +168,7 @@ const scheduling_controller = async () =>{
         const lastInvoice = await InvoiceService.FindLastInvoice(id);
       
         if (!lastInvoice) {
-          return { numeroLote: 39, identificacaoRpsnumero:39 };
+          return { numeroLote: 60, identificacaoRpsnumero:60 };
         }
       
         let numeroLote = lastInvoice.numeroLote + 1;
@@ -286,30 +286,37 @@ const scheduling_controller = async () =>{
         };
         
         async function verificarNFSe(xml: any) {
-                  return new Promise((resolve, reject) => {
-                      xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
-                          if (err) return reject(err);
-              
-                          try {
-                              const body = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"];
-                              const resposta = body["ns2:EnviarLoteRpsSincronoResposta"];
-              
-                              if (resposta["ns2:ListaMensagemRetorno"]) {
-                                  console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
-                                  return resolve(false);
-                              }
+          return new Promise((resolve, reject) => {
+              xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+                  if (err) return reject(err);
+      
+                  try {
+                      const body = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"];
+                      const resposta = body["ns2:EnviarLoteRpsSincronoResposta"];
+      
+                      if (resposta["ns2:ListaMensagemRetorno"]) {
+                          console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
+                          console.log(resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]["ns2:Mensagem"]);
+                          return resolve(false);
+                      }
 
-                              return resolve(true);
-/*                               if (resposta["ns2:Nfse"]) {
-                                  return resolve(true);
-                              } */
-              
-                              //resolve(false); 
-                          } catch (e) {
-                              reject(e);
-                          }
-                      });
-                  });
+                        if (resposta["ns2:ListaMensagemRetornoLote"]) {
+                        console.error("Erro no lote da NFS-e:", resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"]);
+                        const mensagens = resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"];
+                        if (Array.isArray(mensagens)) {
+                          console.log(mensagens.map((msg: any) => msg["ns2:Mensagem"]).join("; "));
+                        } else {
+                          console.log(mensagens["ns2:Mensagem"]);
+                        }
+                        return resolve(false);
+                        }
+
+                      return resolve(true);
+                  } catch (e) {
+                      reject(e);
+                  }
+              });
+          });
         }  
 
         switch (db_user?.cidade) {
