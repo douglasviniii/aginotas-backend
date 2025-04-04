@@ -94,10 +94,12 @@ const AuthUserController = async (req: Request, res: Response) => {
           res.status(400).send({message: 'Subscription not found!'});
           return;
         }
-        if(subscription.status != 'active' || subscription.status != 'future'){
+
+        if(subscription.status != 'future'){
           res.status(400).send({message: 'Subscription inactive!'});
           return;
         }
+
         res.status(200).send({ token, userdb }); 
 
     }catch(error){
