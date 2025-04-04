@@ -10,7 +10,7 @@ const FindCostumerByIdUser = (id: string) => Customer.find({ user: id });
 
 const FindCostumerByIdService = (id: String) => Customer.findById(id);
 
-const FindCustomerActive = () => Customer.find({ status: "active" }).sort({ _id: -1 }).populate("user");
+const FindCustomerActive = (id: string) => Customer.find({ status: "active", user: id }).sort({ _id: -1 }).populate("user");
 
 const DeleteCustomer = (id: String) => Customer.deleteOne({_id: id});
 

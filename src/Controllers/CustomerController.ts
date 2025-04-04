@@ -64,9 +64,10 @@ const findcustomer = async (req: CustomRequest, res: Response) => {
   }
 }
 
-const findcustomersactives = async (req: Request, res: Response) => {
+const findcustomersactives = async (req: CustomRequest, res: Response) => {
   try{
-    const customers = await CustomerService.FindCustomerActive();
+    const user = req.userObject;
+    const customers = await CustomerService.FindCustomerActive(`${user?.id}`);
     res.status(200).send(customers);
   }catch(error){
     res.status(500).send({message: "Não foi possivel buscar clientes ativos"});
