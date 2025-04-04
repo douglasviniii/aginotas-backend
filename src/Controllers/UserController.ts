@@ -90,6 +90,7 @@ const AuthUserController = async (req: Request, res: Response) => {
         }
 
         const subscription = await PagarmeService.GetSubscription(userdb.subscription_id);
+        console.log(subscription);
          if(!subscription){
           res.status(400).send({message: 'Subscription not found!'});
           return;
