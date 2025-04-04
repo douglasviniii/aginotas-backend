@@ -15,6 +15,7 @@ export interface Scheduling extends Document {
     cnae: number,
     descricao: string,
     desconto: number,
+    dateOfCompetence: String,
     },
   },
   valor: Number,
@@ -37,7 +38,8 @@ const schedulingSchema = new Schema<Scheduling>({
       item_lista: {type: Number, required: true},
       cnae: {type: Number, required: true},
       descricao: {type: String, required: true},
-      desconto: {type: Number, required: true}
+      desconto: {type: Number, required: true},
+/*       dateOfCompetence: {type: Date, required: true}, */
       },
     },
     valor: {type: Number, required: true},

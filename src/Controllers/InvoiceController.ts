@@ -317,7 +317,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             },
             DataEmissao: formattedDate,
             Status: 1,
-            Competencia: formattedDate,
+            Competencia: /* formattedDate */ servico.dateOfCompetence,
             Servico: {
               Valores: {
                 ValorServicos: servico.valor_unitario * servico.quantidade,

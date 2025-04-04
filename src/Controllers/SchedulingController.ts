@@ -219,7 +219,7 @@ const scheduling_controller = async () =>{
             },
             DataEmissao: formattedDate,
             Status: 1,
-            Competencia: formattedDate,
+            Competencia: formattedDate /* schedule.data.servico.dateOfCompetence.toString() */,
             Servico: {
               Valores: {
           ValorServicos: schedule.data.servico.valor_unitario * schedule.data.servico.quantidade,
