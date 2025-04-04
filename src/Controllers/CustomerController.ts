@@ -54,6 +54,16 @@ const findcustomers = async (req: Request, res: Response) => {
   }
 }
 
+const findcustomer = async (req: CustomRequest, res: Response) => {
+  try{
+    const user = req.userObject;
+    const customers = await CustomerService.FindCostumerByIdUser(`${user?.id}`);
+    res.status(200).send(customers);
+  }catch(error){
+    res.status(500).send({message: "Não foi possivel buscar clientes"});
+  }
+}
+
 const findcustomersactives = async (req: Request, res: Response) => {
   try{
     const customers = await CustomerService.FindCustomerActive();
@@ -122,6 +132,7 @@ export default
 {
   create_customer, 
   findcustomers,
+  findcustomer,
   deletecustomer,
   desactivatecustomer,
   findcustomersactives,
