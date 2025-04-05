@@ -136,8 +136,10 @@ io.on("connection", (socket) => {
 
 server.listen(PORT, async () => {
   await DataBase(); 
-   cron.schedule("0 0 * * *", async () => { //executar após a meia-noite
-    await Scheduling.scheduling_controller(); // executando agendamentos
-  }) 
+  cron.schedule("0 0 * * *", async () => { 
+   await Scheduling.scheduling_controller(); // executando agendamentos
+  }, {
+   timezone: "America/Sao_Paulo" 
+  });
   console.log(`Servidor rodando na porta ${PORT}`);
 });
