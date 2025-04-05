@@ -109,6 +109,90 @@ interface GerarNfseEnvio {
   };
 }
 
+interface GerarNfseEnvioPessoaFisica {
+  Requerente: {
+    Cnpj: string;
+    InscricaoMunicipal: string;
+    Senha: string;
+    Homologa: boolean;
+  };
+  LoteRps: {
+    NumeroLote: string;
+    Cnpj: string;
+    InscricaoMunicipal: string;
+    QuantidadeRps: number;
+  };
+  Rps: {
+    IdentificacaoRps: {
+      Numero: string;
+      Serie: string;
+      Tipo: number;
+    };
+    DataEmissao: string;
+    Status: number;
+    Competencia: string;
+    Servico: {
+      Valores: {
+        ValorServicos: number;
+        ValorDeducoes: number;
+        AliquotaPis: number;
+        RetidoPis: number;
+        AliquotaCofins: number;
+        RetidoCofins: number;
+        AliquotaInss: number;
+        RetidoInss: number;
+        AliquotaIr: number;
+        RetidoIr: number;
+        AliquotaCsll: number;
+        RetidoCsll: number;
+        RetidoCpp: number;
+        RetidoOutrasRetencoes: number;
+        Aliquota: number;
+        DescontoIncondicionado: number;
+        DescontoCondicionado: number;
+      };
+      IssRetido: number;
+      Discriminacao: string;
+      CodigoMunicipio: string;
+      ExigibilidadeISS: number;
+      MunicipioIncidencia: string;
+      ListaItensServico: Array<{
+        ItemListaServico: string;
+        CodigoCnae: string;
+        Descricao: string;
+        Tributavel: number;
+        Quantidade: number;
+        ValorUnitario: number;
+        ValorLiquido: number;
+      }>;
+    };
+    Prestador: {
+      Cnpj: string;
+      InscricaoMunicipal: string;
+    };
+    Tomador: {
+      IdentificacaoTomador: {
+        CpfCnpj: string;
+      };
+      RazaoSocial: string;
+      Endereco: {
+        Endereco: string;
+        Numero: string;
+        Bairro: string;
+        CodigoMunicipio: string;
+        Uf: string;
+        Cep: string;
+      };
+      Contato: {
+        Telefone: string;
+        Email: string;
+      };
+    };
+    RegimeEspecialTributacao: number;
+    IncentivoFiscal: number;
+  };
+}
+
 
 interface DataConsultaNFSE{
   NumeroRps: string;
@@ -296,6 +380,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         const options = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' } as const;
         const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date);
 
+
+        if(customer.cnpj != 'undefined' && customer.cpf === 'undefined'){
+
         const data: GerarNfseEnvio = {
           Requerente: {
             Cnpj: user!.cnpj,  
@@ -449,7 +536,169 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         default:
            res.status(400).send({message: "Não atende a cidade informada"});
            return;
-        }      
+        }  
+
+        }
+
+
+        if(customer.cpf != 'undefined' && customer.cnpj === 'undefined'){
+
+          const data: GerarNfseEnvioPessoaFisica = {
+            Requerente: {
+              Cnpj: user!.cnpj,  
+              InscricaoMunicipal: user!.inscricaoMunicipal, 
+              Senha: user!.senhaelotech,
+              Homologa: user!.homologa 
+            },
+            LoteRps: {
+              NumeroLote: /* numeroLote.toLocaleString() */ user.numeroLote.toLocaleString(),
+              Cnpj: user!.cnpj,
+              InscricaoMunicipal: user!.inscricaoMunicipal, 
+              QuantidadeRps: 1,
+            },
+            Rps: {
+              IdentificacaoRps: {
+                Numero: /* identificacaoRpsnumero.toLocaleString(), */  user.identificacaoRpsnumero.toLocaleString(),
+                Serie: "D",
+                Tipo: 1,
+              },
+              DataEmissao: formattedDate,
+              Status: 1,
+              Competencia: /* formattedDate */ servico.dateOfCompetence,
+              Servico: {
+                Valores: {
+                  ValorServicos: servico.valor_unitario * servico.quantidade,
+                  ValorDeducoes: 0,
+                  AliquotaPis: 0,
+                  RetidoPis: 2,
+                  AliquotaCofins: 0,
+                  RetidoCofins: 2,
+                  AliquotaInss: 0,
+                  RetidoInss: 2,
+                  AliquotaIr: 0, 
+                  RetidoIr: 2, 
+                  AliquotaCsll: 0,
+                  RetidoCsll: 2,
+                  RetidoCpp: 2,
+                  RetidoOutrasRetencoes: 2,
+                  Aliquota: 4.41,
+                  DescontoIncondicionado: 0.00,
+                  DescontoCondicionado: 0.00,
+                },
+                  IssRetido: 2, 
+                  Discriminacao: servico.Discriminacao,
+                  CodigoMunicipio: '4115804', // Código de Medianeira
+                  ExigibilidadeISS: 1,
+                  MunicipioIncidencia: '4115804', // Código de Medianeira
+                  ListaItensServico: [
+                {
+                  ItemListaServico: servico.item_lista,
+                  CodigoCnae: servico.cnae,
+                  Descricao: servico.descricao,
+                  Tributavel: 1,
+                  Quantidade: servico.quantidade,
+                  ValorUnitario: servico.valor_unitario,
+                  ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+                },
+                ],
+              },
+              Prestador: {
+                Cnpj: user!.cnpj,  
+                InscricaoMunicipal: user!.inscricaoMunicipal, 
+              },
+              Tomador: {
+                IdentificacaoTomador: {
+                CpfCnpj: customer.cpf,
+                },
+                RazaoSocial: customer.razaoSocial,
+                Endereco: {
+                Endereco: customer.address.street,
+                Numero: customer.address.number,
+                Bairro: customer.address.neighborhood,
+                CodigoMunicipio: customer.address.cityCode,
+                Uf: customer.address.state,
+                Cep: customer.address.zipCode,
+                },
+                Contato: {
+                Telefone: customer.phone,
+                Email: customer.email,
+                },         
+              },
+              RegimeEspecialTributacao: user!.RegimeEspecialTributacao,
+              IncentivoFiscal: user!.IncentivoFiscal,
+            },
+          };
+  
+          async function verificarNFSe(xml: any) {
+            return new Promise((resolve, reject) => {
+                xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+                    if (err) return reject(err);
+        
+                    try {
+                        const body = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"];
+                        const resposta = body["ns2:EnviarLoteRpsSincronoResposta"];
+        
+                        if (resposta["ns2:ListaMensagemRetorno"]) {
+                            console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
+                            messageError = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]["ns2:Mensagem"];
+                            return resolve(false);
+                        }
+  
+                          if (resposta["ns2:ListaMensagemRetornoLote"]) {
+                          console.error("Erro no lote da NFS-e:", resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"]);
+                          const mensagens = resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"];
+                          if (Array.isArray(mensagens)) {
+                            messageError = mensagens.map((msg: any) => msg["ns2:Mensagem"]).join("; ");
+                          } else {
+                            messageError = mensagens["ns2:Mensagem"];
+                          }
+                          return resolve(false);
+                          }
+  
+                        return resolve(true);
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
+            });
+          }  
+  
+          switch (user?.cidade) {
+            case "Medianeira":
+  
+            const response = await NFseService.enviarNfsePessoaFisica(data);
+  
+            const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
+          
+            if (!nfseGerada) {
+                await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+                res.status(200).send({message: messageError});
+                return;
+            }
+          
+              await InvoiceService.CreateInvoiceService({
+                customer: customer_id,
+                user: user?.id,
+                valor: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+                xml: response,
+                data: data,
+                numeroLote: /* numeroLote */ user.numeroLote,
+                identificacaoRpsnumero: /* identificacaoRpsnumero */ user.identificacaoRpsnumero,
+              });
+  
+              await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+  
+              res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
+              return;
+  
+          default:
+             res.status(400).send({message: "Não atende a cidade informada"});
+             return;
+          }  
+  
+        
+        }
+   
       } catch (error) {
         res.status(500).send({message: 'Erro interno no servidor', error});
         return;

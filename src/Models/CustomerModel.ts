@@ -26,8 +26,8 @@ export interface ICustomer extends Document {
 const CustomerSchema = new Schema<ICustomer>({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   name: { type: String},
-  cnpj: { type: String},
-  cpf: { type: String},
+  cnpj: { type: String, default: 'undefined'},
+  cpf: { type: String, default: 'undefined'},
   razaoSocial: { type: String},
   nomeFantasia: { type: String},
   inscricaoMunicipal: { type: String},

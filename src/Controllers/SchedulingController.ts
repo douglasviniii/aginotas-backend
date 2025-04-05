@@ -6,6 +6,7 @@ import CustomerService from '../services/CustomerService.ts';
 import SendEmailService from '../services/SendEmailService.ts';
 import InvoiceService from '../services/InvoiceService.ts';
 import xml2js from 'xml2js';
+import { Console } from 'console';
 
 
 interface CustomRequest extends Request {
@@ -84,6 +85,90 @@ interface GerarNfseEnvio {
       IdentificacaoTomador: {
         InscricaoMunicipal: string;
         InscricaoEstadual: string;
+        CpfCnpj: string;
+      };
+      RazaoSocial: string;
+      Endereco: {
+        Endereco: string;
+        Numero: string;
+        Bairro: string;
+        CodigoMunicipio: string;
+        Uf: string;
+        Cep: string;
+      };
+      Contato: {
+        Telefone: string;
+        Email: string;
+      };
+    };
+    RegimeEspecialTributacao: number;
+    IncentivoFiscal: number;
+  };
+}
+
+interface GerarNfseEnvioPessoaFisica {
+  Requerente: {
+    Cnpj: string;
+    InscricaoMunicipal: string;
+    Senha: string;
+    Homologa: boolean;
+  };
+  LoteRps: {
+    NumeroLote: string;
+    Cnpj: string;
+    InscricaoMunicipal: string;
+    QuantidadeRps: number;
+  };
+  Rps: {
+    IdentificacaoRps: {
+      Numero: string;
+      Serie: string;
+      Tipo: number;
+    };
+    DataEmissao: string;
+    Status: number;
+    Competencia: string;
+    Servico: {
+      Valores: {
+        ValorServicos: number;
+        ValorDeducoes: number;
+        AliquotaPis: number;
+        RetidoPis: number;
+        AliquotaCofins: number;
+        RetidoCofins: number;
+        AliquotaInss: number;
+        RetidoInss: number;
+        AliquotaIr: number;
+        RetidoIr: number;
+        AliquotaCsll: number;
+        RetidoCsll: number;
+        RetidoCpp: number;
+        RetidoOutrasRetencoes: number;
+        Aliquota: number;
+        DescontoIncondicionado: number;
+        DescontoCondicionado: number;
+      };
+      IssRetido: number;
+      Discriminacao: string;
+      CodigoMunicipio: string;
+      ExigibilidadeISS: number;
+      MunicipioIncidencia: string;
+      ListaItensServico: Array<{
+        ItemListaServico: string;
+        CodigoCnae: string;
+        Descricao: string;
+        Tributavel: number;
+        Quantidade: number;
+        ValorUnitario: number;
+        ValorLiquido: number;
+      }>;
+    };
+    Prestador: {
+      Cnpj: string;
+      InscricaoMunicipal: string;
+    };
+    Tomador: {
+      IdentificacaoTomador: {
         CpfCnpj: string;
       };
       RazaoSocial: string;
@@ -209,6 +294,8 @@ const scheduling_controller = async () =>{
         const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date);
 
         //console.log(JSON.stringify(schedule, null, 2));
+
+      if(db_customer.cnpj != 'undefined' && db_customer.cpf === 'undefined'){
 
         const data: GerarNfseEnvio = {
           Requerente: {
@@ -366,6 +453,165 @@ const scheduling_controller = async () =>{
           return;
         } 
       }
+
+      if(db_customer.cpf != 'undefined' && db_customer.cnpj === 'undefined'){
+        
+        const data: GerarNfseEnvioPessoaFisica = {
+          Requerente: {
+            Cnpj: db_user!.cnpj,
+            InscricaoMunicipal: db_user!.inscricaoMunicipal,
+            Senha: db_user!.senhaelotech,
+            Homologa: db_user!.homologa,
+          },
+          LoteRps: {
+            NumeroLote: /* numeroLote.toString() */ db_user.numeroLote.toString(),
+            Cnpj: db_user!.cnpj,
+            InscricaoMunicipal: db_user!.inscricaoMunicipal,
+            QuantidadeRps: 1,
+          },
+          Rps: {
+            IdentificacaoRps: {
+              Numero: /* identificacaoRpsnumero.toString() */ db_user.identificacaoRpsnumero.toString(),
+              Serie: "D",
+              Tipo: 1,
+            },
+            DataEmissao: formattedDate,
+            Status: 1,
+            Competencia: formattedDate /* schedule.data.servico.dateOfCompetence.toString() */,
+            Servico: {
+              Valores: {
+                ValorServicos: schedule.data.servico.valor_unitario * schedule.data.servico.quantidade,
+                ValorDeducoes: 0,
+                AliquotaPis: 0,
+                RetidoPis: 2,
+                AliquotaCofins: 0,
+                RetidoCofins: 2,
+                AliquotaInss: 0,
+                RetidoInss: 2,
+                AliquotaIr: 0,
+                RetidoIr: 2,
+                AliquotaCsll: 0,
+                RetidoCsll: 2,
+                RetidoCpp: 2,
+                RetidoOutrasRetencoes: 2,
+                Aliquota: 4.41,
+                DescontoIncondicionado: 0.0,
+                DescontoCondicionado: 0.0,
+              },
+              IssRetido: 2,
+              Discriminacao: schedule.data.servico.Discriminacao,
+              CodigoMunicipio: "4115804", // CÓDIGO DE MEDIANEIRA
+              ExigibilidadeISS: 1,
+              MunicipioIncidencia: "4115804", // CÓDIGO DE MEDIANEIRA
+              ListaItensServico: [
+          {
+            ItemListaServico: (schedule.data.servico.item_lista).toString(),
+            CodigoCnae: (schedule.data.servico.cnae).toString(),
+            Descricao: schedule.data.servico.descricao,
+            Tributavel: 1,
+            Quantidade: schedule.data.servico.quantidade,
+            ValorUnitario: schedule.data.servico.valor_unitario,
+            ValorLiquido:
+              schedule.data.servico.valor_unitario * schedule.data.servico.quantidade -
+              (schedule.data.servico.desconto || 0),
+          },
+              ],
+            },
+            Prestador: {
+              Cnpj: db_user!.cnpj,
+              InscricaoMunicipal: db_user!.inscricaoMunicipal,
+            },
+            Tomador: {
+              IdentificacaoTomador: {
+              CpfCnpj: db_customer.cnpj,
+              },
+              RazaoSocial: db_customer.razaoSocial,
+              Endereco: {
+              Endereco: db_customer.address.street,
+              Numero: db_customer.address.number,
+              Bairro: db_customer.address.neighborhood,
+              CodigoMunicipio: db_customer.address.cityCode,
+              Uf: db_customer.address.state,
+              Cep: db_customer.address.zipCode,
+              },
+              Contato: {
+                Telefone: db_customer.phone,
+                Email: db_customer.email,
+              },
+            },
+            RegimeEspecialTributacao: db_user!.RegimeEspecialTributacao,
+            IncentivoFiscal: db_user!.IncentivoFiscal,
+          },
+        };
+        
+        async function verificarNFSe(xml: any) {
+          return new Promise((resolve, reject) => {
+              xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+                  if (err) return reject(err);
+      
+                  try {
+                      const body = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"];
+                      const resposta = body["ns2:EnviarLoteRpsSincronoResposta"];
+      
+                      if (resposta["ns2:ListaMensagemRetorno"]) {
+                          console.error("Erro na geração da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
+                          console.log(resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]["ns2:Mensagem"]);
+                          return resolve(false);
+                      }
+
+                        if (resposta["ns2:ListaMensagemRetornoLote"]) {
+                        console.error("Erro no lote da NFS-e:", resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"]);
+                        const mensagens = resposta["ns2:ListaMensagemRetornoLote"]["ns2:MensagemRetorno"];
+                        if (Array.isArray(mensagens)) {
+                          console.log(mensagens.map((msg: any) => msg["ns2:Mensagem"]).join("; "));
+                        } else {
+                          console.log(mensagens["ns2:Mensagem"]);
+                        }
+                        return resolve(false);
+                        }
+
+                      return resolve(true);
+                  } catch (e) {
+                      reject(e);
+                  }
+              });
+          });
+        }  
+
+        switch (db_user?.cidade) {
+          case "Medianeira":
+        
+          const response = await NFseService.enviarNfsePessoaFisica(data);
+          const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
+                
+          if (!nfseGerada) {
+            await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
+            console.log("Erro na emissão da NFS-e. Verifique os dados.");
+            return;
+          }
+        
+          await InvoiceService.CreateInvoiceService({
+            customer: db_customer._id,
+            user: db_user._id,
+            valor: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0),
+            xml: response,
+            data: data,
+            numeroLote: /* numeroLote */ db_user.numeroLote,
+            identificacaoRpsnumero: /* identificacaoRpsnumero */ db_user.identificacaoRpsnumero,
+          });  
+
+          await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
+          await SendEmailService.SendEmailNFSe(`${db_customer.email}`, 'Mensagem de aviso, Nota Fiscal Eletrônica Emitida com sucesso pelo agendamento!'); 
+
+          console.log('Nota Fiscal gerada com sucesso!');
+          return;
+          default:
+          console.log("Não atende a cidade informada");
+          return;
+        } 
+      }
+    }
+    console.log('Nenhum agendamento encontrado!');
     }
   } catch (error) {
     console.log(error);

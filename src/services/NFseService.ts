@@ -98,6 +98,90 @@ interface GerarNfseEnvio {
   };
 }
 
+interface GerarNfseEnvioPessoaFisica {
+  Requerente: {
+    Cnpj: string;
+    InscricaoMunicipal: string;
+    Senha: string;
+    Homologa: boolean;
+  };
+  LoteRps: {
+    NumeroLote: string;
+    Cnpj: string;
+    InscricaoMunicipal: string;
+    QuantidadeRps: number;
+  };
+  Rps: {
+    IdentificacaoRps: {
+      Numero: string;
+      Serie: string;
+      Tipo: number;
+    };
+    DataEmissao: string;
+    Status: number;
+    Competencia: string;
+    Servico: {
+      Valores: {
+        ValorServicos: number;
+        ValorDeducoes: number;
+        AliquotaPis: number;
+        RetidoPis: number;
+        AliquotaCofins: number;
+        RetidoCofins: number;
+        AliquotaInss: number;
+        RetidoInss: number;
+        AliquotaIr: number;
+        RetidoIr: number;
+        AliquotaCsll: number;
+        RetidoCsll: number;
+        RetidoCpp: number;
+        RetidoOutrasRetencoes: number;
+        Aliquota: number;
+        DescontoIncondicionado: number;
+        DescontoCondicionado: number;
+      };
+      IssRetido: number;
+      Discriminacao: string;
+      CodigoMunicipio: string;
+      ExigibilidadeISS: number;
+      MunicipioIncidencia: string;
+      ListaItensServico: Array<{
+        ItemListaServico: string;
+        CodigoCnae: string;
+        Descricao: string;
+        Tributavel: number;
+        Quantidade: number;
+        ValorUnitario: number;
+        ValorLiquido: number;
+      }>;
+    };
+    Prestador: {
+      Cnpj: string;
+      InscricaoMunicipal: string;
+    };
+    Tomador: {
+      IdentificacaoTomador: {
+        CpfCnpj: string;
+      };
+      RazaoSocial: string;
+      Endereco: {
+        Endereco: string;
+        Numero: string;
+        Bairro: string;
+        CodigoMunicipio: string;
+        Uf: string;
+        Cep: string;
+      };
+      Contato: {
+        Telefone: string;
+        Email: string;
+      };
+    };
+    RegimeEspecialTributacao: number;
+    IncentivoFiscal: number;
+  };
+}
+
 interface DataConsultaNFSE{
   NumeroRps: string;
   SerieRps: string;
@@ -433,6 +517,155 @@ class NfseService {
     }
   }
 
+
+
+  private gerarXmlNfsePessoaFisica(data: GerarNfseEnvioPessoaFisica): string {
+    return `
+    <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:nfse="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
+      <soapenv:Header/>
+      <soapenv:Body>
+      <EnviarLoteRpsSincronoEnvio xmlns="http://shad.elotech.com.br/schemas/iss/nfse_v2_03.xsd">
+        <IdentificacaoRequerente>
+        <CpfCnpj>
+          <Cnpj>${data.Requerente.Cnpj}</Cnpj>
+        </CpfCnpj>
+        <InscricaoMunicipal>${data.Requerente.InscricaoMunicipal}</InscricaoMunicipal>
+        <Senha>${data.Requerente.Senha}</Senha>
+        <Homologa>${data.Requerente.Homologa}</Homologa>
+        </IdentificacaoRequerente>
+        <LoteRps versao="2.03">
+        <NumeroLote>${data.LoteRps.NumeroLote}</NumeroLote>
+        <CpfCnpj>
+          <Cnpj>${data.LoteRps.Cnpj}</Cnpj>
+        </CpfCnpj>
+        <InscricaoMunicipal>${data.LoteRps.InscricaoMunicipal}</InscricaoMunicipal>
+        <QuantidadeRps>${data.LoteRps.QuantidadeRps}</QuantidadeRps>
+        <ListaRps>
+          <Rps>
+          <InfDeclaracaoPrestacaoServico Id="_0">
+            <Rps>
+            <IdentificacaoRps>
+              <Numero>${data.Rps.IdentificacaoRps.Numero}</Numero>
+              <Serie>${data.Rps.IdentificacaoRps.Serie}</Serie>
+              <Tipo>${data.Rps.IdentificacaoRps.Tipo}</Tipo>
+            </IdentificacaoRps>
+            <DataEmissao>${data.Rps.DataEmissao}</DataEmissao>
+            <Status>${data.Rps.Status}</Status>
+            </Rps>
+            <Competencia>${data.Rps.Competencia}</Competencia>
+            <Servico>
+            <Valores>
+              <ValorServicos>${data.Rps.Servico.Valores.ValorServicos}</ValorServicos>
+              <ValorDeducoes>${data.Rps.Servico.Valores.ValorDeducoes}</ValorDeducoes>
+              <AliquotaPis>${data.Rps.Servico.Valores.AliquotaPis}</AliquotaPis>
+              <RetidoPis>${data.Rps.Servico.Valores.RetidoPis}</RetidoPis>
+              <AliquotaCofins>${data.Rps.Servico.Valores.AliquotaCofins}</AliquotaCofins>
+              <RetidoCofins>${data.Rps.Servico.Valores.RetidoCofins}</RetidoCofins>
+              <AliquotaInss>${data.Rps.Servico.Valores.AliquotaInss}</AliquotaInss>
+              <RetidoInss>${data.Rps.Servico.Valores.RetidoInss}</RetidoInss>
+              <AliquotaIr>${data.Rps.Servico.Valores.AliquotaIr}</AliquotaIr>
+              <RetidoIr>${data.Rps.Servico.Valores.RetidoIr}</RetidoIr>
+              <AliquotaCsll>${data.Rps.Servico.Valores.AliquotaCsll}</AliquotaCsll>
+              <RetidoCsll>${data.Rps.Servico.Valores.RetidoCsll}</RetidoCsll>
+              <RetidoCpp>${data.Rps.Servico.Valores.RetidoCpp}</RetidoCpp>
+              <RetidoOutrasRetencoes>${data.Rps.Servico.Valores.RetidoOutrasRetencoes}</RetidoOutrasRetencoes>
+              <Aliquota>${data.Rps.Servico.Valores.Aliquota}</Aliquota>
+              <DescontoIncondicionado>${data.Rps.Servico.Valores.DescontoIncondicionado}</DescontoIncondicionado>
+              <DescontoCondicionado>${data.Rps.Servico.Valores.DescontoCondicionado}</DescontoCondicionado>
+            </Valores>
+            <IssRetido>${data.Rps.Servico.IssRetido}</IssRetido>
+            <Discriminacao>${data.Rps.Servico.Discriminacao}</Discriminacao>
+            <CodigoMunicipio>${data.Rps.Servico.CodigoMunicipio}</CodigoMunicipio>
+            <ExigibilidadeISS>${data.Rps.Servico.ExigibilidadeISS}</ExigibilidadeISS>
+            <MunicipioIncidencia>${data.Rps.Servico.MunicipioIncidencia}</MunicipioIncidencia>
+            <ListaItensServico>
+              ${data.Rps.Servico.ListaItensServico.map(item => `
+              <ItemServico>
+              <ItemListaServico>${item.ItemListaServico}</ItemListaServico>
+              <CodigoCnae>${item.CodigoCnae}</CodigoCnae>
+              <Descricao>${item.Descricao}</Descricao>
+              <Tributavel>${item.Tributavel}</Tributavel>
+              <Quantidade>${item.Quantidade}</Quantidade>
+              <ValorUnitario>${item.ValorUnitario}</ValorUnitario>
+              <ValorLiquido>${item.ValorLiquido}</ValorLiquido>
+              </ItemServico>
+              `).join('')}
+            </ListaItensServico>
+            </Servico>
+            <Prestador>
+            <CpfCnpj>
+              <Cnpj>${data.Rps.Prestador.Cnpj}</Cnpj>
+            </CpfCnpj>
+            <InscricaoMunicipal>${data.Rps.Prestador.InscricaoMunicipal}</InscricaoMunicipal>
+            </Prestador>
+            <Tomador>
+            <IdentificacaoTomador>
+              <CpfCnpj>
+              <Cpf>${data.Rps.Tomador.IdentificacaoTomador.CpfCnpj}</Cpf>
+              </CpfCnpj>
+            </IdentificacaoTomador>
+            <RazaoSocial>${data.Rps.Tomador.RazaoSocial}</RazaoSocial>
+            <Endereco>
+              <Endereco>${data.Rps.Tomador.Endereco.Endereco}</Endereco>
+              <Numero>${data.Rps.Tomador.Endereco.Numero}</Numero>
+              <Bairro>${data.Rps.Tomador.Endereco.Bairro}</Bairro>
+              <CodigoMunicipio>${data.Rps.Tomador.Endereco.CodigoMunicipio}</CodigoMunicipio>
+              <Uf>${data.Rps.Tomador.Endereco.Uf}</Uf>
+              <Cep>${data.Rps.Tomador.Endereco.Cep}</Cep>
+            </Endereco>
+            <Contato>
+              <Telefone>${data.Rps.Tomador.Contato.Telefone}</Telefone>
+              <Email>${data.Rps.Tomador.Contato.Email}</Email>
+            </Contato>
+            </Tomador>
+            <RegimeEspecialTributacao>${data.Rps.RegimeEspecialTributacao}</RegimeEspecialTributacao>
+            <IncentivoFiscal>${data.Rps.IncentivoFiscal}</IncentivoFiscal>
+          </InfDeclaracaoPrestacaoServico>
+          </Rps>
+        </ListaRps>
+        </LoteRps>
+      </EnviarLoteRpsSincronoEnvio>
+      </soapenv:Body>
+    </soapenv:Envelope>
+    `;
+  }
+
+  public async enviarNfsePessoaFisica(data: GerarNfseEnvioPessoaFisica): Promise<string> {
+    try {
+      
+      const xml = this.gerarXmlNfsePessoaFisica(data);
+      const xsd = fs.readFileSync('./src/services/xmldsig-core-schema20020212.xsd', 'utf8');
+
+      const xmlDoc = libxmljs.parseXml(xml);
+      const xsdDoc = libxmljs.parseXml(xsd);
+
+      const validationErrors = xmlDoc.validate(xsdDoc);
+
+      if (validationErrors) {
+        console.error('Erros de validação:', validationErrors);
+
+      } else {
+        const xmlAssinado = await this.assinarXml(xml);
+        console.log('XML GERAR UMA NFSE: ',xmlAssinado);
+
+
+         const response = await axios.post(
+          `${this.ElotechUrl}`, xmlAssinado,
+          {
+            headers: {
+              'Content-Type': 'text/xml',
+              'Accept': 'text/xml',
+            },
+          }
+        );
+        return response.data; 
+      }
+      return 'Erro de validação no XML';
+    } catch (error) {
+      console.error('Erro ao enviar Nfse:', error);
+      throw new Error('Falha ao enviar Nfse.');
+    }
+  }
 
 
 
