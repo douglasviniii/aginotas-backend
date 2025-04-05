@@ -4,6 +4,9 @@ export interface ICustomer extends Document {
   user: mongoose.Types.ObjectId; 
   name: string;
   cnpj: string;
+  cpf: string;
+  razaoSocial: string;
+  nomeFantasia: string;
   inscricaoMunicipal: string;
   inscricaoEstadual: string;
   email: string;
@@ -22,12 +25,15 @@ export interface ICustomer extends Document {
 
 const CustomerSchema = new Schema<ICustomer>({
   user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  name: { type: String, required: true },
-  cnpj: { type: String, required: true },
+  name: { type: String},
+  cnpj: { type: String},
+  cpf: { type: String},
+  razaoSocial: { type: String},
+  nomeFantasia: { type: String},
   inscricaoMunicipal: { type: String},
   inscricaoEstadual: { type: String},
   email: { type: String, required: true, unique: true },
-  phone: { type: String, required: true },
+  phone: { type: String},
   status: {type: String},
   address: { 
     street: { type: String},

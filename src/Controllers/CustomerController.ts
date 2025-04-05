@@ -15,6 +15,7 @@ const create_customer = async (req: CustomRequest, res: Response) => {
         const body = req.body;
         const user = req.userObject;
 
+        if(body.cpf === ''){
         const data = {
           user: user!.id,
           name: body.name,
@@ -36,6 +37,31 @@ const create_customer = async (req: CustomRequest, res: Response) => {
         };
         const customer = await CustomerService.CreateCustomer(data);
         res.status(200).send({message: 'Cliente cadastrado com sucesso!', customer});
+        return;
+      }
+
+      if(body.cnpj === ''){
+        const data = {
+          user: user!.id,
+          cpf: body.cpf.replace(/[^\d]/g, ''),
+          razaoSocial: body.razaoSocial,
+          email: body.email,
+          phone: body.phone,
+          status: 'active',
+          address: {
+            street: body.address.street,
+            number: body.address.number,
+            neighborhood: body.address.neighborhood,
+            cityCode: body.address.cityCode,
+            city: body.address.city,
+            state: body.address.state,
+            zipCode: body.address.zipCode,
+          },
+        };
+        const customer = await CustomerService.CreateCustomer(data);
+        res.status(200).send({message: 'Cliente cadastrado com sucesso!', customer});
+        return;
+      }
 
     }catch(error){
     res.status(500).send({
@@ -105,6 +131,8 @@ const updatecustomer = async (req: Request, res: Response) =>{
     const data = {
       name: body.name,
       cnpj: body.cnpj.replace(/[^\d]/g, ''),
+      cpf: body.cpf.replace(/[^\d]/g, ''),
+      razaoSocial: body.razaoSocial,
       email: body.email,
       phone: body.phone,
       inscricaoMunicipal: body.inscricaoMunicipal,
