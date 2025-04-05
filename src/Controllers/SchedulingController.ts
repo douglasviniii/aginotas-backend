@@ -640,7 +640,7 @@ const find_schedulings_controller = async (req: Request, res: Response) =>{
       return;
     }
 
-    const schedulings = await SchedulingService.FindSchedulings(id);
+    const schedulings = await SchedulingService.FindSchedulingsByCustomer(id);
     res.status(200).send(schedulings);
   }catch(error){
     res.status(500).send({message: "Não foi possivel buscar agendamentos"});
