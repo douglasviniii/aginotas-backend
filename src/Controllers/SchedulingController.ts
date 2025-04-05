@@ -154,16 +154,18 @@ const scheduling_controller = async () =>{
     for(const schedule of schedulings){
 
       function isTodayDay(day: number): boolean {
-        const today = new Date().getDate();
-        return day === today;
+        const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+        const todayDate = new Date(today).getDate();
+        return day === todayDate;
       }
 
       function isWithinSchedule(startDate: string, endDate: string): boolean {
-        const today = new Date(); 
-        const start = new Date(`${startDate}T00:00:00`); // Data de início com horário fixo
-        const end = new Date(`${endDate}T23:59:59`); // Data de fim com horário final do dia
+        const today = new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" });
+        const todayDate = new Date(today);
+        const start = new Date(`${startDate}T00:00:00-03:00`); // Data de início com horário fixo no fuso de São Paulo
+        const end = new Date(`${endDate}T23:59:59-03:00`); // Data de fim com horário final do dia no fuso de São Paulo
       
-        return today >= start && today <= end;
+        return todayDate >= start && todayDate <= end;
       }
 
 /*       async function UpdateNumbers(id: string): Promise<DataUpdateObject> {
