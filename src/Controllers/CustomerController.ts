@@ -128,30 +128,53 @@ const updatecustomer = async (req: Request, res: Response) =>{
     const id = req.params.id;
     const body = req.body;
 
-    const data = {
-      name: body.name,
-      cnpj: body.cnpj.replace(/[^\d]/g, ''),
-      cpf: body.cpf.replace(/[^\d]/g, ''),
-      razaoSocial: body.razaoSocial,
-      email: body.email,
-      phone: body.phone,
-      inscricaoMunicipal: body.inscricaoMunicipal,
-      inscricaoEstadual: body.inscricaoEstadual,
-      status: body.status,
-      address: {
-      street: body.address.street,
-      number: body.address.number,
-      neighborhood: body.address.neighborhood,
-      cityCode: body.address.cityCode,
-      city: body.address.city,
-      state: body.address.state,
-      zipCode: body.address.zipCode,
-      },
-    };
+    if(body.cpf != 'undefined' && body.cnpj === 'undefined'){
+      const data = {
+        name: body.name,
+        cpf: body.cpf.replace(/[^\d]/g, ''),
+        razaoSocial: body.razaoSocial,
+        email: body.email,
+        phone: body.phone,
+        status: body.status,
+        address: {
+        street: body.address.street,
+        number: body.address.number,
+        neighborhood: body.address.neighborhood,
+        cityCode: body.address.cityCode,
+        city: body.address.city,
+        state: body.address.state,
+        zipCode: body.address.zipCode,
+        },
+      };
+      await CustomerService.UpdateCustomer(id, data);
+      res.status(200).send({message: "Cliente atualizado com sucesso"});
+      return;
+    }
 
-
+    if(body.cpf === 'undefined' && body.cnpj != 'undefined'){
+      const data = {
+        name: body.name,
+        cnpj: body.cnpj.replace(/[^\d]/g, ''),
+        email: body.email,
+        phone: body.phone,
+        inscricaoMunicipal: body.inscricaoMunicipal,
+        inscricaoEstadual: body.inscricaoEstadual,
+        status: body.status,
+        address: {
+        street: body.address.street,
+        number: body.address.number,
+        neighborhood: body.address.neighborhood,
+        cityCode: body.address.cityCode,
+        city: body.address.city,
+        state: body.address.state,
+        zipCode: body.address.zipCode,
+        },
+      };
     await CustomerService.UpdateCustomer(id, data);
     res.status(200).send({message: "Cliente atualizado com sucesso"});
+    return;
+  }
+
   }catch(error){
     res.status(500).send({message: "Não foi possivel atualizar cliente"});
   }
