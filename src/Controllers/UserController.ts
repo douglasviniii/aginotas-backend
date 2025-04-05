@@ -36,7 +36,7 @@ const create_user = async (req: Request<{}, {}, User>, res: Response) => {
       const data: User = {
         id_client_pagarme: response.id, 
         name, 
-        cnpj, 
+        cnpj: cnpj.replace(/[^\d]/g, ''),
         email, 
         password,
         estado,
