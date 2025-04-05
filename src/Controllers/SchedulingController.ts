@@ -631,7 +631,7 @@ const cancel_schedule_controller = async (req: Request, res: Response) =>{
   }
 }
 
-const find_schedulings_controller = async (req: CustomRequest, res: Response) =>{
+const find_schedulings_controller = async (req: Request, res: Response) =>{
   try{
     const id = req.params.id;
 
