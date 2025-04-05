@@ -182,6 +182,16 @@ const scheduling_controller = async () =>{
         return { numeroLote, identificacaoRpsnumero };
       } */
 
+        console.log('Agendamento:', schedule);
+
+        console.log('Dia de hoje:', new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+        console.log('Dia de vencimento:', schedule.billing_day);
+        console.log('Data de início:', schedule.start_date);
+        console.log('Data de fim:', schedule.end_date);
+        console.log('Dentro do agendamento:', isWithinSchedule(`${schedule.start_date}`, `${schedule.end_date}`));
+        console.log('Hoje é o dia de vencimento:', isTodayDay(Number(schedule.billing_day)));
+
+
       if(isTodayDay(Number(schedule.billing_day)) && isWithinSchedule(`${schedule.start_date}`, `${schedule.end_date}`)){
         
         const db_user = await UserService.FindUserByIdService(schedule.user_id);
@@ -346,10 +356,9 @@ const scheduling_controller = async () =>{
             identificacaoRpsnumero: /* identificacaoRpsnumero */ db_user.identificacaoRpsnumero,
           });  
 
-          await SendEmailService.SendEmailNFSe(`${db_customer.email}`, 'nota gerada automaticamente'); 
-
           await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
-          
+          await SendEmailService.SendEmailNFSe(`${db_customer.email}`, 'Mensagem de aviso, Nota Fiscal Eletrônica Emitida com sucesso pelo agendamento!'); 
+
           console.log('Nota Fiscal gerada com sucesso!');
           return;
           default:
