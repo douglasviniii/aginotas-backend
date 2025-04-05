@@ -631,9 +631,16 @@ const cancel_schedule_controller = async (req: Request, res: Response) =>{
   }
 }
 
-const find_schedulings_controller = async (req: Request, res: Response) =>{
+const find_schedulings_controller = async (req: CustomRequest, res: Response) =>{
   try{
-    const schedulings = await SchedulingService.FindSchedulings();
+    const id = req.params.id;
+
+    if(!id){
+      res.status(400).send({message: 'Dados incompletos'});
+      return;
+    }
+
+    const schedulings = await SchedulingService.FindSchedulings(id);
     res.status(200).send(schedulings);
   }catch(error){
     res.status(500).send({message: "Não foi possivel buscar agendamentos"});
