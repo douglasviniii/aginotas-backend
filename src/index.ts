@@ -10,6 +10,7 @@ import SchedulingRoute from './Routes/SchedulingRoute.ts';
 import Scheduling from './Controllers/SchedulingController.ts'
 import AdminRoute from './Routes/AdminRoute.ts';
 import PagarmeRoute from './Routes/PagarmeRoute.ts';
+import ElotechRoute from './Routes/ElotechRoute.ts';
 import { createServer } from "http";
 import { Server } from "socket.io";
 import Ticket from "./Models/Ticket.ts";
@@ -41,6 +42,7 @@ app.use('/customer', CustomerRoute);
 app.use('/invoice', InvoiceRoute);
 app.use('/pagarme', PagarmeRoute);
 app.use('/scheduling', SchedulingRoute); 
+app.use('/elotech', ElotechRoute);
 
 interface CustomRequest extends Request {
     userid?: string; 
@@ -132,7 +134,6 @@ io.on("connection", (socket) => {
     console.log(`Usuário desconectado: ${socket.id}`);
   });
 }); 
-
 
 server.listen(PORT, async () => {
   await DataBase(); 
