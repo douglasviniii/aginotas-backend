@@ -1085,6 +1085,22 @@ const findinvoicescustomer = async (req: CustomRequest, res: Response) => {
   }
 }
 
+const find_invoice = async (req: CustomRequest, res: Response) => {
+  try{
+    const id = req.params.id;
+
+    if(!id){
+      res.status(400).send({message: 'ID is not found!'});
+      return;
+    }
+
+    const invoices = await InvoiceService.FindInvoice(id);
+    res.status(200).send(invoices);
+  }catch(error){
+    res.status(500).send({message: "Não foi possivel buscar as notas fiscais"});
+  }
+}
+
 /* INUTIL POR ENQUANTO */
 const consult_invoice = async (req: CustomRequest, res: Response) => {
   try {
@@ -1118,7 +1134,8 @@ export default
   cancel_invoice,
   replace_invoice,
   findinvoicescustomer,
-  findinvoices
+  findinvoices,
+  find_invoice
 };
 
 
