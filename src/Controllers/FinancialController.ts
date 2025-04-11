@@ -64,7 +64,7 @@ const Update = async (req: CustomRequest, res: Response) => {
             return;
         }
         await FinancialService.UpdateStatus(status, id);
-        res.status(200);
+        res.status(200).send({message: "updated with success"});
     } catch (error) {
         res.status(500).send({message: 'internal server error', error});
     }
