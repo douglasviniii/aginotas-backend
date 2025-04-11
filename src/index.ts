@@ -17,6 +17,7 @@ import { Server } from "socket.io";
 import Ticket from "./Models/Ticket.ts";
 import MiddlewareUser from './Middlwares/UserMiddlware.ts';
 import { Request, Response } from 'express';
+import FinancialController from './Controllers/FinancialController.ts';
 
 dotenv.config();
 
@@ -139,9 +140,10 @@ io.on("connection", (socket) => {
 
 const startServer = async () => {
   await DataBase(); 
-  
+
   cron.schedule("0 0 * * *", async () => { 
     await Scheduling.scheduling_controller(); // executando agendamentos
+    await FinancialController.ExpirationCheck();
   }, {
     timezone: "America/Sao_Paulo" 
   });

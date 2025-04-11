@@ -1,5 +1,6 @@
 import {Request, Response} from 'express';
 import FinancialService from '../services/FinancialService.ts';
+import { DateTime } from "luxon";
 
 interface CustomRequest extends Request {
     userid?: string;
@@ -85,10 +86,34 @@ const Delete = async (req: Request, res: Response) => {
     }
 }
 
+const ExpirationCheck = async () => {
+    try {
+        const Receipts = await FinancialService.VerifyReceipts();
+
+        const today = DateTime.now().setZone("America/Sao_Paulo").startOf("day");
+
+        for (const receipt of Receipts) {
+            const dueDate = DateTime.fromISO(receipt.dueDate, { zone: "America/Sao_Paulo" }).startOf("day");
+
+            if (dueDate < today && receipt.status != 'Atrasado') {
+                const status = "Atrasado";
+                const id = receipt._id;
+                await FinancialService.UpdateStatus(status, `${id}`);
+                console.log("Status do receipt atualizado para atrasado!");
+            }
+        }
+        
+    } catch (error) {
+        console.error('Erro ao verificação validade da cobrança!', error);
+        return;
+    }
+}
+
 
 export default{
     Receipts,
     Receive,
     Update,
-    Delete
+    Delete,
+    ExpirationCheck
 }
