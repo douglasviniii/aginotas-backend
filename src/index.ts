@@ -135,9 +135,25 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`Usuário desconectado: ${socket.id}`);
   });
-}); 
+});
 
-server.listen(PORT, async () => {
+const startServer = async () => {
+  await DataBase(); 
+  
+  cron.schedule("0 0 * * *", async () => { 
+    await Scheduling.scheduling_controller(); // executando agendamentos
+  }, {
+    timezone: "America/Sao_Paulo" 
+  });
+
+  server.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
+};
+
+startServer();
+
+/* server.listen(PORT, async () => {
   await DataBase(); 
   cron.schedule("0 0 * * *", async () => { 
    await Scheduling.scheduling_controller(); // executando agendamentos
@@ -145,4 +161,4 @@ server.listen(PORT, async () => {
    timezone: "America/Sao_Paulo" 
   });
   console.log(`Servidor rodando na porta ${PORT}`);
-});
+}); */
