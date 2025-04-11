@@ -58,12 +58,12 @@ const Update = async (req: CustomRequest, res: Response) => {
     try {
         const {status} = req.body;
 
-        const userid = req.userid;
-        if(!userid){
+        const id = req.params.id;
+        if(!id){
             res.status(400).send({message: 'id user is null'});
             return;
         }
-        await FinancialService.UpdateStatus(status, userid);
+        await FinancialService.UpdateStatus(status, id);
         res.status(200);
     } catch (error) {
         res.status(500).send({message: 'internal server error', error});
