@@ -42,7 +42,7 @@ const Receive = async (req: CustomRequest, res: Response) => {
         }
 
         const response = await FinancialService.Receive({
-            userid,
+            userId: userid,
             customer,
             dueDate,
             status,
