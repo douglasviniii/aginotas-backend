@@ -1,6 +1,6 @@
 import Financial from "../Models/FinancialModel.ts";
 
-const Allreceipts = (id: string) => Financial.find({_id: id});
+const Allreceipts = (id: string) => Financial.find({userId: id});
 
 const Receive = (data: object) => Financial.create(data);
 
