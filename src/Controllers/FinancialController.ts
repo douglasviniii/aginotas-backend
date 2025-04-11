@@ -57,7 +57,7 @@ const Receive = async (req: CustomRequest, res: Response) => {
 const Update = async (req: CustomRequest, res: Response) => {
     try {
         const {status} = req.body;
-
+        console.log(status);
         const id = req.params.id;
         if(!id){
             res.status(400).send({message: 'id user is null'});
@@ -78,9 +78,8 @@ const Delete = async (req: Request, res: Response) => {
             res.status(400).send({message: 'id is null'});
             return;
         }
-
         await FinancialService.Delete(id);
-        res.status(200);
+        res.status(200).send({message: "deleted with success"});
     } catch (error) {
         res.status(500).send({message: 'internal server error', error});
     }
