@@ -5,7 +5,7 @@ import FinancialController from '../Controllers/FinancialController.ts';
 const Route = express.Router();
 
 Route.get('/receipts',AuthMiddlewareUser, FinancialController.Receipts);
-Route.post('/receive',AuthMiddlewareUser, FinancialController.Receive);
+Route.post('/create',AuthMiddlewareUser, FinancialController.Receive);
 Route.put('/update/:id',AuthMiddlewareUser, FinancialController.Update);
 Route.delete('/delete/:id',AuthMiddlewareUser, FinancialController.Delete);
 
