@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: aginotas-api
+    runtime: node
+    buildCommand: echo "Nenhum build necessário"
+    startCommand: npm run start
+
+  - type: worker
+    name: agendador-worker-aginotas
+    runtime: node
+    buildCommand: echo "Nenhum build necessário"
+    startCommand: npm run start:worker
