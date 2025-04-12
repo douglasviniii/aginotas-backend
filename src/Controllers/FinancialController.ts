@@ -95,6 +95,7 @@ const ExpirationCheck = async () => {
         const today = DateTime.now().setZone("America/Sao_Paulo").startOf("day");
 
         for (const receipt of Receipts) {
+            if (receipt.dueDate) {
             const dueDate = DateTime.fromISO(receipt.dueDate, { zone: "America/Sao_Paulo" }).startOf("day");
 
             if (dueDate < today && receipt.status != 'Atrasado') {
@@ -102,6 +103,7 @@ const ExpirationCheck = async () => {
                 const id = receipt._id;
                 await FinancialService.UpdateStatus(status, `${id}`);
                 console.log("Status do receipt atualizado para atrasado!");
+            }
             }
         }
         
