@@ -6,6 +6,7 @@ const FinancialSchema = new mongoose.Schema({
   dueDate: {type: String, require: true},
   status: {type: String, require: true},
   value: {type: Number, require: true},
+  description: {type: String, require: true},
 });
 
 const Financial = mongoose.model("Financial", FinancialSchema);

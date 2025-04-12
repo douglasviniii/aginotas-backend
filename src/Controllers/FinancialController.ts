@@ -29,9 +29,10 @@ const Receive = async (req: CustomRequest, res: Response) => {
            dueDate,
            status,
            value,
+           description,
         } = req.body;
 
-        if(!customer || !dueDate || !status || !value){
+        if(!customer || !dueDate || !status || !value || !description){
             res.status(400).send({message: 'data is null'});
             return;            
         }
@@ -48,6 +49,7 @@ const Receive = async (req: CustomRequest, res: Response) => {
             dueDate,
             status,
             value,
+            description,
         });
         res.status(200).send(response);
     } catch (error) {
@@ -58,7 +60,7 @@ const Receive = async (req: CustomRequest, res: Response) => {
 const Update = async (req: CustomRequest, res: Response) => {
     try {
         const {status} = req.body;
-        console.log(status);
+
         const id = req.params.id;
         if(!id){
             res.status(400).send({message: 'id user is null'});
