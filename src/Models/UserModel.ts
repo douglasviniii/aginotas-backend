@@ -6,6 +6,7 @@ export interface IUser extends Document {
   subscription_id: string;
   name: string;
   cnpj: string;
+  picture: string;
   cidade: string;
   email: string;
   estado: string;
@@ -28,6 +29,7 @@ const UserSchema = new Schema<IUser>({
 
   name: { type: String, require: true },
   email: { type: String, require: true, unique:true },
+  picture: { type: String, default: 'picture'},
   password: { type: String, require: true, select: false },
 
   cnpj: { type: String, require: true },
