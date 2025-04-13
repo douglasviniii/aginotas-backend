@@ -718,7 +718,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
 
   try {
     const data = req.body;
-    console.log(data);
+    //console.log(data);
 
     if (!data.xml) {
       return res.status(400).send({ message: 'XML é obrigatório' });
@@ -850,7 +850,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         throw new Error('PDF gerado está vazio');
       }
 
-      console.log(`PDF gerado com ${pdfBuffer.length} bytes`);
+      //console.log(`PDF gerado com ${pdfBuffer.length} bytes`);
 
       // Configuração correta dos headers
       res.writeHead(200, {
