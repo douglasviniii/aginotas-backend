@@ -7,6 +7,7 @@ const InvoiceRoute = express.Router();
 InvoiceRoute.post('/create',MiddlewareUser,InvoiceController.create_invoice);
 InvoiceRoute.post('/cancel',MiddlewareUser,InvoiceController.cancel_invoice);
 InvoiceRoute.post('/replace',MiddlewareUser,InvoiceController.replace_invoice);
+InvoiceRoute.post('/nfsepdf', InvoiceController.create_nfse_pdf)
 
 InvoiceRoute.get('/find/:id',InvoiceController.find_invoice);
 InvoiceRoute.get('/find',InvoiceController.findinvoices);

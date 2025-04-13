@@ -4,6 +4,15 @@ import NFseService from '../services/NFseService.ts';
 import UserService from '../services/UserService.ts';
 import CustomerService from '../services/CustomerService.ts'
 import xml2js from 'xml2js';
+import { readFile, writeFile } from "fs/promises";
+import path from "path";
+import puppeteer from "puppeteer";
+import {JSDOM} from 'jsdom';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 interface CustomRequest extends Request {
     userObject?: {
@@ -705,6 +714,247 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
     }
 }
 
+const create_nfse_pdf = async (req: Request, res: Response) => {
+
+  try {
+    const data = req.body;
+    console.log(data);
+
+    if (!data.xml) {
+      return res.status(400).send({ message: 'XML é obrigatório' });
+    }
+
+    const browser = await puppeteer.launch({
+      headless: "new",
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    });
+
+    try {
+      const domParser = new JSDOM().window.DOMParser;
+      const xmlDoc = new domParser().parseFromString(data.xml, "text/xml");
+
+      function getValue(tagName: string) {
+        const elements = xmlDoc.getElementsByTagName(tagName);
+        return elements.length > 0 ? elements[0].textContent : '';
+      }
+    
+      function getTomadorValue(tagName: string) {
+        const tomador = xmlDoc.getElementsByTagName("ns2:Tomador")[0];
+        if (!tomador) return '';
+        const elements = tomador.getElementsByTagName(tagName);
+        return elements.length > 0 ? elements[0].textContent : '';
+      }
+    
+      function getTomadorEndereco() {
+        const endereco = xmlDoc.getElementsByTagName("ns2:Tomador")[0].getElementsByTagName("ns2:Endereco")[0];
+        if (!endereco) return '';
+        const logradouro = endereco.getElementsByTagName("ns2:Endereco")[0].textContent;
+        const numero = endereco.getElementsByTagName("ns2:Numero")[0].textContent;
+        const bairro = endereco.getElementsByTagName("ns2:Bairro")[0].textContent;
+        
+        return `${logradouro}, ${numero} - ${bairro}`;
+      }
+      // Funções de formatação (implementações básicas)
+      function formatCNPJ(cnpj: string) {
+        if (!cnpj) return '';
+        return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+      }
+    
+      function formatCurrency(value: string) {
+        if (!value) return '0,00';
+        const num = parseFloat(value);
+        return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    
+      function formatPercentage(value: string) {
+        if (!value) return '0,00';
+        const num = parseFloat(value);
+        return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+    
+      function formatDate(dateStr: string) {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}/${year}`;
+      }
+
+       const getValue2 = (tag: string): string => {
+        const el = xmlDoc.getElementsByTagName(tag)[0];
+        return el?.textContent?.trim() || "N/A";
+      }; 
+
+      const templatePath = path.join(__dirname, "..", "Nfse", "index.html");
+      const cssPath = path.join(__dirname, "..", "Nfse", "styles.css");
+
+      const [htmlTemplate, cssContent] = await Promise.all([
+        readFile(templatePath, "utf-8"),
+        readFile(cssPath, "utf-8")
+      ]);
+      
+      // Substitua a tag <link> pelo CSS incorporado
+      const htmlWithCss = htmlTemplate.replace(
+        `<link rel="stylesheet" href="styles.css">`,
+        `<style>${cssContent}</style>`
+      );
+
+      const replacements = {
+        "{{NUMERODORPS}}": data.data.Rps.IdentificacaoRps.Numero,
+        "{{SERIERODORPS}}": data.data.Rps.IdentificacaoRps.Serie,
+        "{{TIPOODORPS}}": data.data.Rps.IdentificacaoRps.Tipo,
+        "{{QRCODE}}": 'imagem',
+        "{{LOGOEMPRESA}}": `${data.user.picture}`,
+        "{{NUMERO}}": getValue("ns2:Numero"), // 5
+        "{{DATA_EMISSAO}}": formatDate(getValue2("ns2:DataEmissao")), // 2025-04-11
+        "{{DATA_COMPETENCIA}}": formatDate(getValue2("ns2:Competencia")), // 2025-04-11
+        "{{CODIGO_VERIFICACAO}}": getValue("ns2:CodigoVerificacao"), // 722982402
+        "{{RAZAO_SOCIAL_PRESTADOR}}": getValue("ns2:RazaoSocial"), // DELVIND TECNOLOGIA DA INFORMAÇÃO LTDA
+        "{{CNPJ_PRESTADOR}}": formatCNPJ(getValue2("ns2:Cnpj")), // 57.278.676/0001-69
+        "{{INSCRICAO_MUNICIPAL}}": getValue("ns2:InscricaoMunicipal"), // 00898131
+        "{{ENDERECO_PRESTADOR}}": getValue2("ns2:Endereco"), // 00898131
+        "{{CEP_PRESTADOR}}": getValue2("ns2:Cep"), // 00898131  ns2:Contato
+        "{{TELEFONE_PRESTADOR}}": getValue2("ns2:Telefone"), // 00898131  
+        "{{EMAIL_PRESTADOR}}": getValue2("ns2:Email"), // 00898131 
+        "{{DESCRICAO}}": getValue("ns2:Discriminacao"), // Texto longo da descrição do serviço
+        "{{CNAE}}": getValue("ns2:CodigoCnae"), // 6209100
+        "{{VALOR_SERVICOS}}": formatCurrency(getValue2("ns2:ValorServicos")), // 420,00
+        "{{ALIQUOTA}}": `${formatPercentage(getValue2("ns2:Aliquota"))}%`, // 4,41%
+        "{{BASE_CALCULO}}": formatCurrency(getValue2("ns2:BaseCalculo")), // 420,00
+        "{{VALOR_ISS}}": formatCurrency(getValue2("ns2:ValorIss")), // 18,52
+        "{{TOMADOR_RAZAO_SOCIAL}}": getTomadorValue("ns2:RazaoSocial"), // DELFOS CONTABILIDADE LTDA
+        "{{TOMADOR_CNPJ}}": formatCNPJ(getValue2("ns2:Cnpj")), // 12.202.804/0001-52
+        "{{TOMADOR_CPF}}": formatCNPJ(getValue2("ns2:Cpf")), // 12.202.804/0001-52
+        "{{TOMADOR_INSCRICAO_MUNICIPAL}}": getTomadorValue("ns2:InscricaoMunicipal"), // 00079299
+        "{{TOMADOR_ENDERECO}}": getValue2("ns2:Endereco"), // RUA PARA ESQUINA COM RIO DE JANEIRO, 2315 - Centro
+        "{{TOMADOR_CEP}}": getValue2("ns2:Cep"),
+        "{{TOMADOR_MUNICIPIO_UF}}": "Medianeira/PR", // Baseado no código 4115804
+        "{{CHAVE_ACESSO}}": getValue("ns2:ChaveAcesso") // 305aec3acc09456af6824c4f2eba4244
+    };
+
+      //console.log(replacements);
+
+      const html = Object.entries(replacements).reduce(
+        (acc, [key, value]) => acc.replace(new RegExp(key, 'g'), value),
+        htmlWithCss
+      );
+
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: 'networkidle0' });
+
+      const pdfBuffer = await page.pdf({
+        format: "A4",
+        printBackground: true,
+      });
+
+      // Verificação do buffer
+      if (!pdfBuffer || pdfBuffer.length === 0) {
+        throw new Error('PDF gerado está vazio');
+      }
+
+      console.log(`PDF gerado com ${pdfBuffer.length} bytes`);
+
+      // Configuração correta dos headers
+      res.writeHead(200, {
+        'Content-Type': 'application/pdf',
+        'Content-Length': pdfBuffer.length,
+        'Content-Disposition': 'attachment; filename=NFSe.pdf'
+      });
+
+      return res.end(pdfBuffer);
+
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      return res.status(500).send({ 
+        message: 'Erro ao gerar PDF', 
+        error: error.message 
+      });
+    } finally {
+      if (browser) {
+        await browser.close();
+      }
+    }
+  } catch (error) {
+    console.error('Erro interno:', error);
+    return res.status(500).send({ 
+      message: 'Erro interno no servidor', 
+      error: error.message 
+    });
+  }
+};
+
+/* const create_nfse_pdf = async (req: Request, res: Response) => {
+  try {
+    const { xml } = req.body;
+
+    async function gerarPdfFromXml(xml: string): Promise<Buffer> {
+      let browser;
+      try {
+        const domParser = new JSDOM().window.DOMParser;
+        const xmlDoc = new domParser().parseFromString(xml, "text/xml");
+        
+        const getValue = (tag: string): string => {
+            const el = xmlDoc.getElementsByTagName(tag)[0];
+            return el?.textContent?.trim() || "N/A";
+        };
+
+        // Caminho corrigido usando o __dirname moderno
+        const templatePath = path.join(__dirname, "..", "Nfse", "template.html");
+        const htmlTemplate = await readFile(templatePath, "utf-8");
+  
+          // Substituir placeholders
+          const replacements = {
+              "{{NUMERO}}": getValue("ns2:Numero"),
+              "{{DATA_EMISSAO}}": getValue("ns2:DataEmissao"),
+              "{{CODIGO_VERIFICACAO}}": getValue("ns2:CodigoVerificacao"),
+              "{{RAZAO_SOCIAL}}": getValue("ns2:RazaoSocial"),
+              "{{CNPJ}}": getValue("ns2:Cnpj"),
+              "{{INSCRICAO_MUNICIPAL}}": getValue("ns2:InscricaoMunicipal"),
+              "{{DESCRICAO}}": getValue("ns2:Descricao"),
+              "{{CNAE}}": getValue("ns2:CodigoCnae"),
+              "{{VALOR_SERVICOS}}": getValue("ns2:ValorServicos"),
+              "{{ALIQUOTA}}": `${getValue("ns2:Aliquota")}%`,
+              "{{BASE_CALCULO}}": getValue("ns2:BaseCalculo")
+          };
+  
+            const html = Object.entries(replacements).reduce(
+              (acc, [key, value]) => acc.replace(new RegExp(key, 'g'), value),
+              htmlTemplate
+          );
+
+          browser = await puppeteer.launch({
+              headless: "new",
+              args: ["--no-sandbox", "--disable-setuid-sandbox"],
+          });
+
+          const page = await browser.newPage();
+          await page.setContent(html, { waitUntil: 'networkidle0' });
+
+          return await page.pdf({
+              format: "A4",
+              printBackground: true,
+          });
+  
+        } catch (error) {
+          console.error('Erro ao gerar PDF:', error);
+          throw new Error('Falha ao gerar PDF a partir do XML');
+      } finally {
+          if (browser) {
+              await browser.close();
+          }
+      }
+  }
+
+    const pdfBuffer = await gerarPdfFromXml(xml);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=NFSe.pdf');
+    console.log(pdfBuffer);
+    res.status(200).send(pdfBuffer);
+    return;
+  } catch (error) {
+    res.status(500).send({message: 'Erro interno no servidor', error});
+    return;    
+  }
+} */
+
 const cancel_invoice = async (req: CustomRequest, res: Response) => {
   try {
       const user = req.userObject;
@@ -1135,17 +1385,9 @@ export default
   replace_invoice,
   findinvoicescustomer,
   findinvoices,
-  find_invoice
+  find_invoice,
+  create_nfse_pdf
 };
-
-
-
-
-
-
-
-
-
 
 
 /*         const body = {
