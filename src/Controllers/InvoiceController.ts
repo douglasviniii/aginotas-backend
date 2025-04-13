@@ -719,6 +719,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 const create_nfse_pdf = async (req: Request, res: Response) => {
   try {
     const data = req.body;
+    console.log(data);
+
+
 
     if (!data.xml) {
       return res.status(400).send({ message: 'XML é obrigatório' });
@@ -742,6 +745,15 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
 
       function getTomadorEndereco() {
         const endereco = xmlDoc.getElementsByTagName("ns2:Tomador")[0].getElementsByTagName("ns2:Endereco")[0];
+        if (!endereco) return '';
+        const logradouro = endereco.getElementsByTagName("ns2:Endereco")[0].textContent;
+        const numero = endereco.getElementsByTagName("ns2:Numero")[0].textContent;
+        const bairro = endereco.getElementsByTagName("ns2:Bairro")[0].textContent;
+        return `${logradouro}, ${numero} - ${bairro}`;
+      }
+
+      function getPrestadorEndereco() {
+        const endereco = xmlDoc.getElementsByTagName("ns2:PrestadorServico")[0].getElementsByTagName("ns2:Endereco")[0];
         if (!endereco) return '';
         const logradouro = endereco.getElementsByTagName("ns2:Endereco")[0].textContent;
         const numero = endereco.getElementsByTagName("ns2:Numero")[0].textContent;
@@ -792,6 +804,13 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         `<style>${cssContent}</style>`
       );
 
+      const documento = 
+      data.customer.cnpj && data.customer.cnpj !== 'undefined'
+        ? data.customer.cnpj
+        : (data.customer.cpf && data.customer.cpf !== 'undefined'
+            ? data.customer.cpf
+            : null);
+
       const replacements = {
         "{{NUMERODORPS}}": data.data.Rps.IdentificacaoRps.Numero,
         "{{SERIERODORPS}}": data.data.Rps.IdentificacaoRps.Serie,
@@ -803,26 +822,68 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         "{{DATA_COMPETENCIA}}": formatDate(getValue2("ns2:Competencia")),
         "{{CODIGO_VERIFICACAO}}": getValue("ns2:CodigoVerificacao"),
         "{{RAZAO_SOCIAL_PRESTADOR}}": getValue("ns2:RazaoSocial"),
-        "{{CNPJ_PRESTADOR}}": formatCNPJ(getValue2("ns2:Cnpj")),
-        "{{INSCRICAO_MUNICIPAL}}": getValue("ns2:InscricaoMunicipal"),
-        "{{ENDERECO_PRESTADOR}}": getValue2("ns2:Endereco"),
-        "{{CEP_PRESTADOR}}": getValue2("ns2:Cep"),
-        "{{TELEFONE_PRESTADOR}}": getValue2("ns2:Telefone"),
-        "{{EMAIL_PRESTADOR}}": getValue2("ns2:Email"),
+        "{{NOME_FANTASIA_PRESTADOR}}": '',
+        "{{INSCRICAO_ESTADUAL_PRESTADOR}}": '',
+        "{{MUNICIPIO_PRESTADOR}}": `${data.user.cidade}`,
+        "{{UF_PRESTADOR}}": `${data.user.estado}`,
+        "{{CNPJ/CPF_PRESTADOR}}": `${data.user.cnpj}`,
+        "{{INSCRICAO_MUNICIPAL}}": `${data.user.inscricaoMunicipal}`,
+        "{{ENDERECO_PRESTADOR}}": getPrestadorEndereco(),
+        "{{CEP_PRESTADOR}}": xmlDoc.getElementsByTagName("ns2:PrestadorServico")[0].getElementsByTagName("ns2:Endereco")[0].getElementsByTagName("ns2:Cep")[0].textContent?.trim(),
+        "{{TELEFONE_PRESTADOR}}": getValue("ns2:Telefone"),
+        "{{EMAIL_PRESTADOR}}": getValue("ns2:Email"),
         "{{DESCRICAO}}": getValue("ns2:Discriminacao"),
         "{{CNAE}}": getValue("ns2:CodigoCnae"),
         "{{VALOR_SERVICOS}}": formatCurrency(getValue2("ns2:ValorServicos")),
-        "{{ALIQUOTA}}": `${formatPercentage(getValue2("ns2:Aliquota"))}%`,
+/*         "{{ALIQUOTA}}": `${formatPercentage(getValue2("ns2:Aliquota"))}%`, */
         "{{BASE_CALCULO}}": formatCurrency(getValue2("ns2:BaseCalculo")),
-        "{{VALOR_ISS}}": formatCurrency(getValue2("ns2:ValorIss")),
+/*         "{{VALOR_ISS}}": formatCurrency(getValue2("ns2:ValorIss")), */
+
+
         "{{TOMADOR_RAZAO_SOCIAL}}": getTomadorValue("ns2:RazaoSocial"),
-        "{{TOMADOR_CNPJ}}": formatCNPJ(getValue2("ns2:Cnpj")),
-        "{{TOMADOR_CPF}}": formatCNPJ(getValue2("ns2:Cpf")),
+        "{{TOMADOR_NOME_FANTASIA}}": '',
+        "{{TOMADOR_CNPJ/CPF}}": `${documento}`,
         "{{TOMADOR_INSCRICAO_MUNICIPAL}}": getTomadorValue("ns2:InscricaoMunicipal"),
-        "{{TOMADOR_ENDERECO}}": getValue2("ns2:Endereco"),
-        "{{TOMADOR_CEP}}": getValue2("ns2:Cep"),
-        "{{TOMADOR_MUNICIPIO_UF}}": "Medianeira/PR",
-        "{{CHAVE_ACESSO}}": getValue("ns2:ChaveAcesso")
+        "{{TOMADOR_INSCRICAO_ESTADUAL}}": '',
+        "{{TOMADOR_PHONE}}": `${data.customer.phone}`,
+        "{{TOMADOR_EMAIL}}": `${data.customer.email}`,
+        "{{TOMADOR_ENDERECO}}": getTomadorEndereco(),
+/*         "{{TOMADOR_ENDERECO}}": `${data.customer.address.street}, ${data.customer.address.number} - ${data.customer.address.neighborhood}`, */
+        "{{TOMADOR_CEP}}": `${data.customer.address.zipCode}`,
+        "{{TOMADOR_MUNICIPIO_UF}}": `${data.customer.address.city}/${data.customer.address.state}`,
+        "{{CHAVE_ACESSO}}": getValue("ns2:ChaveAcesso"),
+
+        "{{ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:Descricao")[0].textContent?.trim(),
+        "{{ITEM_LISTA_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:ItemListaServico")[0].textContent?.trim(),
+        "{{TRIBUTAVEL_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:Tributavel")[0].textContent?.trim(),
+        "{{QUANTIDADE_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:Quantidade")[0].textContent?.trim(),
+        "{{VALOR_UNI_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:ValorUnitario")[0].textContent?.trim(),
+        "{{VALOR_DESC_COND_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:DescontoCondicionado")[0].textContent?.trim(),
+        "{{VALOR_TOTAL_DESCONTO_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:ValorDesconto")[0].textContent?.trim(),
+        "{{VALOR_DESC_INC_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:DescontoIncondicionado")[0].textContent?.trim(),
+        "{{VALOR_LIQUIDO_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:ValorLiquido")[0].textContent?.trim(),
+
+        "{{VALOR_SERVICOS_VALORES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorServicos")[0].textContent?.trim(),
+        "{{VALOR_DEDUCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorDeducoes")[0]?.textContent?.trim(),
+        "{{RETIDO_PIS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoPis")[0]?.textContent?.trim(),
+        "{{VALOR_PIS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorPis")[0]?.textContent?.trim(),
+        "{{RETIDO_COFINS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCofins")[0]?.textContent?.trim(),
+        "{{VALOR_COFINS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorCofins")[0]?.textContent?.trim(),
+        "{{RETIDO_INSS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoInss")[0]?.textContent?.trim(),
+        "{{VALOR_INSS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorInss")[0]?.textContent?.trim(),
+        "{{RETIDO_IR}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoIr")[0]?.textContent?.trim(),
+        "{{VALOR_IR}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorIr")[0]?.textContent?.trim(),
+        "{{RETIDO_CSLL}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCsll")[0]?.textContent?.trim(),
+        "{{VALOR_CSLL}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorCsll")[0]?.textContent?.trim(),
+        "{{RETIDO_CPP}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCpp")[0]?.textContent?.trim(),
+        "{{VALOR_CPP}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorCpp")[0]?.textContent?.trim(),
+        "{{OUTRAS_RETENCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:OutrasRetencoes")[0]?.textContent?.trim(),
+        "{{RETIDO_OUTRAS_RETENCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoOutrasRetencoes")[0]?.textContent?.trim(),
+        "{{VALOR_ISS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorIss")[0]?.textContent?.trim(),
+        "{{ALIQUOTA}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:Aliquota")[0]?.textContent?.trim(),
+
+        "{{VALOR_LIQUIDO_NFSE}}": xmlDoc.getElementsByTagName("ns2:ValoresNfse")[0].getElementsByTagName("ns2:ValorLiquidoNfse")[0].textContent?.trim(),
+
       };
 
       const html = Object.entries(replacements).reduce(

@@ -70,7 +70,7 @@
         <!-- Linha 1 -->
         <div class="linha">
             <p><strong>Insc. Municipal:</strong> {{INSCRICAO_MUNICIPAL}}</p>
-            <p><strong>CNPJ/CPF:</strong> {{CNPJ_PRESTADOR}}</p>
+            <p><strong>CNPJ/CPF:</strong> {{CNPJ/CPF_PRESTADOR}}</p>
             <p><strong>Regime Fiscal:</strong> Simples Nacional</p>
         </div>
         <!-- Linha 2 -->
@@ -79,20 +79,20 @@
         </div>
         <!-- Linha 3 -->
         <div class="linha">
-            <p><strong>Nome Fantasia:</strong> {{RAZAO_SOCIAL_PRESTADOR}}</p>
+            <p><strong>Nome Fantasia:</strong> {{NOME_FANTASIA_PRESTADOR}}</p>
         </div>
         <!-- Linha 4 -->
         <div class="linha">
-            <p><strong>Endereço: </strong>
-            <p><strong>Insc. Estadual:</strong> N/A</p>
+            <p><strong>Endereço: </strong>{{ENDERECO_PRESTADOR}}</p>
+            <p><strong>Insc. Estadual:</strong> {{INSCRICAO_ESTADUAL_PRESTADOR}}</p>
         </div>
         <!-- Linha 5 -->
-        <div class="linha">
-            <p>{{ENDERECO_PRESTADOR}}</p>
-        </div>
+<!--         <div class="linha">
+            <p></p>
+        </div> -->
 
         <div class="linha">
-            <p><strong>Município/UF:</strong> MEDIANEIRA-PR</p>
+            <p><strong>Município/UF:</strong> {{MUNICIPIO_PRESTADOR}}-{{UF_PRESTADOR}}</p>
             <p><strong>CEP:</strong> {{CEP_PRESTADOR}}</p>
         </div>
 
@@ -115,8 +115,8 @@
         <!-- Linha 1 -->
         <div class="linha">
             <p><strong>Insc. Municipal:</strong> {{TOMADOR_INSCRICAO_MUNICIPAL}}</p>
-            <p><strong>CNPJ/CPF:</strong> {{TOMADOR_CNPJ}}</p>
-            <p><strong>Insc. Estadual:</strong></p>
+            <p><strong>CNPJ/CPF:</strong> {{TOMADOR_CNPJ/CPF}}</p>
+            <p><strong>Insc. Estadual:</strong>{{TOMADOR_INSCRICAO_ESTADUAL}}</p>
         </div>
         <!-- Linha 2 -->
         <div class="linha">
@@ -124,7 +124,7 @@
         </div>
         <!-- Linha 3 -->
         <div class="linha">
-            <p><strong>Nome Fantasia:</strong> {{TOMADOR_RAZAO_SOCIAL}}</p>
+            <p><strong>Nome Fantasia:</strong> {{TOMADOR_NOME_FANTASIA}}</p>
         </div>
         <!-- Linha 2 -->
         <div class="linha">
@@ -132,13 +132,13 @@
         </div>
         <!-- Linha 3 -->
         <div class="linha">
-            <p><strong>Município/UF:</strong> MEDIANEIRA-PR</p>
+            <p><strong>Município/UF:</strong> {{TOMADOR_MUNICIPIO_UF}}</p>
             <p><strong>CEP:</strong> {{TOMADOR_CEP}}</p>
         </div>
         <!-- Linha 4 -->
         <div class="linha">
-            <p><strong>Telefone:</strong> (45) 9876-5432</p>
-            <p><strong>E-Mail:</strong> joao.silva@email.com</p>
+            <p><strong>Telefone:</strong> {{TOMADOR_PHONE}}</p>
+            <p><strong>E-Mail:</strong> {{TOMADOR_EMAIL}}</p>
         </div>
     </div>
 </div>
@@ -148,13 +148,13 @@
 <div class="definicao-servico">
     <div class="lista-servicos">
         <p><strong>Item da Lista de Serviços da LC nº 116/03:</strong><br>
-        104 ELABORAÇÃO DE PROGRAMAS DE COMPUTADORES, INCLUSIVE DE JOGOS ELETRÔNICOS.</p>
+            {{ITEM_LISTA_SERVICO}} {{ITEM_SERVICO}}</p>
     </div>
 
     <div class="info-caixa">
         <!-- Quadrado com traços lateral e inferior completando com borda da caixa maior -->
         <div class="cnae">
-            CNAE: 6201501
+            CNAE: {{CNAE}}
         </div>
 
         <!-- Área entre as duas linhas horizontais com informações -->
@@ -166,7 +166,7 @@
                 <span>Natureza da Operação:</span>
             </div>
             <div class="linha-valores">
-                <span>3/2025</span>
+                <span>{{DATA_COMPETENCIA}}</span>
                 <span>MEDIANEIRA-PR</span>
                 <span>EMITIDA</span>
                 <span>EMITIDA</span>
@@ -180,7 +180,7 @@
 <!-- Título da seção -->
 <h2 class="titulo-secao">DISCRIMINAÇÃO DO SERVIÇO</h2>
 <div class="discriminacao-servico">
-    <!-- Caixa vazia por enquanto -->
+    <p>{{DESCRICAO}}</p>
 </div>
 <!-- Título da seção -->
 <!-- Título da seção -->
@@ -201,12 +201,12 @@
     <!-- Dados da tabela -->
     <div class="linha-dados-servico">
         <span>SIM</span>
-        <span>Serviço</span>
-        <span>1,00000</span>
-        <span>200,00</span>
-        <span>0,00</span>
-        <span>0,00</span>
-        <span>200,00</span>
+        <span>{{ITEM_SERVICO}}</span>
+        <span>{{QUANTIDADE_ITEM_SERVICO}}</span>
+        <span>{{VALOR_UNI_ITEM_SERVICO}}</span>
+        <span>{{VALOR_DESC_INC_ITEM_SERVICO}}</span>
+        <span>{{VALOR_DESC_COND_ITEM_SERVICO}}</span>
+        <span>{{VALOR_LIQUIDO_ITEM_SERVICO}}</span>
     </div>
 </div>
 
@@ -225,68 +225,68 @@
     <!-- Dados da tabela -->
     <div class="linha-dados-tributos">
         <span>ISSQN</span>
-        <span>4,41%</span>
-        <span>200,00</span>
+        <span>{{ALIQUOTA}}%</span>
+        <span>{{VALOR_SERVICOS_VALORES}}</span>
         <span>Não</span>
     </div>
     <div class="linha-dados-tributos">
         <span>PIS</span>
         <span>0,00%</span>
-        <span>0,00</span>
+        <span>{{VALOR_PIS}}</span>
         <span>Não</span>
     </div>
     <div class="linha-dados-tributos">
         <span>COFINS</span>
         <span>0,00%</span>
-        <span>0,00</span>
+        <span>{{VALOR_COFINS}}</span>
         <span>Não</span>
     </div>
     <div class="linha-dados-tributos">
         <span>INSS</span>
         <span>0,00%</span>
-        <span>0,00</span>
+        <span>{{VALOR_INSS}}</span>
         <span>Não</span>
     </div>
     <div class="linha-dados-tributos">
         <span>IR</span>
         <span>0,00%</span>
-        <span>0,00</span>
+        <span>{{VALOR_IR}}</span>
         <span>Não</span>
     </div>
     <div class="linha-dados-tributos">
         <span>CSLL</span>
         <span>0,00%</span>
-        <span>0,00</span>
+        <span>{{VALOR_CSLL}}</span>
         <span>Não</span>
     </div>
     <div class="linha-dados-tributos">
         <span>CPP</span>
         <span>0,00%</span>
-        <span>0,00</span>
+        <span>{{VALOR_CPP}}</span>
         <span>Não</span>
     </div>
     <div class="linha-dados-tributos">
         <span>Impostos Federais</span>
-        <span>8,82%</span>
-        <span>200,00</span>
-        <span>Não</span>
-    </div>
-    <div class="linha-dados-tributos">
-        <span>Outras Retenções</span>
         <span>0,00%</span>
         <span>0,00</span>
         <span>Não</span>
     </div>
     <div class="linha-dados-tributos">
+        <span>Outras Retenções</span>
+        <span>0,00%</span>
+        <span>{{OUTRAS_RETENCOES}}</span>
+        <span>Não</span>
+    </div>
+    <div class="linha-dados-tributos">
         <span>Base de Cálculo do ISSQN:</span>
-        <span>200,00</span>
+        <span>{{BASE_CALCULO}}</span>
         <span>0,00</span>
         <span>Não</span>
     </div>
     <div class="linha-dados-tributos">
         <span>Valor Total Descontos:</span>
         <span>Não</span>
-        <span>0,00</span>
+        <span>{{VALOR_TOTAL_DESCONTO_ITEM_SERVICO}}</span>
         <span>Não</span>
     </div>
 </div>
@@ -304,11 +304,11 @@
         <span>Valor Total da NFS-e:</span>
     </div>
     <div class="linha-totalizacao">
-        <span>200,00</span>
-        <span>0,00</span>
-        <span>0,00</span>
-        <span>200,00</span>
-        <span>200,00</span>
+        <span>{{BASE_CALCULO}}</span>
+        <span>{{VALOR_TOTAL_DESCONTO_ITEM_SERVICO}}</span>
+        <span>{{VALOR_DEDUCOES}}</span>
+        <span>{{VALOR_LIQUIDO_NFSE}}</span>
+        <span>{{VALOR_LIQUIDO_ITEM_SERVICO}}</span>
     </div>
 </div>
 
@@ -320,7 +320,7 @@
     <!-- Caixa NFS-e -->
     <div class="nfs-e-numero">
         <div><strong>NFS-E</strong></div>
-        <div>2</div>
+        <div>{{NUMERO}}</div>
     </div>
 
     <!-- Texto de recebimento -->
