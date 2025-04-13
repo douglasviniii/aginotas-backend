@@ -833,21 +833,26 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
       const file = { content: html }; // HTML final com CSS
       const options = { format: 'A4', printBackground: true };
 
-      const pdfBuffer: Buffer = await pdf.generatePdf(file, options);
+      // Gerar o PDF diretamente e enviar na resposta
+      pdf.generatePdf(file, options, (err, pdfBuffer) => {
+        if (err) {
+          console.error('Erro ao gerar PDF:', err);
+          return res.status(500).send({ message: 'Erro ao gerar PDF' });
+        }
 
-      // Verificação do buffer
-      if (!pdfBuffer || pdfBuffer.length === 0) {
-        throw new Error('PDF gerado está vazio');
-      }
+        if (!pdfBuffer || pdfBuffer.length === 0) {
+          return res.status(500).send({ message: 'PDF gerado está vazio' });
+        }
 
-      // Configuração dos headers
-      res.writeHead(200, {
-        'Content-Type': 'application/pdf',
-        'Content-Length': pdfBuffer.length,
-        'Content-Disposition': 'attachment; filename=NFSe.pdf'
+        // Configuração dos headers para envio do PDF
+        res.writeHead(200, {
+          'Content-Type': 'application/pdf',
+          'Content-Length': pdfBuffer.length,
+          'Content-Disposition': 'attachment; filename=NFSe.pdf'
+        });
+
+        return res.end(pdfBuffer);
       });
-
-      return res.end(pdfBuffer);
 
     } catch (error) {
       console.error('Erro ao gerar PDF:', error);
