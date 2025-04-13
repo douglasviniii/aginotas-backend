@@ -10,6 +10,7 @@ import puppeteer from "puppeteer";
 import {JSDOM} from 'jsdom';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import * as pdf from 'html-pdf-node';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -714,7 +715,150 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
     }
 }
 
+
 const create_nfse_pdf = async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+
+    if (!data.xml) {
+      return res.status(400).send({ message: 'XML é obrigatório' });
+    }
+
+    try {
+      const domParser = new JSDOM().window.DOMParser;
+      const xmlDoc = new domParser().parseFromString(data.xml, "text/xml");
+
+      function getValue(tagName: string) {
+        const elements = xmlDoc.getElementsByTagName(tagName);
+        return elements.length > 0 ? elements[0].textContent : '';
+      }
+
+      function getTomadorValue(tagName: string) {
+        const tomador = xmlDoc.getElementsByTagName("ns2:Tomador")[0];
+        if (!tomador) return '';
+        const elements = tomador.getElementsByTagName(tagName);
+        return elements.length > 0 ? elements[0].textContent : '';
+      }
+
+      function getTomadorEndereco() {
+        const endereco = xmlDoc.getElementsByTagName("ns2:Tomador")[0].getElementsByTagName("ns2:Endereco")[0];
+        if (!endereco) return '';
+        const logradouro = endereco.getElementsByTagName("ns2:Endereco")[0].textContent;
+        const numero = endereco.getElementsByTagName("ns2:Numero")[0].textContent;
+        const bairro = endereco.getElementsByTagName("ns2:Bairro")[0].textContent;
+        return `${logradouro}, ${numero} - ${bairro}`;
+      }
+
+      // Funções de formatação
+      function formatCNPJ(cnpj: string) {
+        if (!cnpj) return '';
+        return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+      }
+
+      function formatCurrency(value: string) {
+        if (!value) return '0,00';
+        const num = parseFloat(value);
+        return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function formatPercentage(value: string) {
+        if (!value) return '0,00';
+        const num = parseFloat(value);
+        return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function formatDate(dateStr: string) {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}/${year}`;
+      }
+
+      const getValue2 = (tag: string): string => {
+        const el = xmlDoc.getElementsByTagName(tag)[0];
+        return el?.textContent?.trim() || "N/A";
+      };
+
+      const templatePath = path.join(__dirname, "..", "Nfse", "index.html");
+      const cssPath = path.join(__dirname, "..", "Nfse", "styles.css");
+
+      const [htmlTemplate, cssContent] = await Promise.all([
+        readFile(templatePath, "utf-8"),
+        readFile(cssPath, "utf-8")
+      ]);
+
+      // Substitua a tag <link> pelo CSS incorporado
+      const htmlWithCss = htmlTemplate.replace(
+        `<link rel="stylesheet" href="styles.css">`,
+        `<style>${cssContent}</style>`
+      );
+
+      const replacements = {
+        "{{NUMERODORPS}}": data.data.Rps.IdentificacaoRps.Numero,
+        "{{SERIERODORPS}}": data.data.Rps.IdentificacaoRps.Serie,
+        "{{TIPOODORPS}}": data.data.Rps.IdentificacaoRps.Tipo,
+        "{{QRCODE}}": 'imagem',
+        "{{LOGOEMPRESA}}": `${data.user.picture}`,
+        "{{NUMERO}}": getValue("ns2:Numero"),
+        "{{DATA_EMISSAO}}": formatDate(getValue2("ns2:DataEmissao")),
+        "{{DATA_COMPETENCIA}}": formatDate(getValue2("ns2:Competencia")),
+        "{{CODIGO_VERIFICACAO}}": getValue("ns2:CodigoVerificacao"),
+        "{{RAZAO_SOCIAL_PRESTADOR}}": getValue("ns2:RazaoSocial"),
+        "{{CNPJ_PRESTADOR}}": formatCNPJ(getValue2("ns2:Cnpj")),
+        "{{INSCRICAO_MUNICIPAL}}": getValue("ns2:InscricaoMunicipal"),
+        "{{ENDERECO_PRESTADOR}}": getValue2("ns2:Endereco"),
+        "{{CEP_PRESTADOR}}": getValue2("ns2:Cep"),
+        "{{TELEFONE_PRESTADOR}}": getValue2("ns2:Telefone"),
+        "{{EMAIL_PRESTADOR}}": getValue2("ns2:Email"),
+        "{{DESCRICAO}}": getValue("ns2:Discriminacao"),
+        "{{CNAE}}": getValue("ns2:CodigoCnae"),
+        "{{VALOR_SERVICOS}}": formatCurrency(getValue2("ns2:ValorServicos")),
+        "{{ALIQUOTA}}": `${formatPercentage(getValue2("ns2:Aliquota"))}%`,
+        "{{BASE_CALCULO}}": formatCurrency(getValue2("ns2:BaseCalculo")),
+        "{{VALOR_ISS}}": formatCurrency(getValue2("ns2:ValorIss")),
+        "{{TOMADOR_RAZAO_SOCIAL}}": getTomadorValue("ns2:RazaoSocial"),
+        "{{TOMADOR_CNPJ}}": formatCNPJ(getValue2("ns2:Cnpj")),
+        "{{TOMADOR_CPF}}": formatCNPJ(getValue2("ns2:Cpf")),
+        "{{TOMADOR_INSCRICAO_MUNICIPAL}}": getTomadorValue("ns2:InscricaoMunicipal"),
+        "{{TOMADOR_ENDERECO}}": getValue2("ns2:Endereco"),
+        "{{TOMADOR_CEP}}": getValue2("ns2:Cep"),
+        "{{TOMADOR_MUNICIPIO_UF}}": "Medianeira/PR",
+        "{{CHAVE_ACESSO}}": getValue("ns2:ChaveAcesso")
+      };
+
+      const html = Object.entries(replacements).reduce(
+        (acc, [key, value]) => acc.replace(new RegExp(key, 'g'), value),
+        htmlWithCss
+      );
+
+      const file = { content: html }; // HTML final com CSS
+      const options = { format: 'A4', printBackground: true };
+
+      const pdfBuffer = await pdf.generatePdf(file, options);
+
+      // Verificação do buffer
+      if (!pdfBuffer || pdfBuffer.length === 0) {
+        throw new Error('PDF gerado está vazio');
+      }
+
+      // Configuração dos headers
+      res.writeHead(200, {
+        'Content-Type': 'application/pdf',
+        'Content-Length': pdfBuffer.length,
+        'Content-Disposition': 'attachment; filename=NFSe.pdf'
+      });
+
+      return res.end(pdfBuffer);
+
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      return res.status(500).send({ message: 'Erro ao gerar PDF' });
+    }
+  } catch (error) {
+    console.error('Erro interno:', error);
+    return res.status(500).send({ message: 'Erro interno no servidor' });
+  }
+};
+/* const create_nfse_pdf = async (req: Request, res: Response) => {
 
   try {
     const data = req.body;
@@ -724,14 +868,10 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
       return res.status(400).send({ message: 'XML é obrigatório' });
     }
 
-    const browser = await puppeteer.launch({
-      headless: false,
-    });
-
-/*     const browser = await puppeteer.launch({
+     const browser = await puppeteer.launch({
       headless: true, // ou false para modo com interface
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    }); */
+    }); 
 
     try {
       const domParser = new JSDOM().window.DOMParser;
@@ -881,7 +1021,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
       message: 'Erro interno no servidor', 
     });
   }
-};
+}; */
 
 /* const create_nfse_pdf = async (req: Request, res: Response) => {
   try {
