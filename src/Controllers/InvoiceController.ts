@@ -728,7 +728,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
       headless: true, // ou false para modo com interface
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
-    
+
     try {
       const domParser = new JSDOM().window.DOMParser;
       const xmlDoc = new domParser().parseFromString(data.xml, "text/xml");
@@ -865,7 +865,6 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
       console.error('Erro ao gerar PDF:', error);
       return res.status(500).send({ 
         message: 'Erro ao gerar PDF', 
-        error: error.message 
       });
     } finally {
       if (browser) {
@@ -876,7 +875,6 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
     console.error('Erro interno:', error);
     return res.status(500).send({ 
       message: 'Erro interno no servidor', 
-      error: error.message 
     });
   }
 };
