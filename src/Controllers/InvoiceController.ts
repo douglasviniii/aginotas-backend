@@ -725,9 +725,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
     }
 
     const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: '/usr/bin/google-chrome',
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: false,
     });
 
 /*     const browser = await puppeteer.launch({
