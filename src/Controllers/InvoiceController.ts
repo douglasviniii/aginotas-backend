@@ -725,10 +725,10 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
     }
 
     const browser = await puppeteer.launch({
-      headless: "new",
+      headless: true, // ou false para modo com interface
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
-
+    
     try {
       const domParser = new JSDOM().window.DOMParser;
       const xmlDoc = new domParser().parseFromString(data.xml, "text/xml");
