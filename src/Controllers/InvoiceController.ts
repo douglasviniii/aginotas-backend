@@ -833,7 +833,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
       const file = { content: html }; // HTML final com CSS
       const options = { format: 'A4', printBackground: true };
 
-      const pdfBuffer = await pdf.generatePdf(file, options);
+      const pdfBuffer: Buffer = await pdf.generatePdf(file, options);
 
       // Verificação do buffer
       if (!pdfBuffer || pdfBuffer.length === 0) {
