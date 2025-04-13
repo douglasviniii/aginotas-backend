@@ -11,6 +11,7 @@ import {JSDOM} from 'jsdom';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import * as pdf from 'html-pdf-node';
+import QRCode from 'qrcode';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -719,9 +720,6 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 const create_nfse_pdf = async (req: Request, res: Response) => {
   try {
     const data = req.body;
-    console.log(data);
-
-
 
     if (!data.xml) {
       return res.status(400).send({ message: 'XML é obrigatório' });
@@ -804,6 +802,22 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         `<style>${cssContent}</style>`
       );
 
+      const generateQrCodeBase64 = async (url: string): Promise<string> => {
+        try {
+          const qrCodeBase64 = await QRCode.toDataURL(url); // Já retorna em base64 (data:image/png;base64,...)
+          return qrCodeBase64;
+        } catch (err) {
+          console.error('Erro ao gerar QR Code:', err);
+          throw err;
+        }
+      };
+
+      const numeroNfse = getValue("ns2:Numero");
+      const codigoAutenticidade = getValue("ns2:CodigoVerificacao");
+      const dataEmissao = getValue2("ns2:DataEmissao");
+      const link = `https://medianeira.oxy.elotech.com.br/iss/autenticar-documento-fiscal?cpfCnpjPrestador=${data.user.cnpj}&numeroNFSe=${numeroNfse}&codigoAutenticidade=${codigoAutenticidade}&dataEmissao=${dataEmissao}`
+      const qrcodelink = await generateQrCodeBase64(link);
+
       const documento = 
       data.customer.cnpj && data.customer.cnpj !== 'undefined'
         ? data.customer.cnpj
@@ -815,7 +829,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         "{{NUMERODORPS}}": data.data.Rps.IdentificacaoRps.Numero,
         "{{SERIERODORPS}}": data.data.Rps.IdentificacaoRps.Serie,
         "{{TIPOODORPS}}": data.data.Rps.IdentificacaoRps.Tipo,
-        "{{QRCODE}}": 'imagem',
+        "{{QRCODE}}": `${qrcodelink}`,
         "{{LOGOEMPRESA}}": `${data.user.picture}`,
         "{{NUMERO}}": getValue("ns2:Numero"),
         "{{DATA_EMISSAO}}": formatDate(getValue2("ns2:DataEmissao")),
