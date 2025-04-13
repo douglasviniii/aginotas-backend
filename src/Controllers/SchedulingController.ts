@@ -610,6 +610,8 @@ const scheduling_controller = async () =>{
           return;
         } 
       }
+
+      await SendEmailService.NfseEmitida(db_user.email);
     }
     console.log('Nenhum agendamento encontrado!');
     }

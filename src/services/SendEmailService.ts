@@ -144,7 +144,7 @@ async function NfseEmitida(email:string) {
     const mailOptions = {
       from: process.env.EMAIL as string,
       to: email,
-      subject: "Bem-vindo ao AgiNotas!",
+      subject: "AgiNotas",
 /*       text: "Segue em anexo o arquivo da NFSe.", */
       html: `
       <p>&nbsp;</p>
