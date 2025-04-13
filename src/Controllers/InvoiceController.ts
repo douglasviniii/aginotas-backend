@@ -863,7 +863,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         "{{TOMADOR_EMAIL}}": `${data.customer.email}`,
         "{{TOMADOR_ENDERECO}}": getTomadorEndereco(),
 /*         "{{TOMADOR_ENDERECO}}": `${data.customer.address.street}, ${data.customer.address.number} - ${data.customer.address.neighborhood}`, */
-        "{{TOMADOR_CEP}}": `${data.customer.address.zipCode}`,
+        "{{TOMADOR_CEP}}":`${data.customer.address.zipCode}`,
         "{{TOMADOR_MUNICIPIO_UF}}": `${data.customer.address.city}/${data.customer.address.state}`,
         "{{CHAVE_ACESSO}}": getValue("ns2:ChaveAcesso"),
 
