@@ -45,6 +45,7 @@ const create_user = async (req: Request<{}, {}, User>, res: Response) => {
         
       };
       const user_created = await UserService.CreateUserService(data);
+      await SendEmailService.BoasVindas(email);
       res.status(200).send(user_created);
       return;
     }

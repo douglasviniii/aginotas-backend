@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import InvoiceService from '../services/InvoiceService.ts';
 import NFseService from '../services/NFseService.ts';
+import SendEmailService from '../services/SendEmailService.ts';
 import UserService from '../services/UserService.ts';
 import CustomerService from '../services/CustomerService.ts'
 import xml2js from 'xml2js';
@@ -374,13 +375,6 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           return;          
         }
 
-
-/*         let { numeroLote, identificacaoRpsnumero } = await UpdateNumbers(id);
-        console.log('numeroLote', numeroLote);
-        console.log('identificacaoRpsnumero', identificacaoRpsnumero); */
-
-
-
         const customer = await CustomerService.FindCostumerByIdService(customer_id);
         if(!customer){
           res.status(400).send({message: 'User is no found!'});
@@ -551,7 +545,6 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
         }
 
-
         if(customer.cpf != 'undefined' && customer.cnpj === 'undefined'){
 
           const data: GerarNfseEnvioPessoaFisica = {
@@ -709,7 +702,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
   
         
         }
-   
+        await SendEmailService.NfseEmitida(user.email);
       } catch (error) {
         res.status(500).send({message: 'Erro interno no servidor', error});
         return;
