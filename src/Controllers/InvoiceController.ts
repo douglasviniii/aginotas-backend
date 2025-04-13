@@ -726,10 +726,10 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
 
     const browser = await puppeteer.launch({
       headless: true,
-      executablePath: '/usr/bin/chromium',
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      executablePath: '/usr/bin/google-chrome',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
-    
+
 /*     const browser = await puppeteer.launch({
       headless: true, // ou false para modo com interface
       args: ["--no-sandbox", "--disable-setuid-sandbox"],
