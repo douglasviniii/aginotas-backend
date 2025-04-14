@@ -12,4 +12,6 @@ UserRoute.post('/recover/email', UserController.Send_code_email);
 UserRoute.put('/recover/password', UserController.Recover_Password);
 UserRoute.get('/findall', UserController.FindAllUser);
 
+UserRoute.post('/calcular-tributos', UserController.Calcular_Tributos);
+
 export default UserRoute;
