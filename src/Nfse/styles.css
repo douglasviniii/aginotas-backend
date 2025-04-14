@@ -230,7 +230,7 @@ body {
 /*________________________________________________________________________________________*/
 
 /* Título da seção: "DEFINIÇÃO DO SERVIÇO" */
-.definicao-servico {
+ .definicao-servico {
     position: relative;
     border: 1px solid #000;
     padding: -10px;
@@ -238,22 +238,24 @@ body {
     font-size: 11px;
     border-radius: 4px;
     margin-top: 0px;
-    padding-left: 10px; /* ajusta esse valor como quiser */
-}
+    padding-left: 10px; 
+} 
 
 /* Lista de Serviços */
 .lista-servicos {
     margin-bottom: 20px;
-}
+    padding-right: 110px; /* Reserva espaço para o CNAE */
+    word-wrap: break-word;
+  }
 
 /* Parte direita com CNAE e outras infos */
-.info-caixa {
+ .info-caixa {
     position: relative;
     padding-top: 60px;
-}
+} 
 
 /* Quadrado no canto superior direito (completado com traços) */
-.cnae {
+ .cnae {
     position: absolute;
     top: -55px;
     right: 0px;
@@ -266,7 +268,8 @@ body {
     align-items: center;
     border-left: 1px solid #000;
     border-bottom: 1px solid #000;
-}
+} 
+
 
 /* Bloco entre duas linhas horizontais */
 .bloco-info {
