@@ -4,16 +4,13 @@ import SendEmailService from '../services/SendEmailService.ts';
 import bcrypt from "bcrypt";
 import PagarmeService from '../services/Pagarme.service.ts';
 
-interface DistribuicaoTributos {
-  [key: string]: number;
-}
+type Anexo = 'III' | 'IV' | 'V';
 
 interface Faixa {
-  faixa: number;
-  receitaBrutaMaxima: number;
+  limiteInferior: number;
+  limiteSuperior: number;
   aliquota: number;
-  valorADeduzir: number;
-  distribuicao: DistribuicaoTributos;
+  distribuicao: Record<string, number>;
 }
 
 interface User {
@@ -228,293 +225,262 @@ const Recover_Password = async (req: Request, res: Response) =>{
 const Calcular_Tributos = async (req: Request, res: Response) =>{
   try {
 
-    const { anexo, receitaBruta12Meses, receitaMes } = req.body;
+    const {anexo, receitaBruta12Meses} = req.body;
 
-    const anexos: Record<string, Faixa[]> = {
-      "Anexo III": [
+    const tabelas: Record<Anexo, Faixa[]> = {
+      III: [
         {
-          faixa: 1,
-          receitaBrutaMaxima: 180000,
-          aliquota: 0.06,
-          valorADeduzir: 0,
+          limiteInferior: 0,
+          limiteSuperior: 180_000,
+          aliquota: 6,
           distribuicao: {
-            IRPJ: 0.04,
-            CSLL: 0.035,
-            Cofins: 0.1282,
-            PIS: 0.0278,
-            CPP: 0.434,
-            ISS: 0.335
-          }
+            IRPJ: 4,
+            CSLL: 3.5,
+            COFINS: 12.82,
+            PIS: 2.78,
+            CPP: 43.4,
+            ISS: 33.5,
+          },
         },
         {
-          faixa: 2,
-          receitaBrutaMaxima: 360000,
-          aliquota: 0.112,
-          valorADeduzir: 9360,
+          limiteInferior: 180_000.01,
+          limiteSuperior: 360_000,
+          aliquota: 11.2,
           distribuicao: {
-            IRPJ: 0.043,
-            CSLL: 0.035,
-            Cofins: 0.125,
-            PIS: 0.027,
-            CPP: 0.434,
-            ISS: 0.336
-          }
+            IRPJ: 4,
+            CSLL: 3.5,
+            COFINS: 14.05,
+            PIS: 3.05,
+            CPP: 43.4,
+            ISS: 32,
+          },
         },
         {
-          faixa: 3,
-          receitaBrutaMaxima: 720000,
-          aliquota: 0.135,
-          valorADeduzir: 17640,
+          limiteInferior: 360_000.01,
+          limiteSuperior: 720_000,
+          aliquota: 13.5,
           distribuicao: {
-            IRPJ: 0.045,
-            CSLL: 0.035,
-            Cofins: 0.125,
-            PIS: 0.027,
-            CPP: 0.434,
-            ISS: 0.334
-          }
+            IRPJ: 4,
+            CSLL: 3.5,
+            COFINS: 13.64,
+            PIS: 2.96,
+            CPP: 43.4,
+            ISS: 32.5,
+          },
         },
         {
-          faixa: 4,
-          receitaBrutaMaxima: 1800000,
-          aliquota: 0.16,
-          valorADeduzir: 35640,
+          limiteInferior: 720_000.01,
+          limiteSuperior: 1_800_000,
+          aliquota: 16,
           distribuicao: {
-            IRPJ: 0.045,
-            CSLL: 0.035,
-            Cofins: 0.12,
-            PIS: 0.025,
-            CPP: 0.42,
-            ISS: 0.355
-          }
+            IRPJ: 4,
+            CSLL: 3.5,
+            COFINS: 13.64,
+            PIS: 2.96,
+            CPP: 43.4,
+            ISS: 32.5,
+          },
         },
         {
-          faixa: 5,
-          receitaBrutaMaxima: 3600000,
-          aliquota: 0.21,
-          valorADeduzir: 125640,
+          limiteInferior: 1_800_000.01,
+          limiteSuperior: 3_600_000,
+          aliquota: 21,
           distribuicao: {
-            IRPJ: 0.05,
-            CSLL: 0.035,
-            Cofins: 0.11,
-            PIS: 0.024,
-            CPP: 0.375,
-            ISS: 0.406
-          }
+            IRPJ: 4,
+            CSLL: 3.5,
+            COFINS: 12.82,
+            PIS: 2.78,
+            CPP: 43.4,
+            ISS: 33.5,
+          },
         },
         {
-          faixa: 6,
-          receitaBrutaMaxima: 4800000,
-          aliquota: 0.33,
-          valorADeduzir: 648000,
+          limiteInferior: 3_600_000.01,
+          limiteSuperior: 4_800_000,
+          aliquota: 33,
           distribuicao: {
-            IRPJ: 0.05,
-            CSLL: 0.035,
-            Cofins: 0.11,
-            PIS: 0.024,
-            CPP: 0.255,
-            ISS: 0.526
-          }
-        }
+            IRPJ: 35,
+            CSLL: 15,
+            COFINS: 16.03,
+            PIS: 3.47,
+            CPP: 30.5,
+            ISS: 0,
+          },
+        },
       ],
-      "Anexo IV": [
+      IV: [
         {
-          faixa: 1,
-          receitaBrutaMaxima: 180000,
-          aliquota: 0.045,
-          valorADeduzir: 0,
+          limiteInferior: 0,
+          limiteSuperior: 180_000,
+          aliquota: 4.5,
           distribuicao: {
-            IRPJ: 0.28,
-            CSLL: 0.13,
-            Cofins: 0.289,
-            PIS: 0.061,
-            INSS: 0.24
-          }
+            IRPJ: 18.8,
+            CSLL: 15.2,
+            COFINS: 17.67,
+            PIS: 3.83,
+            ISS: 44.5,
+          },
         },
         {
-          faixa: 2,
-          receitaBrutaMaxima: 360000,
-          aliquota: 0.09,
-          valorADeduzir: 8100,
+          limiteInferior: 180_000.01,
+          limiteSuperior: 360_000,
+          aliquota: 9,
           distribuicao: {
-            IRPJ: 0.28,
-            CSLL: 0.13,
-            Cofins: 0.289,
-            PIS: 0.061,
-            INSS: 0.24
-          }
+            IRPJ: 19.8,
+            CSLL: 15.2,
+            COFINS: 20.55,
+            PIS: 4.45,
+            ISS: 40,
+          },
         },
         {
-          faixa: 3,
-          receitaBrutaMaxima: 720000,
-          aliquota: 0.102,
-          valorADeduzir: 12420,
+          limiteInferior: 360_000.01,
+          limiteSuperior: 720_000,
+          aliquota: 10.2,
           distribuicao: {
-            IRPJ: 0.28,
-            CSLL: 0.13,
-            Cofins: 0.289,
-            PIS: 0.061,
-            INSS: 0.24
-          }
+            IRPJ: 20.8,
+            CSLL: 15.2,
+            COFINS: 19.73,
+            PIS: 4.27,
+            ISS: 40,
+          },
         },
         {
-          faixa: 4,
-          receitaBrutaMaxima: 1800000,
-          aliquota: 0.14,
-          valorADeduzir: 39780,
+          limiteInferior: 720_000.01,
+          limiteSuperior: 1_800_000,
+          aliquota: 14,
           distribuicao: {
-            IRPJ: 0.28,
-            CSLL: 0.13,
-            Cofins: 0.289,
-            PIS: 0.061,
-            INSS: 0.24
-          }
+            IRPJ: 17.8,
+            CSLL: 19.2,
+            COFINS: 18.9,
+            PIS: 4.1,
+            ISS: 40,
+          },
         },
         {
-          faixa: 5,
-          receitaBrutaMaxima: 3600000,
-          aliquota: 0.22,
-          valorADeduzir: 183780,
+          limiteInferior: 1_800_000.01,
+          limiteSuperior: 3_600_000,
+          aliquota: 22,
           distribuicao: {
-            IRPJ: 0.28,
-            CSLL: 0.13,
-            Cofins: 0.289,
-            PIS: 0.061,
-            INSS: 0.24
-          }
+            IRPJ: 18.8,
+            CSLL: 19.2,
+            COFINS: 18.08,
+            PIS: 3.92,
+            ISS: 40,
+          },
         },
         {
-          faixa: 6,
-          receitaBrutaMaxima: 4800000,
-          aliquota: 0.33,
-          valorADeduzir: 828000,
+          limiteInferior: 3_600_000.01,
+          limiteSuperior: 4_800_000,
+          aliquota: 33,
           distribuicao: {
-            IRPJ: 0.28,
-            CSLL: 0.13,
-            Cofins: 0.289,
-            PIS: 0.061,
-            INSS: 0.24
-          }
-        }
+            IRPJ: 53.5,
+            CSLL: 21.5,
+            COFINS: 20.55,
+            PIS: 4.45,
+            ISS: 0,
+          },
+        },
       ],
-      "Anexo V": [
+      V: [
         {
-          faixa: 1,
-          receitaBrutaMaxima: 180000,
-          aliquota: 0.15,
-          valorADeduzir: 0,
+          limiteInferior: 0,
+          limiteSuperior: 180_000,
+          aliquota: 15.5,
           distribuicao: {
-            IRPJ: 0.35,
-            CSLL: 0.15,
-            Cofins: 0.16,
-            PIS: 0.035,
-            CPP: 0.3
-          }
+            IRPJ: 25,
+            CSLL: 15,
+            COFINS: 14.1,
+            PIS: 3.05,
+            CPP: 28.85,
+            ISS: 14,
+          },
         },
         {
-          faixa: 2,
-          receitaBrutaMaxima: 360000,
-          aliquota: 0.18,
-          valorADeduzir: 4500,
+          limiteInferior: 180_000.01,
+          limiteSuperior: 360_000,
+          aliquota: 18,
           distribuicao: {
-            IRPJ: 0.35,
-            CSLL: 0.15,
-            Cofins: 0.16,
-            PIS: 0.035,
-            CPP: 0.3
-          }
+            IRPJ: 23,
+            CSLL: 15,
+            COFINS: 14.1,
+            PIS: 3.05,
+            CPP: 27.85,
+            ISS: 17,
+          },
         },
         {
-          faixa: 3,
-          receitaBrutaMaxima: 720000,
-          aliquota: 0.195,
-          valorADeduzir: 9900,
+          limiteInferior: 360_000.01,
+          limiteSuperior: 720_000,
+          aliquota: 19.5,
           distribuicao: {
-            IRPJ: 0.35,
-            CSLL: 0.15,
-            Cofins: 0.16,
-            PIS: 0.035,
-            CPP: 0.3
-          }
+            IRPJ: 24,
+            CSLL: 15,
+            COFINS: 14.92,
+            PIS: 3.23,
+            CPP: 23.85,
+            ISS: 19,
+          },
         },
         {
-          faixa: 4,
-          receitaBrutaMaxima: 1800000,
-          aliquota: 0.21,
-          valorADeduzir: 17100,
+          limiteInferior: 720_000.01,
+          limiteSuperior: 1_800_000,
+          aliquota: 20.5,
           distribuicao: {
-            IRPJ: 0.35,
-            CSLL: 0.15,
-            Cofins: 0.16,
-            PIS: 0.035,
-            CPP: 0.3
-          }
+            IRPJ: 21,
+            CSLL: 15,
+            COFINS: 15.74,
+            PIS: 3.41,
+            CPP: 23.85,
+            ISS: 21,
+          },
         },
         {
-          faixa: 5,
-          receitaBrutaMaxima: 3600000,
-          aliquota: 0.23,
-          valorADeduzir: 62100,
+          limiteInferior: 1_800_000.01,
+          limiteSuperior: 3_600_000,
+          aliquota: 23,
           distribuicao: {
-            IRPJ: 0.35,
-            CSLL: 0.15,
-            Cofins: 0.16,
-            PIS: 0.035,
-            CPP: 0.3
-          }
+            IRPJ: 23,
+            CSLL: 12.5,
+            COFINS: 14.1,
+            PIS: 3.05,
+            CPP: 23.85,
+            ISS: 23.5,
+          },
         },
         {
-          faixa: 6,
-          receitaBrutaMaxima: 4800000,
-          aliquota: 0.305,
-          valorADeduzir: 540000,
+          limiteInferior: 3_600_000.01,
+          limiteSuperior: 4_800_000,
+          aliquota: 30.5,
           distribuicao: {
-            IRPJ: 0.35,
-            CSLL: 0.15,
-            Cofins: 0.16,
-            PIS: 0.035,
-            CPP: 0.3
-          }
-        }
-      ]
-    }
-
-    async function calcularTributacaoSimplesNacional(
-      anexo: keyof typeof anexos,
-      receitaBruta12Meses: number,
-      receitaMes: number
-    ) {
-      const faixas = anexos[anexo];
-      const faixa = faixas.find(f => receitaBruta12Meses <= f.receitaBrutaMaxima);
+            IRPJ: 35,
+            CSLL: 15.5,
+            COFINS: 16.44,
+            PIS: 3.56,
+            CPP: 29.5,
+            ISS: 0,
+          },
+        },
+      ],
+    };
     
-      if (!faixa) {
-        throw new Error("Receita bruta fora do limite do Simples Nacional.");
-      }
+    async function calcularTributacaoSimplesNacional(anexo: Anexo, receitaBruta12Meses: number) {
+      const faixas = tabelas[anexo];
     
-      const { aliquota, valorADeduzir, distribuicao } = faixa;
-      const aliquotaEfetiva = (receitaBruta12Meses * aliquota - valorADeduzir) / receitaBruta12Meses;
-      const totalTributos = receitaMes * aliquotaEfetiva;
+      const faixa = faixas.find(f =>
+        receitaBruta12Meses >= f.limiteInferior && receitaBruta12Meses <= f.limiteSuperior
+      );
     
-      const distribuicaoPorImposto: DistribuicaoTributos = {};
-      Object.entries(distribuicao).forEach(([imposto, percentual]) => {
-        distribuicaoPorImposto[imposto] = Number((totalTributos * percentual).toFixed(2));
-      });
+      if (!faixa) throw new Error('Receita fora das faixas do Simples Nacional');
     
       return {
-        faixa: faixa.faixa,
-        receitaBruta12Meses,
-        receitaMes,
-        aliquotaNominal: aliquota,
-        valorADeduzir,
-        aliquotaEfetiva: Number(aliquotaEfetiva.toFixed(4)),
-        totalTributos: Number(totalTributos.toFixed(2)),
-        distribuicaoPorImposto
+        aliquotaEfetiva: faixa.aliquota,
+        distribuicao: faixa.distribuicao,
       };
     }
-    
-    const resultado = await calcularTributacaoSimplesNacional(anexo, receitaBruta12Meses, receitaMes);
+    const response = await calcularTributacaoSimplesNacional(anexo,receitaBruta12Meses)
 
-    res.status(200).send(resultado);
+    res.status(200).send(response);
   } catch (error) {
     res.status(500).send({message: 'Internal server error'});
     return;
