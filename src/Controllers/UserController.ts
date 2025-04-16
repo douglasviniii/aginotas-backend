@@ -97,6 +97,11 @@ const AuthUserController = async (req: Request, res: Response) => {
           return;
         }
 
+        if(userdb.status != 'active'){
+          res.status(400).send({message: 'User not active!'});
+          return;
+        } 
+
         if(Data.email === 'contato@delvind.com'){
           res.status(200).send({ token, userdb });  
           return;
