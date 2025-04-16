@@ -142,6 +142,27 @@ const Update_User = async (req: CustomRequest, res: Response) =>{
   }
 }
 
+const Update_User_byID = async (req: CustomRequest, res: Response) =>{
+  try {
+    const data = req.body;
+    const id = req.params.id;
+
+    if(!id){
+      res.status(400).send({message: 'Id null'});
+      return;
+    }
+
+    await UserService.UpdateUser(id, data);
+
+    res.status(200).send({message: "Usuário atualizado com sucesso!"});
+  } catch (error) {
+    res.status(500).send({
+      message: 'Não foi possivel atualizar conta do usuário',
+      error: error,
+    });    
+  }
+}
+
 const Exist_user_controller = async (req: Request, res: Response) =>{
   try {
     const data = req.body;
@@ -504,5 +525,6 @@ export default
   AuthUserController,
   Update_User,
   FindAllUser,
-  Calcular_Tributos
+  Calcular_Tributos,
+  Update_User_byID
 };
