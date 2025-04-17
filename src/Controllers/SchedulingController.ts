@@ -48,15 +48,22 @@ interface GerarNfseEnvio {
         ValorDeducoes: number;
         AliquotaPis: number;
         RetidoPis: number;
+        ValorPis: number;
         AliquotaCofins: number;
         RetidoCofins: number;
+        ValorCofins: number;
         AliquotaInss: number;
         RetidoInss: number;
+        ValorInss: number;
         AliquotaIr: number;
         RetidoIr: number;
+        ValorIr: number;
         AliquotaCsll: number;
         RetidoCsll: number;
+        ValorCsll: number;
+        AliquotaCpp: number;
         RetidoCpp: number;
+        ValorCpp: number;
         RetidoOutrasRetencoes: number;
         Aliquota: number;
         DescontoIncondicionado: number;
@@ -134,15 +141,22 @@ interface GerarNfseEnvioPessoaFisica {
         ValorDeducoes: number;
         AliquotaPis: number;
         RetidoPis: number;
+        ValorPis: number;
         AliquotaCofins: number;
         RetidoCofins: number;
+        ValorCofins: number;
         AliquotaInss: number;
         RetidoInss: number;
+        ValorInss: number;
         AliquotaIr: number;
         RetidoIr: number;
+        ValorIr: number;
         AliquotaCsll: number;
         RetidoCsll: number;
+        ValorCsll: number;
+        AliquotaCpp: number;
         RetidoCpp: number;
+        ValorCpp: number;
         RetidoOutrasRetencoes: number;
         Aliquota: number;
         DescontoIncondicionado: number;
@@ -305,39 +319,46 @@ const scheduling_controller = async () =>{
             Homologa: db_user!.homologa,
           },
           LoteRps: {
-            NumeroLote: /* numeroLote.toString() */ db_user.numeroLote.toString(),
+            NumeroLote: db_user.numeroLote.toString(),
             Cnpj: db_user!.cnpj,
             InscricaoMunicipal: db_user!.inscricaoMunicipal,
             QuantidadeRps: 1,
           },
           Rps: {
             IdentificacaoRps: {
-              Numero: /* identificacaoRpsnumero.toString() */ db_user.identificacaoRpsnumero.toString(),
+              Numero: db_user.identificacaoRpsnumero.toString(),
               Serie: "D",
               Tipo: 1,
             },
             DataEmissao: formattedDate,
             Status: 1,
-            Competencia: formattedDate /* schedule.data.servico.dateOfCompetence.toString() */,
+            Competencia: schedule.data.servico.dateOfCompetence.toString(), /* schedule.data.servico.dateOfCompetence.toString() */
             Servico: {
               Valores: {
-          ValorServicos: schedule.data.servico.valor_unitario * schedule.data.servico.quantidade,
-          ValorDeducoes: 0,
-          AliquotaPis: 0,
-          RetidoPis: 2,
-          AliquotaCofins: 0,
-          RetidoCofins: 2,
-          AliquotaInss: 0,
-          RetidoInss: 2,
-          AliquotaIr: 0,
-          RetidoIr: 2,
-          AliquotaCsll: 0,
-          RetidoCsll: 2,
-          RetidoCpp: 2,
-          RetidoOutrasRetencoes: 2,
-          Aliquota: 4.41,
-          DescontoIncondicionado: 0.0,
-          DescontoCondicionado: 0.0,
+              ValorServicos: schedule.data.servico.valor_unitario * schedule.data.servico.quantidade,
+              ValorDeducoes: schedule.data.servico.ValorDeducoes || 0,
+              AliquotaPis: schedule.data.servico.AliquotaPis || 0,
+              RetidoPis: schedule.data.servico.RetidoPis || 2,
+              ValorPis: schedule.data.servico.ValorPis || 0,
+              AliquotaCofins: schedule.data.servico.AliquotaCofins || 0,
+              RetidoCofins: schedule.data.servico.RetidoCofins || 2,
+              ValorCofins: schedule.data.servico.ValorCofins || 0,
+              AliquotaInss: schedule.data.servico.AliquotaInss || 0,
+              RetidoInss: schedule.data.servico.RetidoInss || 2,
+              ValorInss: schedule.data.servico.ValorInss || 0,
+              AliquotaIr: schedule.data.servico.AliquotaIr || 0, 
+              RetidoIr: schedule.data.servico.RetidoIr || 2, 
+              ValorIr: schedule.data.servico.ValorIr || 0,
+              AliquotaCsll: schedule.data.servico.AliquotaCsll || 0,
+              RetidoCsll: schedule.data.servico.RetidoCsll || 2,
+              ValorCsll: schedule.data.servico.ValorCsll || 0,
+              AliquotaCpp: schedule.data.servico.AliquotaCpp || 0,
+              RetidoCpp: schedule.data.servico.RetidoCpp || 2,
+              ValorCpp: schedule.data.servico.ValorCpp || 0,
+              RetidoOutrasRetencoes: schedule.data.servico.RetidoOutrasRetencoes || 2,
+              Aliquota: schedule.data.servico.Aliquota || 2,
+              DescontoIncondicionado: schedule.data.servico.DescontoIncondicionado || 0.00,
+              DescontoCondicionado: schedule.data.servico.DescontoCondicionado || 0.00,
               },
               IssRetido: 2,
               Discriminacao: schedule.data.servico.Discriminacao,
@@ -477,26 +498,33 @@ const scheduling_controller = async () =>{
             },
             DataEmissao: formattedDate,
             Status: 1,
-            Competencia: formattedDate /* schedule.data.servico.dateOfCompetence.toString() */,
+            Competencia: schedule.data.servico.dateOfCompetence.toString(),
             Servico: {
               Valores: {
                 ValorServicos: schedule.data.servico.valor_unitario * schedule.data.servico.quantidade,
-                ValorDeducoes: 0,
-                AliquotaPis: 0,
-                RetidoPis: 2,
-                AliquotaCofins: 0,
-                RetidoCofins: 2,
-                AliquotaInss: 0,
-                RetidoInss: 2,
-                AliquotaIr: 0,
-                RetidoIr: 2,
-                AliquotaCsll: 0,
-                RetidoCsll: 2,
-                RetidoCpp: 2,
-                RetidoOutrasRetencoes: 2,
-                Aliquota: 4.41,
-                DescontoIncondicionado: 0.0,
-                DescontoCondicionado: 0.0,
+                ValorDeducoes: schedule.data.servico.ValorDeducoes || 0,
+                AliquotaPis: schedule.data.servico.AliquotaPis || 0,
+                RetidoPis: schedule.data.servico.RetidoPis || 2,
+                ValorPis: schedule.data.servico.ValorPis || 0,
+                AliquotaCofins: schedule.data.servico.AliquotaCofins || 0,
+                RetidoCofins: schedule.data.servico.RetidoCofins || 2,
+                ValorCofins: schedule.data.servico.ValorCofins || 0,
+                AliquotaInss: schedule.data.servico.AliquotaInss || 0,
+                RetidoInss: schedule.data.servico.RetidoInss || 2,
+                ValorInss: schedule.data.servico.ValorInss || 0,
+                AliquotaIr: schedule.data.servico.AliquotaIr || 0, 
+                RetidoIr: schedule.data.servico.RetidoIr || 2, 
+                ValorIr: schedule.data.servico.ValorIr || 0,
+                AliquotaCsll: schedule.data.servico.AliquotaCsll || 0,
+                RetidoCsll: schedule.data.servico.RetidoCsll || 2,
+                ValorCsll: schedule.data.servico.ValorCsll || 0,
+                AliquotaCpp: schedule.data.servico.AliquotaCpp || 0,
+                RetidoCpp: schedule.data.servico.RetidoCpp || 2,
+                ValorCpp: schedule.data.servico.ValorCpp || 0,
+                RetidoOutrasRetencoes: schedule.data.servico.RetidoOutrasRetencoes || 2,
+                Aliquota: schedule.data.servico.Aliquota || 2,
+                DescontoIncondicionado: schedule.data.servico.DescontoIncondicionado || 0.00,
+                DescontoCondicionado: schedule.data.servico.DescontoCondicionado || 0.00,
               },
               IssRetido: 2,
               Discriminacao: schedule.data.servico.Discriminacao,
@@ -596,8 +624,8 @@ const scheduling_controller = async () =>{
             valor: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0),
             xml: response,
             data: data,
-            numeroLote: /* numeroLote */ db_user.numeroLote,
-            identificacaoRpsnumero: /* identificacaoRpsnumero */ db_user.identificacaoRpsnumero,
+            numeroLote: db_user.numeroLote,
+            identificacaoRpsnumero: db_user.identificacaoRpsnumero,
           });  
 
           await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
