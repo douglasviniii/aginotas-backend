@@ -690,7 +690,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             });
 
             await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
-
+            await SendEmailService.NfseEmitida(user.email);
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
             return;
 
@@ -854,7 +854,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               });
   
               await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
-  
+              await SendEmailService.NfseEmitida(user.email);
               res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
               return;
   
@@ -865,8 +865,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
   
         
         }
-        
-        await SendEmailService.NfseEmitida(user.email);
+             
 
       } catch (error) {
         res.status(500).send({message: 'Erro interno no servidor', error});

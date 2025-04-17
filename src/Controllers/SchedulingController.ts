@@ -492,8 +492,7 @@ const scheduling_controller = async () =>{
           });  
 
           await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
-          await SendEmailService.SendEmailNFSe(`${db_customer.email}`, 'Mensagem de aviso, Nota Fiscal Eletrônica Emitida com sucesso pelo agendamento!'); 
-
+          await SendEmailService.NfseEmitida(`${db_user.email}`); 
           console.log('Nota Fiscal gerada com sucesso!');
           return;
           default:
@@ -656,8 +655,7 @@ const scheduling_controller = async () =>{
           });  
 
           await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
-          await SendEmailService.SendEmailNFSe(`${db_customer.email}`, 'Mensagem de aviso, Nota Fiscal Eletrônica Emitida com sucesso pelo agendamento!'); 
-
+          await SendEmailService.NfseEmitida(`${db_user.email}`); 
           console.log('Nota Fiscal gerada com sucesso!');
           return;
           default:
@@ -665,8 +663,6 @@ const scheduling_controller = async () =>{
           return;
         } 
       }
-
-      await SendEmailService.NfseEmitida(db_user.email);
     }
     console.log('Nenhum agendamento encontrado!');
     }
