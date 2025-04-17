@@ -40,15 +40,22 @@ interface GerarNfseEnvio {
         ValorDeducoes: number;
         AliquotaPis: number;
         RetidoPis: number;
+        ValorPis: number;
         AliquotaCofins: number;
         RetidoCofins: number;
+        ValorCofins: number;
         AliquotaInss: number;
         RetidoInss: number;
+        ValorInss: number;
         AliquotaIr: number;
         RetidoIr: number;
+        ValorIr: number;
         AliquotaCsll: number;
         RetidoCsll: number;
+        ValorCsll: number;
+        AliquotaCpp: number;
         RetidoCpp: number;
+        ValorCpp: number;
         RetidoOutrasRetencoes: number;
         Aliquota: number;
         DescontoIncondicionado: number;
@@ -126,15 +133,22 @@ interface GerarNfseEnvioPessoaFisica {
         ValorDeducoes: number;
         AliquotaPis: number;
         RetidoPis: number;
+        ValorPis: number;
         AliquotaCofins: number;
         RetidoCofins: number;
+        ValorCofins: number;
         AliquotaInss: number;
         RetidoInss: number;
+        ValorInss: number;
         AliquotaIr: number;
         RetidoIr: number;
+        ValorIr: number;
         AliquotaCsll: number;
         RetidoCsll: number;
+        ValorCsll: number;
+        AliquotaCpp: number;
         RetidoCpp: number;
+        ValorCpp: number;
         RetidoOutrasRetencoes: number;
         Aliquota: number;
         DescontoIncondicionado: number;
@@ -408,15 +422,22 @@ class NfseService {
               <ValorDeducoes>${data.Rps.Servico.Valores.ValorDeducoes}</ValorDeducoes>
               <AliquotaPis>${data.Rps.Servico.Valores.AliquotaPis}</AliquotaPis>
               <RetidoPis>${data.Rps.Servico.Valores.RetidoPis}</RetidoPis>
+              <ValorPis>${data.Rps.Servico.Valores.ValorPis}</ValorPis>
               <AliquotaCofins>${data.Rps.Servico.Valores.AliquotaCofins}</AliquotaCofins>
               <RetidoCofins>${data.Rps.Servico.Valores.RetidoCofins}</RetidoCofins>
+              <ValorCofins>${data.Rps.Servico.Valores.ValorCofins}</ValorCofins>
               <AliquotaInss>${data.Rps.Servico.Valores.AliquotaInss}</AliquotaInss>
               <RetidoInss>${data.Rps.Servico.Valores.RetidoInss}</RetidoInss>
+              <ValorInss>${data.Rps.Servico.Valores.ValorInss}</ValorInss>
               <AliquotaIr>${data.Rps.Servico.Valores.AliquotaIr}</AliquotaIr>
               <RetidoIr>${data.Rps.Servico.Valores.RetidoIr}</RetidoIr>
+              <ValorIr>${data.Rps.Servico.Valores.ValorIr}</ValorIr>
               <AliquotaCsll>${data.Rps.Servico.Valores.AliquotaCsll}</AliquotaCsll>
               <RetidoCsll>${data.Rps.Servico.Valores.RetidoCsll}</RetidoCsll>
+              <ValorCsll>${data.Rps.Servico.Valores.ValorCsll}</ValorCsll>
+              <AliquotaCpp>${data.Rps.Servico.Valores.AliquotaCpp}</AliquotaCpp>
               <RetidoCpp>${data.Rps.Servico.Valores.RetidoCpp}</RetidoCpp>
+              <ValorCpp>${data.Rps.Servico.Valores.ValorCpp}</ValorCpp>
               <RetidoOutrasRetencoes>${data.Rps.Servico.Valores.RetidoOutrasRetencoes}</RetidoOutrasRetencoes>
               <Aliquota>${data.Rps.Servico.Valores.Aliquota}</Aliquota>
               <DescontoIncondicionado>${data.Rps.Servico.Valores.DescontoIncondicionado}</DescontoIncondicionado>
@@ -559,15 +580,22 @@ class NfseService {
               <ValorDeducoes>${data.Rps.Servico.Valores.ValorDeducoes}</ValorDeducoes>
               <AliquotaPis>${data.Rps.Servico.Valores.AliquotaPis}</AliquotaPis>
               <RetidoPis>${data.Rps.Servico.Valores.RetidoPis}</RetidoPis>
+              <ValorPis>${data.Rps.Servico.Valores.ValorPis}</ValorPis>
               <AliquotaCofins>${data.Rps.Servico.Valores.AliquotaCofins}</AliquotaCofins>
               <RetidoCofins>${data.Rps.Servico.Valores.RetidoCofins}</RetidoCofins>
+              <ValorCofins>${data.Rps.Servico.Valores.ValorCofins}</ValorCofins>
               <AliquotaInss>${data.Rps.Servico.Valores.AliquotaInss}</AliquotaInss>
               <RetidoInss>${data.Rps.Servico.Valores.RetidoInss}</RetidoInss>
+              <ValorInss>${data.Rps.Servico.Valores.ValorInss}</ValorInss>
               <AliquotaIr>${data.Rps.Servico.Valores.AliquotaIr}</AliquotaIr>
               <RetidoIr>${data.Rps.Servico.Valores.RetidoIr}</RetidoIr>
+              <ValorIr>${data.Rps.Servico.Valores.ValorIr}</ValorIr>
               <AliquotaCsll>${data.Rps.Servico.Valores.AliquotaCsll}</AliquotaCsll>
               <RetidoCsll>${data.Rps.Servico.Valores.RetidoCsll}</RetidoCsll>
+              <ValorCsll>${data.Rps.Servico.Valores.ValorCsll}</ValorCsll>
+              <AliquotaCpp>${data.Rps.Servico.Valores.AliquotaCpp}</AliquotaCpp>
               <RetidoCpp>${data.Rps.Servico.Valores.RetidoCpp}</RetidoCpp>
+              <ValorCpp>${data.Rps.Servico.Valores.ValorCpp}</ValorCpp>
               <RetidoOutrasRetencoes>${data.Rps.Servico.Valores.RetidoOutrasRetencoes}</RetidoOutrasRetencoes>
               <Aliquota>${data.Rps.Servico.Valores.Aliquota}</Aliquota>
               <DescontoIncondicionado>${data.Rps.Servico.Valores.DescontoIncondicionado}</DescontoIncondicionado>

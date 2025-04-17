@@ -63,15 +63,22 @@ interface GerarNfseEnvio {
         ValorDeducoes: number;
         AliquotaPis: number;
         RetidoPis: number;
+        ValorPis: number;
         AliquotaCofins: number;
         RetidoCofins: number;
+        ValorCofins: number;
         AliquotaInss: number;
         RetidoInss: number;
+        ValorInss: number;
         AliquotaIr: number;
         RetidoIr: number;
+        ValorIr: number;
         AliquotaCsll: number;
         RetidoCsll: number;
+        ValorCsll: number;
+        AliquotaCpp: number;
         RetidoCpp: number;
+        ValorCpp: number;
         RetidoOutrasRetencoes: number;
         Aliquota: number;
         DescontoIncondicionado: number;
@@ -149,15 +156,22 @@ interface GerarNfseEnvioPessoaFisica {
         ValorDeducoes: number;
         AliquotaPis: number;
         RetidoPis: number;
+        ValorPis: number;
         AliquotaCofins: number;
         RetidoCofins: number;
+        ValorCofins: number;
         AliquotaInss: number;
         RetidoInss: number;
+        ValorInss: number;
         AliquotaIr: number;
         RetidoIr: number;
+        ValorIr: number;
         AliquotaCsll: number;
         RetidoCsll: number;
+        ValorCsll: number;
+        AliquotaCpp: number;
         RetidoCpp: number;
+        ValorCpp: number;
         RetidoOutrasRetencoes: number;
         Aliquota: number;
         DescontoIncondicionado: number;
@@ -370,12 +384,14 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         }
 
         const id = user?.id;
+
         if(!id){
           res.status(400).send({message: 'User ID is no found!'});
           return;          
         }
 
         const customer = await CustomerService.FindCostumerByIdService(customer_id);
+
         if(!customer){
           res.status(400).send({message: 'User is no found!'});
           return;
@@ -396,37 +412,44 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             Homologa: user!.homologa 
           },
           LoteRps: {
-            NumeroLote: /* numeroLote.toLocaleString() */ user.numeroLote.toLocaleString(),
+            NumeroLote: user.numeroLote.toLocaleString(),
             Cnpj: user!.cnpj,
             InscricaoMunicipal: user!.inscricaoMunicipal, 
             QuantidadeRps: 1,
           },
           Rps: {
             IdentificacaoRps: {
-              Numero: /* identificacaoRpsnumero.toLocaleString(), */  user.identificacaoRpsnumero.toLocaleString(),
+              Numero: user.identificacaoRpsnumero.toLocaleString(),
               Serie: "D",
               Tipo: 1,
             },
             DataEmissao: formattedDate,
             Status: 1,
-            Competencia: /* formattedDate */ servico.dateOfCompetence,
+            Competencia: servico.dateOfCompetence,
             Servico: {
               Valores: {
                 ValorServicos: servico.valor_unitario * servico.quantidade,
                 ValorDeducoes: servico.ValorDeducoes || 0,
                 AliquotaPis: servico.AliquotaPis || 0,
                 RetidoPis: servico.RetidoPis || 2,
+                ValorPis: servico.ValorPis || 0,
                 AliquotaCofins: servico.AliquotaCofins || 0,
                 RetidoCofins: servico.RetidoCofins || 2,
+                ValorCofins: servico.ValorCofins || 0,
                 AliquotaInss: servico.AliquotaInss || 0,
                 RetidoInss: servico.RetidoInss || 2,
+                ValorInss: servico.ValorInss || 0,
                 AliquotaIr: servico.AliquotaIr || 0, 
                 RetidoIr: servico.RetidoIr || 2, 
+                ValorIr: servico.ValorIr || 0,
                 AliquotaCsll: servico.AliquotaCsll || 0,
                 RetidoCsll: servico.RetidoCsll || 2,
+                ValorCsll: servico.ValorCsll || 0,
+                AliquotaCpp: servico.AliquotaCpp || 0,
                 RetidoCpp: servico.RetidoCpp || 2,
+                ValorCpp: servico.ValorCpp || 0,
                 RetidoOutrasRetencoes: servico.RetidoOutrasRetencoes || 2,
-                Aliquota: servico.Aliquota || 4.41,
+                Aliquota: servico.Aliquota || 2,
                 DescontoIncondicionado: servico.DescontoIncondicionado || 0.00,
                 DescontoCondicionado: servico.DescontoCondicionado || 0.00,
               },
@@ -510,7 +533,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           });
         }  
 
-        switch (user?.cidade) {
+        //console.log("Objeto em JSON:", JSON.stringify(data, null, 2)); 
+
+         switch (user?.cidade) {
           case "Medianeira":
 
           const response = await NFseService.enviarNfse(data);
@@ -529,8 +554,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               valor: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
               xml: response,
               data: data,
-              numeroLote: /* numeroLote */ user.numeroLote,
-              identificacaoRpsnumero: /* identificacaoRpsnumero */ user.identificacaoRpsnumero,
+              numeroLote: user.numeroLote,
+              identificacaoRpsnumero: user.identificacaoRpsnumero,
             });
 
             await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
@@ -541,7 +566,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         default:
            res.status(400).send({message: "Não atende a cidade informada"});
            return;
-        }  
+        }   
 
         }
 
@@ -555,37 +580,44 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               Homologa: user!.homologa 
             },
             LoteRps: {
-              NumeroLote: /* numeroLote.toLocaleString() */ user.numeroLote.toLocaleString(),
+              NumeroLote: user.numeroLote.toLocaleString(),
               Cnpj: user!.cnpj,
               InscricaoMunicipal: user!.inscricaoMunicipal, 
               QuantidadeRps: 1,
             },
             Rps: {
               IdentificacaoRps: {
-                Numero: /* identificacaoRpsnumero.toLocaleString(), */  user.identificacaoRpsnumero.toLocaleString(),
+                Numero: user.identificacaoRpsnumero.toLocaleString(),
                 Serie: "D",
                 Tipo: 1,
               },
               DataEmissao: formattedDate,
               Status: 1,
-              Competencia: /* formattedDate */ servico.dateOfCompetence,
+              Competencia: servico.dateOfCompetence,
               Servico: {
                 Valores: {
                   ValorServicos: servico.valor_unitario * servico.quantidade,
                   ValorDeducoes: servico.ValorDeducoes || 0,
                   AliquotaPis: servico.AliquotaPis || 0,
                   RetidoPis: servico.RetidoPis || 2,
+                  ValorPis: servico.ValorPis || 0,
                   AliquotaCofins: servico.AliquotaCofins || 0,
                   RetidoCofins: servico.RetidoCofins || 2,
+                  ValorCofins: servico.ValorCofins || 0,
                   AliquotaInss: servico.AliquotaInss || 0,
                   RetidoInss: servico.RetidoInss || 2,
+                  ValorInss: servico.ValorInss || 0,
                   AliquotaIr: servico.AliquotaIr || 0, 
                   RetidoIr: servico.RetidoIr || 2, 
+                  ValorIr: servico.ValorIr || 0,
                   AliquotaCsll: servico.AliquotaCsll || 0,
                   RetidoCsll: servico.RetidoCsll || 2,
+                  ValorCsll: servico.ValorCsll || 0,
+                  AliquotaCpp: servico.AliquotaCpp || 0,
                   RetidoCpp: servico.RetidoCpp || 2,
+                  ValorCpp: servico.ValorCpp || 0,
                   RetidoOutrasRetencoes: servico.RetidoOutrasRetencoes || 2,
-                  Aliquota: servico.Aliquota || 4.41,
+                  Aliquota: servico.Aliquota || 2,
                   DescontoIncondicionado: servico.DescontoIncondicionado || 0.00,
                   DescontoCondicionado: servico.DescontoCondicionado || 0.00,
                 },
@@ -667,12 +699,12 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             });
           }  
   
-          switch (user?.cidade) {
+           switch (user?.cidade) {
             case "Medianeira":
   
             const response = await NFseService.enviarNfsePessoaFisica(data);
   
-            const nfseGerada = await verificarNFSe(response); //Verificar se a Nota foi gerada ou não.
+            const nfseGerada = await verificarNFSe(response); 
           
             if (!nfseGerada) {
                 await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
@@ -686,8 +718,8 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                 valor: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
                 xml: response,
                 data: data,
-                numeroLote: /* numeroLote */ user.numeroLote,
-                identificacaoRpsnumero: /* identificacaoRpsnumero */ user.identificacaoRpsnumero,
+                numeroLote: user.numeroLote,
+                identificacaoRpsnumero: user.identificacaoRpsnumero,
               });
   
               await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
@@ -702,7 +734,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
   
         
         }
+        
         await SendEmailService.NfseEmitida(user.email);
+
       } catch (error) {
         res.status(500).send({message: 'Erro interno no servidor', error});
         return;
