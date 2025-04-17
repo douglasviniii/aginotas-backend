@@ -209,6 +209,8 @@ const create_scheduling = async (req: CustomRequest, res: Response) => {
   try {
     const data = req.body;
 
+    console.log(data);
+
     if(!data){
       res.status(400).send({message: 'Dados incompletos'});
       return;

@@ -921,18 +921,32 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
 
         "{{VALOR_SERVICOS_VALORES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorServicos")[0].textContent?.trim(),
         "{{VALOR_DEDUCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorDeducoes")[0]?.textContent?.trim(),
-        "{{RETIDO_PIS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoPis")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_PIS}}": data.data.Rps.Servico.Valores.AliquotaPis,
+        "{{RETIDO_PIS}}": data.data.Rps.Servico.Valores.RetidoPis === 1 ? 'Sim' : 'Não',    /* xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoPis")[0]?.textContent?.trim(), */         
         "{{VALOR_PIS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorPis")[0]?.textContent?.trim(),
-        "{{RETIDO_COFINS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCofins")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_COFINS}}": data.data.Rps.Servico.Valores.AliquotaCofins,
+        "{{RETIDO_COFINS}}": data.data.Rps.Servico.Valores.RetidoCofins === 1 ? 'Sim' : 'Não',/*  xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCofins")[0]?.textContent?.trim() */
         "{{VALOR_COFINS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorCofins")[0]?.textContent?.trim(),
-        "{{RETIDO_INSS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoInss")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_INSS}}": data.data.Rps.Servico.Valores.AliquotaInss,
+        "{{RETIDO_INSS}}": data.data.Rps.Servico.Valores.RetidoInss === 1 ? 'Sim' : 'Não'/* xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoInss")[0]?.textContent?.trim() */,
         "{{VALOR_INSS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorInss")[0]?.textContent?.trim(),
-        "{{RETIDO_IR}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoIr")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_IR}}": data.data.Rps.Servico.Valores.AliquotaIr,
+        "{{RETIDO_IR}}": data.data.Rps.Servico.Valores.AliquotaIr === 1 ? 'Sim' : 'Não'/* xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoIr")[0]?.textContent?.trim() */,
         "{{VALOR_IR}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorIr")[0]?.textContent?.trim(),
-        "{{RETIDO_CSLL}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCsll")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_CSLL}}": data.data.Rps.Servico.Valores.AliquotaCsll,
+        "{{RETIDO_CSLL}}": data.data.Rps.Servico.Valores.AliquotaCsll === 1 ? 'Sim' : 'Não'/* xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCsll")[0]?.textContent?.trim() */,
         "{{VALOR_CSLL}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorCsll")[0]?.textContent?.trim(),
-        "{{RETIDO_CPP}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCpp")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_CPP}}": (data.data.Rps.Servico.Valores.AliquotaCpp.toFixed(2)),
+        "{{RETIDO_CPP}}": data.data.Rps.Servico.Valores.AliquotaCpp === 1 ? 'Sim' : 'Não',
         "{{VALOR_CPP}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorCpp")[0]?.textContent?.trim(),
+        
+        
         "{{OUTRAS_RETENCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:OutrasRetencoes")[0]?.textContent?.trim(),
         "{{RETIDO_OUTRAS_RETENCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoOutrasRetencoes")[0]?.textContent?.trim(),
         "{{VALOR_ISS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorIss")[0]?.textContent?.trim(),
