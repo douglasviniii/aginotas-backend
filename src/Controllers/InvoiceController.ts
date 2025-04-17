@@ -243,6 +243,134 @@ interface DataCancelarNfseEnvio{
   CodigoCancelamento: number;
 }
 
+interface SubstituirNfseEnvio {
+  IdentificacaoRequerente: {
+    CpfCnpj: {
+      Cnpj: string;
+      Cpf?: string;
+    };
+    InscricaoMunicipal: string;
+    Senha: string;
+    Homologa: boolean;
+  };
+  Pedido: {
+    InfPedidoCancelamento: {
+      Id: string;
+      IdentificacaoNfse: {
+        Numero: string;
+        CpfCnpj: {
+          Cnpj: string;
+          Cpf?: string; // Opcional caso seja CPF
+        };
+        InscricaoMunicipal: string;
+        CodigoMunicipio: string;
+      };
+      ChaveAcesso: string;
+      CodigoCancelamento: number; // 1 para substituição
+      MotivoCancelamento?: string; // Opcional
+    };
+  };
+  Rps: {
+    InfDeclaracaoPrestacaoServico: {
+      Id: string;
+      Rps: {
+        IdentificacaoRps: {
+          Numero: string;
+          Serie: string;
+          Tipo: number; // 1-RPS, 2-NFSe conjugada, 3-Cupom
+        };
+        DataEmissao: string; // Formato ISO 8601 (YYYY-MM-DD)
+        Status: number; // 1-Normal, 2-Cancelado
+      };
+      Competencia: string; // Formato YYYY-MM
+      Servico: {
+        Valores: {
+          ValorServicos: number;
+          ValorDeducoes: number;
+          AliquotaPis: number;
+          RetidoPis: number; // 1-Sim, 2-Não
+          ValorPis: number;
+          AliquotaCofins: number;
+          RetidoCofins: number; // 1-Sim, 2-Não
+          ValorCofins: number;
+          AliquotaInss: number;
+          RetidoInss: number; // 1-Sim, 2-Não
+          ValorInss: number;
+          AliquotaIr: number;
+          RetidoIr: number; // 1-Sim, 2-Não
+          ValorIr: number;
+          AliquotaCsll: number;
+          RetidoCsll: number; // 1-Sim, 2-Não
+          ValorCsll: number;
+          AliquotaCpp: number;
+          RetidoCpp: number; // 1-Sim, 2-Não
+          ValorCpp: number;
+          RetidoOutrasRetencoes: number;
+          Aliquota: number;
+          DescontoIncondicionado: number;
+          DescontoCondicionado: number;
+        };
+        IssRetido: number; // 1-Sim, 2-Não
+        Discriminacao: string;
+        CodigoMunicipio: string; // Código IBGE
+        ExigibilidadeISS: number; // 1-Exigível, 2-Não incidência, 3-Isenção, etc.
+        MunicipioIncidencia?: string; // Opcional - Código IBGE
+        ListaItensServico: Array<{
+          ItemListaServico: string; // Código do serviço
+          CodigoCnae?: string; // Opcional
+          Descricao: string;
+          Tributavel: number; // 1-Sim, 2-Não
+          Quantidade: number;
+          ValorUnitario: number;
+          ValorLiquido: number;
+        }>;
+      };
+      Prestador: {
+        CpfCnpj: {
+          Cnpj: string;
+          Cpf?: string; // Opcional caso seja CPF
+        };
+        InscricaoMunicipal: string;
+      };
+      Tomador: {
+        IdentificacaoTomador: {
+          CpfCnpj: {
+            Cnpj?: string;
+            Cpf?: string; // Um dos dois deve estar presente
+          };
+          InscricaoMunicipal?: string; // Opcional
+          InscricaoEstadual?: string; // Opcional
+        };
+        RazaoSocial: string;
+        Endereco: {
+          Endereco: string;
+          Numero: string;
+          Complemento?: string; // Opcional
+          Bairro: string;
+          CodigoMunicipio: string; // Código IBGE
+          Uf: string;
+          Cep: string;
+        };
+        Contato: {
+          Telefone?: string; // Opcional
+          Email?: string; // Opcional
+        };
+      };
+      RegimeEspecialTributacao?: number; // Opcional - 1-Microempresa municipal, 2-Estimativa, etc.
+      IncentivoFiscal?: number; // Opcional - 1-Sim, 2-Não
+      OutrasInformacoes?: string; // Opcional
+    };
+  };
+  LoteRps?: { // Opcional para casos de envio em lote
+    NumeroLote: string;
+    Cnpj: string;
+    InscricaoMunicipal: string;
+    QuantidadeRps: number;
+  };
+}
+
+
+
 interface DataSubstituirNfse {
   IdentificacaoRequerente: {
     CpfCnpj: {
@@ -281,6 +409,7 @@ interface DataSubstituirNfse {
       Servico: {
         Valores: {
           ValorServicos: number;
+          ValorDeducoes: number;
           AliquotaPis: number;
           RetidoPis: number;
           ValorPis: number;
@@ -299,7 +428,9 @@ interface DataSubstituirNfse {
           AliquotaCpp: number;
           RetidoCpp: number;
           ValorCpp: number;
-          OutrasRetencoes: number;
+          Aliquota: number;
+          DescontoIncondicionado: number;
+          DescontoCondicionado: number;
           RetidoOutrasRetencoes: number;
         };
         IssRetido: number;
@@ -1089,113 +1220,119 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
       return;
     }
 
-    const substituirNfseEnvio: DataSubstituirNfse = {
+    const substituirNfseEnvio: SubstituirNfseEnvio = {
       IdentificacaoRequerente: {
-      CpfCnpj: {
-        Cnpj: user!.cnpj,
-      },
-      InscricaoMunicipal: user!.inscricaoMunicipal,
-      Senha: user!.senhaelotech,
-      Homologa: user!.homologa,
+        CpfCnpj: {
+          Cnpj: user!.cnpj,
+        },
+        InscricaoMunicipal: user!.inscricaoMunicipal,
+        Senha: user!.senhaelotech,
+        Homologa: user!.homologa,
       },
       Pedido: {
-      InfPedidoCancelamento: {
-        IdentificacaoNfse: {
-        Numero: numeroNfse,
-        CpfCnpj: {
-          Cnpj: user!.cnpj,
-        },
-        InscricaoMunicipal: user!.inscricaoMunicipal,
-        CodigoMunicipio: CodigoMunicipio,
-        },
-        ChaveAcesso: ChaveAcesso,
-        CodigoCancelamento: 4,
-      },
-      },
-      DeclaracaoPrestacaoServico: {
-      InfDeclaracaoPrestacaoServico: {
-        Rps: {
-        IdentificacaoRps: {
-          Numero: IdentificacaoRpsnumero.toString(),
-          Serie: "D",
-          Tipo: 1,
-        },
-        DataEmissao: formattedDate,
-        Status: 1,
-        },
-        Competencia: formattedDate,
-        Servico: {
-        Valores: {
-          ValorServicos: servico.valor_unitario * servico.quantidade,
-          AliquotaPis: 0,
-          RetidoPis: 2,
-          ValorPis: 0,
-          AliquotaCofins: 0,
-          RetidoCofins: 2,
-          ValorCofins: 0,
-          AliquotaInss: 0,
-          RetidoInss: 2,
-          ValorInss: 0,
-          AliquotaIr: 0,
-          RetidoIr: 2,
-          ValorIr: 0,
-          AliquotaCsll: 0,
-          RetidoCsll: 2,
-          ValorCsll: 0,
-          AliquotaCpp: 0,
-          RetidoCpp: 2,
-          ValorCpp: 0,
-          OutrasRetencoes: 0,
-          RetidoOutrasRetencoes: 2,
-        },
-        IssRetido: 2,
-        Discriminacao: servico.Discriminacao,
-        CodigoNbs: "",
-        CodigoMunicipio: customer.address.cityCode,
-        ExigibilidadeISS: 1,
-        MunicipioIncidencia: customer.address.cityCode,
-        ListaItensServico: [
-          {
-          ItemListaServico: servico.item_lista,
-          CodigoCnae: servico.cnae,
-          Descricao: servico.descricao,
-          Tributavel: 1,
-          Quantidade: servico.quantidade,
-          ValorUnitario: servico.valor_unitario,
-          ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+        InfPedidoCancelamento: {
+          Id: "pedido_" + numeroNfse, // Adicionado ID único para o pedido
+          IdentificacaoNfse: {
+            Numero: numeroNfse,
+            CpfCnpj: {
+              Cnpj: user!.cnpj,
+            },
+            InscricaoMunicipal: user!.inscricaoMunicipal,
+            CodigoMunicipio: CodigoMunicipio,
           },
-        ],
+          ChaveAcesso: ChaveAcesso,
+          CodigoCancelamento: 1, // 1 para substituição
+          // Removido ChaveAcesso pois não está na interface
         },
-        Prestador: {
-        CpfCnpj: {
-          Cnpj: user!.cnpj,
-        },
-        InscricaoMunicipal: user!.inscricaoMunicipal,
-        },
-        Tomador: {
-        IdentificacaoTomador: {
-          CpfCnpj: {
-          Cnpj: customer.cnpj,
-          },
-          InscricaoMunicipal: customer.inscricaoMunicipal,
-        },
-        RazaoSocial: customer.name,
-        Endereco: {
-          Endereco: customer.address.street,
-          Numero: customer.address.number,
-          Bairro: customer.address.neighborhood,
-          CodigoMunicipio: customer.address.cityCode,
-          Uf: customer.address.state,
-          Cep: customer.address.zipCode,
-        },
-        Contato: {
-          Telefone: customer.phone,
-          Email: customer.email,
-        },
-        InscricaoEstadual: customer.inscricaoEstadual,
-        },
-        IncentivoFiscal: user!.IncentivoFiscal,
       },
+      Rps: { // Alterado de DeclaracaoPrestacaoServico para Rps
+        InfDeclaracaoPrestacaoServico: {
+          Id: "rps_" + IdentificacaoRpsnumero.toString(), // Adicionado ID único
+          Rps: {
+            IdentificacaoRps: {
+              Numero: IdentificacaoRpsnumero.toString(),
+              Serie: "D",
+              Tipo: 1,
+            },
+            DataEmissao: formattedDate,
+            Status: 1,
+          },
+          Competencia: formattedDate,
+          Servico: {
+            Valores: {
+              ValorServicos: servico.valor_unitario * servico.quantidade,
+              ValorDeducoes: servico.ValorDeducoes || 0,
+              AliquotaPis: servico.AliquotaPis || 0,
+              RetidoPis: servico.RetidoPis || 2,
+              ValorPis: servico.ValorPis || 0,
+              AliquotaCofins: servico.AliquotaCofins || 0,
+              RetidoCofins: servico.RetidoCofins || 2,
+              ValorCofins: servico.ValorCofins || 0,
+              AliquotaInss: servico.AliquotaInss || 0,
+              RetidoInss: servico.RetidoInss || 2,
+              ValorInss: servico.ValorInss || 0,
+              AliquotaIr: servico.AliquotaIr || 0, 
+              RetidoIr: servico.RetidoIr || 2, 
+              ValorIr: servico.ValorIr || 0,
+              AliquotaCsll: servico.AliquotaCsll || 0,
+              RetidoCsll: servico.RetidoCsll || 2,
+              ValorCsll: servico.ValorCsll || 0,
+              AliquotaCpp: servico.AliquotaCpp || 0,
+              RetidoCpp: servico.RetidoCpp || 2,
+              ValorCpp: servico.ValorCpp || 0,
+              RetidoOutrasRetencoes: servico.RetidoOutrasRetencoes || 0, // Alterado para number
+              Aliquota: servico.Aliquota || 2,
+              DescontoIncondicionado: servico.DescontoIncondicionado || 0.00,
+              DescontoCondicionado: servico.DescontoCondicionado || 0.00,
+            },
+            IssRetido: 2,
+            Discriminacao: servico.Discriminacao,
+            CodigoMunicipio: '4115804',
+            ExigibilidadeISS: 1,
+            MunicipioIncidencia: '4115804',
+            ListaItensServico: [
+              {
+                ItemListaServico: servico.item_lista,
+                CodigoCnae: servico.cnae,
+                Descricao: servico.descricao,
+                Tributavel: 1,
+                Quantidade: servico.quantidade,
+                ValorUnitario: servico.valor_unitario,
+                ValorLiquido: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
+              },
+            ],
+          },
+          Prestador: {
+            CpfCnpj: {
+              Cnpj: user!.cnpj,
+            },
+            InscricaoMunicipal: user!.inscricaoMunicipal,
+          },
+          Tomador: {
+            IdentificacaoTomador: {
+              CpfCnpj: {
+                Cnpj: customer.cnpj,
+              },
+              InscricaoMunicipal: customer.inscricaoMunicipal,
+              InscricaoEstadual: customer.inscricaoEstadual || undefined, // Opcional
+            },
+            RazaoSocial: customer.name,
+            Endereco: {
+              Endereco: customer.address.street,
+              Numero: customer.address.number,
+              Bairro: customer.address.neighborhood,
+              CodigoMunicipio: customer.address.cityCode,
+              Uf: customer.address.state,
+              Cep: customer.address.zipCode,
+            },
+            Contato: {
+              Telefone: customer.phone || undefined, // Opcional
+              Email: customer.email || undefined, // Opcional
+            },
+          },
+          RegimeEspecialTributacao: user!.RegimeEspecialTributacao || undefined, // Opcional
+          IncentivoFiscal: user!.IncentivoFiscal,
+        },
       },
     };
 
@@ -1250,9 +1387,9 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
         },
         IssRetido: 2,
         Discriminacao: servico.Discriminacao,
-        CodigoMunicipio: customer.address.cityCode,
+        CodigoMunicipio: '4115804',
         ExigibilidadeISS: 1,
-        MunicipioIncidencia: customer.address.cityCode,
+        MunicipioIncidencia: '4115804',
         ListaItensServico: [
         {
           ItemListaServico: servico.item_lista,
@@ -1330,7 +1467,7 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
       });
     } 
 
-    //console.log(JSON.stringify(substituirNfseEnvio, null, 2));
+    console.log(JSON.stringify(substituirNfseEnvio, null, 2));
 
     const response = await NFseService.SubstituirNfse(substituirNfseEnvio);
 
@@ -1338,15 +1475,13 @@ const replace_invoice = async  (req: CustomRequest, res: Response) => {
 
     const nfseGerada = await verificarNFSe(response);
 
-    if (!nfseGerada) {
+     if (!nfseGerada) {
       res.status(200).send({message: messageError});
       return;
-    }
-
-    await InvoiceService.UpdateInvoice(IdInvoice, {xml: response, data: data, status: 'substituida'});
+    } 
+    const valor_total = servico.valor_unitario * servico.quantidade;
+    await InvoiceService.UpdateInvoice(IdInvoice, {valor: valor_total,xml: response, data: data, status: 'substituida'});
     res.status(200).send({message: 'Nota Fiscal Substituida com sucesso!'});
-
-
     return;
   } catch (error) {
     res.status(500).send({message: 'Não foi possivel substituir Nota Fiscal', error});
