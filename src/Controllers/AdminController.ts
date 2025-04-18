@@ -7,11 +7,7 @@ import InvoiceService from '../services/InvoiceService.ts';
 const Create_Admin = async (req: Request, res: Response) => {
     try {
         const data = req.body;
-
-        const email = data.email;
-        const password = data.password;
-
-        await AdminService.CreateAdminService({email, password});
+        await AdminService.CreateAdminService(data);
         res.status(200).send({ message: 'Administrador criado com sucesso!' });
     } catch (error) {
         res.status(500).send({
@@ -37,8 +33,9 @@ const AuthAdminController = async (req: Request, res: Response) => {
         }
     
         const token = AdminService.GeradorDeToken(admin.id);
+        const userdb = await AdminService.FindUserByIdService(admin.id);
     
-        res.status(200).send({ token });        
+        res.status(200).send({ token,userdb });        
     }catch(error){
         res.status(500).send("Falha na autênticação");
     }
