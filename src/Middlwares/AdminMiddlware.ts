@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import UserService from "../services/UserService.ts";
+import AdminService from '../services/AdminService.ts';
 
 dotenv.config();
 
@@ -10,7 +10,7 @@ interface CustomRequest extends Request {
   userObject?: object;
 }
 
-const AuthMiddlewareUser = (
+const AuthMiddlewareAdmin = (
   req: CustomRequest,
   res: Response,
   next: NextFunction
@@ -48,7 +48,7 @@ const AuthMiddlewareUser = (
           return res.status(400).send("Nenhum usuário encontrado");
         } 
 
-         const user = await UserService.FindUserByIdService(userId);
+         const user = await AdminService.FindUserByIdService(userId);
    
          if (!user || !user.id) {
             return res.status(400).send("Nenhum usuário encontrado");
@@ -64,4 +64,4 @@ const AuthMiddlewareUser = (
   }
 };
 
-export default AuthMiddlewareUser;
+export default AuthMiddlewareAdmin;

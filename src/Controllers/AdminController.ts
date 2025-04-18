@@ -17,6 +17,25 @@ const Create_Admin = async (req: Request, res: Response) => {
     }
 }
 
+const Update_Admin_byID = async (req: Request, res: Response) =>{
+  try {
+    const data = req.body;
+    const id = req.params.id;
+
+    if(!id){
+      res.status(400).send({message: 'Id null'});
+      return;
+    }
+    await AdminService.UpdateAdmin(id, data);
+    res.status(200).send({message: "Admin atualizado com sucesso!"});
+  } catch (error) {
+    res.status(500).send({
+      message: 'Não foi possivel atualizar conta do usuário',
+      error: error,
+    });    
+  }
+}
+
 const AuthAdminController = async (req: Request, res: Response) => {
     try{
         const Data = req.body;
@@ -32,7 +51,7 @@ const AuthAdminController = async (req: Request, res: Response) => {
           return res.status(404).send("Email ou senha inválidos");
         }
     
-        const token = AdminService.GeradorDeToken(admin.id);
+        const token = await AdminService.GeradorDeToken(admin.id);
         const userdb = await AdminService.FindUserByIdService(admin.id);
     
         res.status(200).send({ token,userdb });        
@@ -62,5 +81,6 @@ export default
     Create_Admin,
     AuthAdminController,
     FindAllUsers,
-    FindAllInvoicesCreated
+    FindAllInvoicesCreated,
+    Update_Admin_byID
 };
