@@ -205,6 +205,17 @@ interface GerarNfseEnvioPessoaFisica {
   };
 }
 
+interface UserCustomer {
+  Endereco: string;
+  Numero: string;
+  Bairro: string;
+  CodigoMunicipio: string;
+  Uf: string;
+  Cep: string;
+  Telefone: string;
+  Email: string;
+}
+
 
 const create_scheduling = async (req: CustomRequest, res: Response) => {
   try {
@@ -873,16 +884,16 @@ const scheduling_controller_admin = async () =>{
               },
               RazaoSocial: db_user.name,
               Endereco: {
-              Endereco: schedule.user_customer.Endereco,
-              Numero: schedule.user_customer.Numero,
-              Bairro: schedule.user_customer.Bairro,
-              CodigoMunicipio: schedule.user_customer.CodigoMunicipio,
-              Uf: schedule.user_customer.Uf,
-              Cep: schedule.user_customer.Cep,
+              Endereco: (schedule.user_customer as UserCustomer).Endereco,
+              Numero: (schedule.user_customer as UserCustomer).Numero,
+              Bairro: (schedule.user_customer as UserCustomer).Bairro,
+              CodigoMunicipio: (schedule.user_customer as UserCustomer).CodigoMunicipio,
+              Uf: (schedule.user_customer as UserCustomer).Uf,
+              Cep: (schedule.user_customer as UserCustomer).Cep,
               },
               Contato: {
-              Telefone: schedule.user_customer.Telefone,
-              Email: schedule.user_customer.Email,
+              Telefone: (schedule.user_customer as UserCustomer).Telefone,
+              Email: (schedule.user_customer as UserCustomer).Email,
               },
             },
             RegimeEspecialTributacao: db_user!.RegimeEspecialTributacao,
@@ -1037,16 +1048,16 @@ const scheduling_controller_admin = async () =>{
               },
               RazaoSocial: db_user.name,
               Endereco: {
-              Endereco: schedule.user_customer.Endereco,
-              Numero: schedule.user_customer.Numero,
-              Bairro: schedule.user_customer.Bairro,
-              CodigoMunicipio: schedule.user_customer.CodigoMunicipio,
-              Uf: schedule.user_customer.Uf,
-              Cep: schedule.user_customer.Cep,
+              Endereco: (schedule.user_customer as UserCustomer).Endereco,
+              Numero: (schedule.user_customer as UserCustomer).Numero,
+              Bairro: (schedule.user_customer as UserCustomer).Bairro,
+              CodigoMunicipio: (schedule.user_customer as UserCustomer).CodigoMunicipio,
+              Uf: (schedule.user_customer as UserCustomer).Uf,
+              Cep: (schedule.user_customer as UserCustomer).Cep,
               },
               Contato: {
-              Telefone: schedule.user_customer.Telefone,
-              Email: schedule.user_customer.Email,
+              Telefone: (schedule.user_customer as UserCustomer).Telefone,
+              Email: (schedule.user_customer as UserCustomer).Email,
               },
             },
             RegimeEspecialTributacao: db_user!.RegimeEspecialTributacao,
