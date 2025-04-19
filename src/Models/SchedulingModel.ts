@@ -3,6 +3,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface Scheduling extends Document {
   customer_id: String,
   user_id: String,
+  user_customer: Object,
+  admin_id: String;
   billing_day: Number,
   start_date: String,
   end_date: String,
@@ -48,8 +50,10 @@ export interface Scheduling extends Document {
 }
 
 const schedulingSchema = new Schema<Scheduling>({
-    customer_id: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
-    user_id: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    customer_id: { type: Schema.Types.ObjectId, ref: 'Customer'},
+    user_customer: { type: Object},
+    user_id: { type: Schema.Types.ObjectId, ref: 'User'},
+    admin_id: { type: Schema.Types.ObjectId, ref: 'Admin'},
     billing_day: { type: Number, required: true },
     start_date: { type: String, required: true},
     end_date: { type: String, required: true},

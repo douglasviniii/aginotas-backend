@@ -143,6 +143,7 @@ const startServer = async () => {
   await DataBase(); 
   cron.schedule("0 0 * * *", async () => { 
     await Scheduling.scheduling_controller(); // executando agendamentos
+    await Scheduling.scheduling_controller_admin();
     await FinancialController.ExpirationCheck();
   }, {
     timezone: "America/Sao_Paulo" 
