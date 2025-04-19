@@ -206,14 +206,14 @@ interface GerarNfseEnvioPessoaFisica {
 }
 
 interface UserCustomer {
-  Endereco: string;
-  Numero: string;
-  Bairro: string;
-  CodigoMunicipio: string;
-  Uf: string;
-  Cep: string;
-  Telefone: string;
-  Email: string;
+  Endereco: any;
+  Numero: any;
+  Bairro: any;
+  CodigoMunicipio: any;
+  Uf: any;
+  Cep: any;
+  Telefone: any;
+  Email: any;
 }
 
 
