@@ -1140,6 +1140,19 @@ const cancel_schedule_controller = async (req: Request, res: Response) =>{
   }
 }
 
+const cancel_schedule_controller_ById = async (req: Request, res: Response) =>{
+  try {
+    const id = req.params.id;
+    await SchedulingService.DeleteScheduleServiceById(id);
+    res.status(201).send({ message: 'Agendamento cancelado com sucesso!'});
+  } catch (error) {
+    res.status(500).send({
+      message: 'Não foi possivel cancelar agendamento',
+      error: error,
+    });    
+  }
+}
+
 const find_schedulings_controller = async (req: Request, res: Response) =>{
   try{
     const id = req.params.id;
@@ -1156,6 +1169,22 @@ const find_schedulings_controller = async (req: Request, res: Response) =>{
   }
 }
 
+const find_schedulings_controller_byIDUser = async (req: Request, res: Response) =>{
+  try{
+    const id = req.params.id;
+
+    if(!id){
+      res.status(400).send({message: 'Dados incompletos'});
+      return;
+    }
+
+    const schedulings = await SchedulingService.FindSchedulingsByUser(id);
+    res.status(200).send(schedulings);
+  }catch(error){
+    res.status(500).send({message: "Não foi possivel buscar agendamentos"});
+  }
+}
+
 export default 
 { 
   create_scheduling, 
@@ -1163,5 +1192,7 @@ export default
   cancel_schedule_controller,
   find_schedulings_controller,
   create_scheduling_admin,
-  scheduling_controller_admin
+  scheduling_controller_admin,
+  find_schedulings_controller_byIDUser,
+  cancel_schedule_controller_ById
 };
