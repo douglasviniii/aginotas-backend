@@ -3,6 +3,7 @@ import { string } from 'zod';
 
 export interface IInvoice extends Document {
   customer: mongoose.Types.ObjectId; 
+  admin: mongoose.Types.ObjectId; 
   user: mongoose.Types.ObjectId; 
   valor: number;
   xml: string;
@@ -15,7 +16,8 @@ export interface IInvoice extends Document {
 
 const InvoiceSchema = new Schema<IInvoice>({
   customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  admin: { type: Schema.Types.ObjectId, ref: 'Admin'},
+  user: { type: Schema.Types.ObjectId, ref: 'User'},
   data: {type: Object, require: true},
   valor: {type: Number},
   xml: {type: String},

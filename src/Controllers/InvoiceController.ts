@@ -880,6 +880,8 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
       const {customer, servico} = req.body;
       let messageError = '';
 
+      //console.log(customer, servico);
+
       const id = user?.id;
       if(!id){
         res.status(400).send({message: 'User ID is no found!'});
@@ -890,7 +892,8 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
       const options = { timeZone: 'America/Sao_Paulo', year: 'numeric', month: '2-digit', day: '2-digit' } as const;
       const formattedDate = new Intl.DateTimeFormat('en-CA', options).format(date);
 
-      if(customer.cnpjcpf.length === 14){
+      const documento1 = customer.cnpjcpf.replace(/[.\/-]/g, '');
+      if(documento1.length === 14){
 
       const data: GerarNfseEnvio = {
         Requerente: {
@@ -964,7 +967,7 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
           },
           Tomador: {
             IdentificacaoTomador: {
-            CpfCnpj: customer.cnpjcpf,
+            CpfCnpj: customer.cnpjcpf.replace(/[.\/-]/g, ''),
             InscricaoMunicipal: customer.InscricaoMunicipal,
             InscricaoEstadual: '',
             },
@@ -1021,7 +1024,7 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
         });
       }  
 
-      console.log("Objeto em JSON:", JSON.stringify(data, null, 2)); 
+      //console.log("Objeto em JSON:", JSON.stringify(data, null, 2)); 
 
        switch (user?.cidade) {
         case "Medianeira":
@@ -1035,10 +1038,10 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
             res.status(200).send({message: messageError});
             return;
         }
-      
+
           await InvoiceService.CreateInvoiceService({
             customer: customer._id,
-            user: user?.id,
+            admin: user?.id,
             valor: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
             xml: response,
             data: data,
@@ -1058,7 +1061,8 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
 
       }
 
-      if(customer.cnpjcpf.length === 11){
+      const documento2 = customer.cnpjcpf.replace(/[.\/-]/g, '');
+      if(documento2.cnpjcpf.length === 11){
 
         const data: GerarNfseEnvioPessoaFisica = {
           Requerente: {
@@ -1132,7 +1136,7 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
             },
             Tomador: {
               IdentificacaoTomador: {
-              CpfCnpj: customer.cnpjcpf,
+              CpfCnpj: customer.cnpjcpf.replace(/[.\/-]/g, ''),
               },
               RazaoSocial: customer.RazaoSocial,
               Endereco: {
@@ -1202,7 +1206,7 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
         
             await InvoiceService.CreateInvoiceService({
               customer: customer._id,
-              user: user?.id,
+              admin: user?.id,
               valor: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
               xml: response,
               data: data,
@@ -1482,6 +1486,253 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
   }
 };
 
+const create_nfse_pdf_admin = async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+
+    console.log(data);
+
+    if (!data.xml) {
+      return res.status(400).send({ message: 'XML é obrigatório' });
+    }
+
+    try {
+      const domParser = new JSDOM().window.DOMParser;
+      const xmlDoc = new domParser().parseFromString(data.xml, "text/xml");
+
+      function getValue(tagName: string) {
+        const elements = xmlDoc.getElementsByTagName(tagName);
+        return elements.length > 0 ? elements[0].textContent : '';
+      }
+
+      function getTomadorValue(tagName: string) {
+        const tomador = xmlDoc.getElementsByTagName("ns2:Tomador")[0];
+        if (!tomador) return '';
+        const elements = tomador.getElementsByTagName(tagName);
+        return elements.length > 0 ? elements[0].textContent : '';
+      }
+
+      function getTomadorEndereco() {
+        const endereco = xmlDoc.getElementsByTagName("ns2:Tomador")[0].getElementsByTagName("ns2:Endereco")[0];
+        if (!endereco) return '';
+        const logradouro = endereco.getElementsByTagName("ns2:Endereco")[0].textContent;
+        const numero = endereco.getElementsByTagName("ns2:Numero")[0].textContent;
+        const bairro = endereco.getElementsByTagName("ns2:Bairro")[0].textContent;
+        return `${logradouro}, ${numero} - ${bairro}`;
+      }
+
+      function getPrestadorEndereco() {
+        const endereco = xmlDoc.getElementsByTagName("ns2:PrestadorServico")[0].getElementsByTagName("ns2:Endereco")[0];
+        if (!endereco) return '';
+        const logradouro = endereco.getElementsByTagName("ns2:Endereco")[0].textContent;
+        const numero = endereco.getElementsByTagName("ns2:Numero")[0].textContent;
+        const bairro = endereco.getElementsByTagName("ns2:Bairro")[0].textContent;
+        return `${logradouro}, ${numero} - ${bairro}`;
+      }
+
+      // Funções de formatação
+      function formatCNPJ(cnpj: string) {
+        if (!cnpj) return '';
+        return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+      }
+
+      function formatCurrency(value: string) {
+        if (!value) return '0,00';
+        const num = parseFloat(value);
+        return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function formatPercentage(value: string) {
+        if (!value) return '0,00';
+        const num = parseFloat(value);
+        return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function formatDate(dateStr: string) {
+        if (!dateStr) return '';
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}/${year}`;
+      }
+
+      const getValue2 = (tag: string): string => {
+        const el = xmlDoc.getElementsByTagName(tag)[0];
+        return el?.textContent?.trim() || "N/A";
+      };
+
+      const templatePath = path.join(__dirname, "..", "Nfse", "index.html");
+      const cssPath = path.join(__dirname, "..", "Nfse", "styles.css");
+
+      const [htmlTemplate, cssContent] = await Promise.all([
+        readFile(templatePath, "utf-8"),
+        readFile(cssPath, "utf-8")
+      ]);
+
+      // Substitua a tag <link> pelo CSS incorporado
+      const htmlWithCss = htmlTemplate.replace(
+        `<link rel="stylesheet" href="styles.css">`,
+        `<style>${cssContent}</style>`
+      );
+
+      const generateQrCodeBase64 = async (url: string): Promise<string> => {
+        try {
+          const qrCodeBase64 = await QRCode.toDataURL(url); // Já retorna em base64 (data:image/png;base64,...)
+          return qrCodeBase64;
+        } catch (err) {
+          console.error('Erro ao gerar QR Code:', err);
+          throw err;
+        }
+      };
+
+      function formatCpfCnpj(value: string): string {
+        const cleaned = value.replace(/\D/g, '');
+      
+        if (cleaned.length === 11) {
+          return cleaned.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+        }
+      
+        if (cleaned.length === 14) {
+          return cleaned.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+        }
+        return value;
+      }
+
+      const numeroNfse = getValue("ns2:Numero");
+      const codigoAutenticidade = getValue("ns2:CodigoVerificacao");
+      const dataEmissao = getValue2("ns2:DataEmissao");
+      const link = `https://www.aginotas.com.br/detalhesNfse/${data._id}`
+      /* const link = `https://medianeira.oxy.elotech.com.br/iss/autenticar-documento-fiscal?cpfCnpjPrestador=${data.user.cnpj}&numeroNFSe=${numeroNfse}&codigoAutenticidade=${codigoAutenticidade}&dataEmissao=${dataEmissao}` */
+      const qrcodelink = await generateQrCodeBase64(link);
+
+      const documento = data.admin.cnpj;
+
+      const replacements = {
+        "{{NUMERODORPS}}": data.data.Rps.IdentificacaoRps.Numero,
+        "{{SERIERODORPS}}": data.data.Rps.IdentificacaoRps.Serie,
+        "{{TIPOODORPS}}": data.data.Rps.IdentificacaoRps.Tipo,
+        "{{QRCODE}}": `${qrcodelink}`,
+        "{{LOGOEMPRESA}}": `${data.admin.picture}`,
+        "{{NUMERO}}": getValue("ns2:Numero"),
+        "{{DATA_EMISSAO}}": formatDate(getValue2("ns2:DataEmissao")),
+        "{{DATA_COMPETENCIA}}": formatDate(getValue2("ns2:Competencia")),
+        "{{CODIGO_VERIFICACAO}}": getValue("ns2:CodigoVerificacao"),
+        "{{RAZAO_SOCIAL_PRESTADOR}}": getValue("ns2:RazaoSocial"),
+        "{{NOME_FANTASIA_PRESTADOR}}": '',
+        "{{INSCRICAO_ESTADUAL_PRESTADOR}}": '',
+        "{{MUNICIPIO_PRESTADOR}}": `${data.admin.cidade}`,
+        "{{UF_PRESTADOR}}": `${data.admin.estado}`,
+        "{{CNPJ/CPF_PRESTADOR}}": formatCpfCnpj(`${data.admin.cnpj}`),
+        "{{INSCRICAO_MUNICIPAL}}": `${data.admin.inscricaoMunicipal}` || '',
+        "{{ENDERECO_PRESTADOR}}": getPrestadorEndereco(),
+        "{{CEP_PRESTADOR}}": xmlDoc.getElementsByTagName("ns2:PrestadorServico")[0].getElementsByTagName("ns2:Endereco")[0].getElementsByTagName("ns2:Cep")[0].textContent?.trim(),
+        "{{TELEFONE_PRESTADOR}}": getValue("ns2:Telefone"),
+        "{{EMAIL_PRESTADOR}}": getValue("ns2:Email"),
+        "{{DESCRICAO}}": getValue("ns2:Discriminacao"),
+        "{{CNAE}}": getValue("ns2:CodigoCnae"),
+        "{{VALOR_SERVICOS}}": formatCurrency(getValue2("ns2:ValorServicos")),
+/*         "{{ALIQUOTA}}": `${formatPercentage(getValue2("ns2:Aliquota"))}%`, */
+        "{{BASE_CALCULO}}": formatCurrency(getValue2("ns2:BaseCalculo")),
+/*         "{{VALOR_ISS}}": formatCurrency(getValue2("ns2:ValorIss")), */
+
+
+        "{{TOMADOR_RAZAO_SOCIAL}}": getTomadorValue("ns2:RazaoSocial"),
+        "{{TOMADOR_NOME_FANTASIA}}": '',
+        "{{TOMADOR_CNPJ/CPF}}": formatCpfCnpj(`${documento}`),
+        "{{TOMADOR_INSCRICAO_MUNICIPAL}}": getTomadorValue("ns2:InscricaoMunicipal"),
+        "{{TOMADOR_INSCRICAO_ESTADUAL}}": '',
+        "{{TOMADOR_PHONE}}": xmlDoc.getElementsByTagName("ns2:Tomador")[0].getElementsByTagName("ns2:Contato")[0].getElementsByTagName("ns2:Telefone")[0].textContent?.trim(),
+        "{{TOMADOR_EMAIL}}": `${data.user.email}`,
+        "{{TOMADOR_ENDERECO}}": getTomadorEndereco(),
+/*         "{{TOMADOR_ENDERECO}}": `${data.customer.address.street}, ${data.customer.address.number} - ${data.customer.address.neighborhood}`, */
+        "{{TOMADOR_CEP}}": xmlDoc.getElementsByTagName("ns2:Tomador")[0].getElementsByTagName("ns2:Endereco")[0].getElementsByTagName("ns2:Cep")[0].textContent?.trim(),
+        "{{TOMADOR_MUNICIPIO_UF}}": `${data.user.cidade}/${data.user.estado}`,
+        "{{CHAVE_ACESSO}}": getValue("ns2:ChaveAcesso"),
+
+        "{{ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:Descricao")[0].textContent?.trim(),
+        "{{ITEM_LISTA_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:ItemListaServico")[0].textContent?.trim(),
+        "{{TRIBUTAVEL_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:Tributavel")[0].textContent?.trim(),
+        "{{QUANTIDADE_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:Quantidade")[0].textContent?.trim(),
+        "{{VALOR_UNI_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:ValorUnitario")[0].textContent?.trim(),
+        "{{VALOR_DESC_COND_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:DescontoCondicionado")[0].textContent?.trim(),
+        "{{VALOR_TOTAL_DESCONTO_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:ValorDesconto")[0].textContent?.trim(),
+        "{{VALOR_DESC_INC_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:DescontoIncondicionado")[0].textContent?.trim(),
+        "{{VALOR_LIQUIDO_ITEM_SERVICO}}": xmlDoc.getElementsByTagName("ns2:ListaItensServico")[0].getElementsByTagName("ns2:ItemServico")[0].getElementsByTagName("ns2:ValorLiquido")[0].textContent?.trim(),
+
+        "{{VALOR_SERVICOS_VALORES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorServicos")[0].textContent?.trim(),
+        "{{VALOR_DEDUCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorDeducoes")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_PIS}}": data.data.Rps.Servico.Valores.AliquotaPis,
+        "{{RETIDO_PIS}}": data.data.Rps.Servico.Valores.RetidoPis === 1 ? 'Sim' : 'Não',    /* xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoPis")[0]?.textContent?.trim(), */         
+        "{{VALOR_PIS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorPis")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_COFINS}}": data.data.Rps.Servico.Valores.AliquotaCofins,
+        "{{RETIDO_COFINS}}": data.data.Rps.Servico.Valores.RetidoCofins === 1 ? 'Sim' : 'Não',/*  xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCofins")[0]?.textContent?.trim() */
+        "{{VALOR_COFINS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorCofins")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_INSS}}": data.data.Rps.Servico.Valores.AliquotaInss,
+        "{{RETIDO_INSS}}": data.data.Rps.Servico.Valores.RetidoInss === 1 ? 'Sim' : 'Não'/* xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoInss")[0]?.textContent?.trim() */,
+        "{{VALOR_INSS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorInss")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_IR}}": data.data.Rps.Servico.Valores.AliquotaIr,
+        "{{RETIDO_IR}}": data.data.Rps.Servico.Valores.AliquotaIr === 1 ? 'Sim' : 'Não'/* xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoIr")[0]?.textContent?.trim() */,
+        "{{VALOR_IR}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorIr")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_CSLL}}": data.data.Rps.Servico.Valores.AliquotaCsll,
+        "{{RETIDO_CSLL}}": data.data.Rps.Servico.Valores.AliquotaCsll === 1 ? 'Sim' : 'Não'/* xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoCsll")[0]?.textContent?.trim() */,
+        "{{VALOR_CSLL}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorCsll")[0]?.textContent?.trim(),
+        
+        "{{ALIQUOTA_CPP}}": (data.data.Rps.Servico.Valores.AliquotaCpp.toFixed(2)),
+        "{{RETIDO_CPP}}": data.data.Rps.Servico.Valores.AliquotaCpp === 1 ? 'Sim' : 'Não',
+        "{{VALOR_CPP}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorCpp")[0]?.textContent?.trim(),
+        
+        
+        "{{OUTRAS_RETENCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:OutrasRetencoes")[0]?.textContent?.trim(),
+        "{{RETIDO_OUTRAS_RETENCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoOutrasRetencoes")[0]?.textContent?.trim(),
+        "{{VALOR_ISS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorIss")[0]?.textContent?.trim(),
+        "{{ALIQUOTA}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:Aliquota")[0]?.textContent?.trim(),
+
+        "{{VALOR_LIQUIDO_NFSE}}": xmlDoc.getElementsByTagName("ns2:ValoresNfse")[0].getElementsByTagName("ns2:ValorLiquidoNfse")[0].textContent?.trim(),
+
+      };
+
+      const html = Object.entries(replacements).reduce(
+        (acc, [key, value]) => acc.replace(new RegExp(key, 'g'), value),
+        htmlWithCss
+      );
+
+      const file = { content: html }; // HTML final com CSS
+      const options = { format: 'A4', printBackground: true };
+
+      // Gerar o PDF diretamente e enviar na resposta
+      pdf.generatePdf(file, options, (err, pdfBuffer) => {
+        if (err) {
+          console.error('Erro ao gerar PDF:', err);
+          return res.status(500).send({ message: 'Erro ao gerar PDF' });
+        }
+
+        if (!pdfBuffer || pdfBuffer.length === 0) {
+          return res.status(500).send({ message: 'PDF gerado está vazio' });
+        }
+
+        // Configuração dos headers para envio do PDF
+        res.writeHead(200, {
+          'Content-Type': 'application/pdf',
+          'Content-Length': pdfBuffer.length,
+          'Content-Disposition': 'attachment; filename=NFSe.pdf'
+        });
+
+        return res.end(pdfBuffer);
+      });
+
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      return res.status(500).send({ message: 'Erro ao gerar PDF' });
+    }
+  } catch (error) {
+    console.error('Erro interno:', error);
+    return res.status(500).send({ message: 'Erro interno no servidor' });
+  }
+};
+
 const cancel_invoice = async (req: CustomRequest, res: Response) => {
   try {
       const user = req.userObject;
@@ -1538,6 +1789,70 @@ const cancel_invoice = async (req: CustomRequest, res: Response) => {
       }
 
       const id = body.IdInvoice;
+      await InvoiceService.UpdateInvoice(id,{status: 'cancelada', valor: 0});
+      res.status(200).send({message: 'Nota Fiscal Cancelada com sucesso!'});
+      
+    } catch (error) {
+      res.status(500).send({message: 'Não foi possivel cancelar Nota Fiscal', error});
+  }
+}
+
+const cancel_invoice_admin = async (req: CustomRequest, res: Response) => {
+  try {
+
+      const {invoice, user} = req.body;
+      let messageError = '';
+
+      if(!user){
+        res.status(400).send({message:'User not found!'});
+        return;
+      }
+
+      async function verificarNFSe(xml: any): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            xml2js.parseString(xml, { explicitArray: false }, (err, result) => {
+                if (err) return reject(err);
+    
+                try {
+                    const body = result["SOAP-ENV:Envelope"]["SOAP-ENV:Body"];
+                    const resposta = body["ns2:CancelarNfseResposta"];
+                    
+                    if (resposta["ns2:ListaMensagemRetorno"]) {
+                        console.error("Erro no cancelamento da NFS-e:", resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]);
+                        messageError = resposta["ns2:ListaMensagemRetorno"]["ns2:MensagemRetorno"]["ns2:Correcao"];
+                        return resolve(false);
+                    }                   
+                    return resolve(true);
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        });
+      }
+
+      const data: DataCancelarNfseEnvio = {
+        IdInvoice: invoice.IdInvoice, 
+        CpfCnpj: user!.cnpj,
+        InscricaoMunicipal: user!.inscricaoMunicipal,
+        Senha: user!.senhaelotech,
+        Homologa: user!.homologa,
+        NumeroNfse: invoice.NumeroNfse,
+        CpfCnpjNfse: invoice.CpfCnpjNfse,
+        InscricaoMunicipalNfse: invoice.InscricaoMunicipalNfse,
+        CodigoMunicipioNfse: invoice.CodigoMunicipioNfse,
+        ChaveAcesso: invoice.ChaveAcesso,
+        CodigoCancelamento: 1,
+      }
+
+      const response = await NFseService.cancelarNfse(data);
+      const nfseGerada = await verificarNFSe(response);
+
+      if (!nfseGerada) {
+        res.status(200).send({message: messageError});
+        return;
+      }
+
+      const id = invoice.IdInvoice;
       await InvoiceService.UpdateInvoice(id,{status: 'cancelada', valor: 0});
       res.status(200).send({message: 'Nota Fiscal Cancelada com sucesso!'});
       
@@ -1873,6 +2188,26 @@ const findinvoicescustomer = async (req: CustomRequest, res: Response) => {
   }
 }
 
+const findinvoicescustomeradmin = async (req: CustomRequest, res: Response) => {
+  try{
+    const id = req.params.id;
+    const invoices = await InvoiceService.FindInvoiceCustomerAdmin(id);
+    res.status(200).send(invoices);
+  }catch(error){
+    res.status(500).send({message: "Não foi possivel buscar as notas fiscais"});
+  }
+}
+
+const findinvoicesadmin = async (req: CustomRequest, res: Response) => {
+  try{
+    const id = req.params.id;
+    const invoices = await InvoiceService.FindInvoices(id);
+    res.status(200).send(invoices);
+  }catch(error){
+    res.status(500).send({message: "Não foi possivel buscar as notas fiscais"});
+  }
+}
+
 const find_invoice = async (req: CustomRequest, res: Response) => {
   try{
     const id = req.params.id;
@@ -1925,7 +2260,11 @@ export default
   findinvoices,
   find_invoice,
   create_nfse_pdf,
-  create_invoice_admin
+  create_invoice_admin,
+  findinvoicesadmin,
+  findinvoicescustomeradmin,
+  cancel_invoice_admin,
+  create_nfse_pdf_admin
 };
 
 
