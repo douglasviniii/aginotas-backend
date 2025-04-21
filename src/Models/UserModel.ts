@@ -28,7 +28,7 @@ const UserSchema = new Schema<IUser>({
   subscription_id: { type: String, default: 'undefined'},
 
   name: { type: String, require: true },
-  email: { type: String, require: true, unique:true },
+  email: { type: String, require: true},
   picture: { type: String, default: 'picture'},
   password: { type: String, require: true, select: false },
 
