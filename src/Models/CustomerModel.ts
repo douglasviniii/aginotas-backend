@@ -32,7 +32,7 @@ const CustomerSchema = new Schema<ICustomer>({
   nomeFantasia: { type: String},
   inscricaoMunicipal: { type: String},
   inscricaoEstadual: { type: String},
-  email: { type: String, required: true, unique: true },
+  email: { type: String, required: true},
   phone: { type: String},
   status: {type: String},
   address: { 
