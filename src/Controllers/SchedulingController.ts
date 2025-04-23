@@ -561,7 +561,7 @@ const scheduling_controller = async () =>{
             return;
           }
         
-          await InvoiceService.CreateInvoiceService({
+          const invoicebody = await InvoiceService.CreateInvoiceService({
             customer: db_customer._id,
             user: db_user._id,
             valor: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0),
@@ -573,6 +573,7 @@ const scheduling_controller = async () =>{
 
           await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
           await SendEmailService.NfseEmitida(`${db_user.email}`); 
+          await SendEmailService.SendLinkToClientNfseEmitida(db_customer.email,invoicebody._id as string);
           console.log('Nota Fiscal gerada com sucesso!');
           return;
           default:
@@ -724,7 +725,7 @@ const scheduling_controller = async () =>{
             return;
           }
         
-          await InvoiceService.CreateInvoiceService({
+          const invoicebody = await InvoiceService.CreateInvoiceService({
             customer: db_customer._id,
             user: db_user._id,
             valor: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0),
@@ -736,6 +737,7 @@ const scheduling_controller = async () =>{
 
           await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
           await SendEmailService.NfseEmitida(`${db_user.email}`); 
+          await SendEmailService.SendLinkToClientNfseEmitida(db_customer.email,invoicebody._id as string);
           console.log('Nota Fiscal gerada com sucesso!');
           return;
           default:
@@ -947,7 +949,7 @@ const scheduling_controller_admin = async () =>{
             return;
           }
         
-          await InvoiceService.CreateInvoiceService({
+          const invoicebody = await InvoiceService.CreateInvoiceService({
             user: schedule.user_id,
             admin: db_admin?._id,
             valor: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0),
@@ -958,7 +960,8 @@ const scheduling_controller_admin = async () =>{
           });  
 
           await AdminService.UpdateAdmin(`${db_admin._id}`, {numeroLote: db_admin.numeroLote + 1 , identificacaoRpsnumero: db_admin.identificacaoRpsnumero + 1});
-          await SendEmailService.NfseEmitida(`${db_user.email}`); 
+          await SendEmailService.NfseEmitida(`${db_admin.email}`); 
+          await SendEmailService.SendLinkToClientNfseEmitida(db_user.email,invoicebody._id as string);
           console.log('Nota Fiscal gerada com sucesso!');
           return;
           default:
@@ -1111,7 +1114,7 @@ const scheduling_controller_admin = async () =>{
             return;
           }
         
-          await InvoiceService.CreateInvoiceService({
+          const invoicebody = await InvoiceService.CreateInvoiceService({
             user: schedule.user_id,
             admin: db_admin?._id,
             valor: (schedule.data.servico.valor_unitario * schedule.data.servico.quantidade) - (schedule.data.servico.desconto || 0),
@@ -1122,7 +1125,8 @@ const scheduling_controller_admin = async () =>{
           });  
 
           await AdminService.UpdateAdmin(`${db_admin?._id}`, {numeroLote: db_admin.numeroLote + 1 , identificacaoRpsnumero: db_admin.identificacaoRpsnumero + 1});
-          await SendEmailService.NfseEmitida(`${db_user.email}`); 
+          await SendEmailService.NfseEmitida(`${db_admin.email}`); 
+          await SendEmailService.SendLinkToClientNfseEmitida(db_user.email,invoicebody._id as string);
           console.log('Nota Fiscal gerada com sucesso!');
           return;
           default:

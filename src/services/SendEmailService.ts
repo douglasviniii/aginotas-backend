@@ -205,4 +205,78 @@ async function NfseEmitida(email:string) {
   }  
 }
 
-export default {SendEmail,SendEmailNFSe,BoasVindas,NfseEmitida};
+async function SendLinkToClientNfseEmitida(email:string, id: string) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL as string,
+        pass: process.env.PASS as string,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL as string,
+      to: email,
+      subject: "AgiNotas",
+/*       text: "Segue em anexo o arquivo da NFSe.", */
+      html: `
+      <p>&nbsp;</p>
+      <table style="background-color: #f5f5f5; padding: 20px;" width="100%" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+            <td align="center">
+              <table style="background-color: #ffffff; border-radius: 10px; overflow: hidden;" width="600" cellspacing="0" cellpadding="0">
+                <!-- Cabeçalho -->
+                <tbody>
+                  <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #161e2c; color: #ffffff;">
+                      <h1 style="margin: 0; font-size: 24px;">AgiNotas</h1>
+                      <p style="margin: 5px 0 0;">Sua Nota Fiscal de Serviços Eletrônica está disponível</p>
+                    </td>
+                  </tr>
+                  <!-- Corpo principal -->
+                  <tr>
+                    <td style="padding: 20px;">
+                      <h2 style="color: #161e2c; font-size: 18px;">Olá!</h2>
+                      <p style="font-size: 14px; color: #555555;">
+                        Sua NFS-e foi gerada com sucesso.  
+                        Para visualizá-la, clique no botão abaixo:
+                      </p>
+                      <!-- Botão de acesso à nota -->
+                      <a style="display: inline-block; margin: 15px 0; padding: 12px 24px; background-color: #161e2c; color: #ffffff; text-decoration: none; border-radius: 5px; font-size: 14px;" href="https://www.aginotas.com.br/detalhesNfse/${id}">Visualizar NFS-e</a>
+                      <hr style="border: none; border-top: 1px solid #ccc; margin: 30px 0;" />
+                    </td>
+                  </tr>
+                  <!-- Rodapé -->
+                  <tr>
+                    <td style="padding: 20px; background-color: #eaeaea; text-align: center; font-size: 12px; color: #555;">
+                      <p style="margin: 0;">
+                        AgiNotas by <strong>Delvind Tecnologia da Informação LTDA</strong><br />
+                        contato@aginotas.com.br | (45) 8800-0647<br />
+                        <a style="color: #161e2c;" href="https://aginotas.com.br/politica-de-privacidade">Política de Privacidade</a> &bull;
+                        <a style="color: #161e2c;" href="https://aginotas.com.br/termos-de-uso">Termos de Uso</a>
+                      </p>
+                      <p style="margin-top: 10px;">
+                        Siga-nos no Instagram: <strong style="color: #161e2c;">@aginotas</strong>
+                      </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return "Entregue";
+  } catch (error) {
+    console.error("Erro ao enviar e-mail:", error);
+    return "Não Entregue";
+  }  
+}
+
+export default {SendEmail,SendEmailNFSe,BoasVindas,NfseEmitida,SendLinkToClientNfseEmitida};

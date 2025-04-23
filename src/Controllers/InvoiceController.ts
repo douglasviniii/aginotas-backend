@@ -680,7 +680,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               return;
           }
         
-            await InvoiceService.CreateInvoiceService({
+            const invoicebody = await InvoiceService.CreateInvoiceService({
               customer: customer_id,
               user: user?.id,
               valor: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
@@ -692,6 +692,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
 
             await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
             await SendEmailService.NfseEmitida(user.email);
+            await SendEmailService.SendLinkToClientNfseEmitida(customer.email,invoicebody._id as string);
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
             return;
 
@@ -844,7 +845,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
                 return;
             }
           
-              await InvoiceService.CreateInvoiceService({
+              const invoicebody = await InvoiceService.CreateInvoiceService({
                 customer: customer_id,
                 user: user?.id,
                 valor: (servico.valor_unitario * servico.quantidade) - (servico.desconto || 0),
@@ -856,6 +857,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
   
               await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
               await SendEmailService.NfseEmitida(user.email);
+              await SendEmailService.SendLinkToClientNfseEmitida(customer.email,invoicebody._id as string);
               res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
               return;
   
@@ -1384,7 +1386,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         "{{VALOR_SERVICOS}}": formatCurrency(getValue2("ns2:ValorServicos")),
 /*         "{{ALIQUOTA}}": `${formatPercentage(getValue2("ns2:Aliquota"))}%`, */
         "{{BASE_CALCULO}}": formatCurrency(getValue2("ns2:BaseCalculo")),
-/*         "{{VALOR_ISS}}": formatCurrency(getValue2("ns2:ValorIss")), */
+         "{{VALOR_ISS}}": formatCurrency(getValue2("ns2:ValorIss")), 
 
 
         "{{TOMADOR_RAZAO_SOCIAL}}": getTomadorValue("ns2:RazaoSocial"),
