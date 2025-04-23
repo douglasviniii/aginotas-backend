@@ -12,6 +12,19 @@ const FinancialSchema = new mongoose.Schema({
   status: {type: String, require: true},
   value: {type: Number, require: true},
   description: {type: String, require: true},
+
+  isDesactivated: {type: Boolean, default: false},
+
+  paymentHistory: [{
+    date: {
+      type: String,
+      default: ''
+    },
+    status: {
+      type: String,
+      default: '',
+    }
+  }]
 });
 
 const Financial = mongoose.model("Financial", FinancialSchema);

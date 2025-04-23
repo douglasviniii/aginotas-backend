@@ -6,7 +6,9 @@ const Route = express.Router();
 
 Route.get('/receipts',AuthMiddlewareUser, FinancialController.Receipts);
 Route.post('/create',AuthMiddlewareUser, FinancialController.Receive);
+Route.post('/lastmonthpaid/:id', FinancialController.LastMonthPaid);
 Route.put('/update/:id',AuthMiddlewareUser, FinancialController.Update);
+Route.put('/isdesactivated/:id',FinancialController.isDesactivated);
 Route.delete('/delete/:id',AuthMiddlewareUser, FinancialController.Delete);
 
 

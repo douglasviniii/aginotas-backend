@@ -57,6 +57,22 @@ const Receive = async (req: CustomRequest, res: Response) => {
     }
 }
 
+const LastMonthPaid = async (req: CustomRequest, res: Response) => {
+    try {
+        const id = req.params.id;
+
+        const paymentDate = new Date().toISOString().split("T")[0]; // "2025-11-21"
+        const data = paymentDate;
+
+        const status = 'Pago';
+
+        const response = await FinancialService.LastMonthPaid(id,data,status);
+        res.status(200).send(response);
+    } catch (error) {
+        res.status(500).send({message: 'internal server error', error});
+    }
+}
+
 const Update = async (req: CustomRequest, res: Response) => {
     try {
         const {status} = req.body;
@@ -67,6 +83,23 @@ const Update = async (req: CustomRequest, res: Response) => {
             return;
         }
         await FinancialService.UpdateStatus(status, id);
+        res.status(200).send({message: "updated with success"});
+    } catch (error) {
+        res.status(500).send({message: 'internal server error', error});
+    }
+}
+
+const isDesactivated = async (req: CustomRequest, res: Response) => {
+    try {
+        const {isDesactivated} = req.body;
+
+        const id = req.params.id;
+
+        if(!id){
+            res.status(400).send({message: 'id user is null'});
+            return;
+        }
+        await FinancialService.UpdateisDesactivated(isDesactivated, id);
         res.status(200).send({message: "updated with success"});
     } catch (error) {
         res.status(500).send({message: 'internal server error', error});
@@ -119,5 +152,7 @@ export default{
     Receive,
     Update,
     Delete,
-    ExpirationCheck
+    ExpirationCheck,
+    LastMonthPaid,
+    isDesactivated
 }
