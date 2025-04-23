@@ -63,12 +63,24 @@ const LastMonthPaid = async (req: CustomRequest, res: Response) => {
     try {
         const id = req.params.id;
 
+        const invoice = await FinancialService.FindById(id);
+
+        if(!invoice){
+            res.status(400).send({message:'Invoice Null'});
+            return;
+        }
+
+        const currentDueDate = new Date(invoice.dueDate!); 
+        currentDueDate.setMonth(currentDueDate.getMonth() + 1); 
+        const newDueDate = currentDueDate.toISOString().split('T')[0]; 
+
         const paymentDate = new Date().toISOString().split("T")[0]; // "2025-11-21"
         const data = paymentDate;
 
         const status = 'Pago';
 
         const response = await FinancialService.LastMonthPaid(id,data,status);
+        await FinancialService.UpdateDueDate(newDueDate,id);
         res.status(200).send(response);
     } catch (error) {
         res.status(500).send({message: 'internal server error', error});
