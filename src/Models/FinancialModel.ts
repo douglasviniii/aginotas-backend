@@ -14,6 +14,7 @@ const FinancialSchema = new mongoose.Schema({
   description: {type: String, require: true},
 
   isDesactivated: {type: Boolean, default: false},
+  typeofcharge: {type: String, default: ''},
 
   paymentHistory: [{
     date: {

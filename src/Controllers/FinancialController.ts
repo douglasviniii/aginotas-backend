@@ -30,6 +30,7 @@ const Receive = async (req: CustomRequest, res: Response) => {
            status,
            value,
            description,
+           typeofcharge,
         } = req.body;
 
         if(!customer || !dueDate || !status || !value || !description){
@@ -50,6 +51,7 @@ const Receive = async (req: CustomRequest, res: Response) => {
             status,
             value,
             description,
+            typeofcharge,
         });
         res.status(200).send(response);
     } catch (error) {
