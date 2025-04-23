@@ -1442,7 +1442,7 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         
         "{{OUTRAS_RETENCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:OutrasRetencoes")[0]?.textContent?.trim(),
         "{{RETIDO_OUTRAS_RETENCOES}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:RetidoOutrasRetencoes")[0]?.textContent?.trim(),
-        "{{VALOR_ISS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorIss")[0]?.textContent?.trim(),
+        /* "{{VALOR_ISS}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:ValorIss")[0]?.textContent?.trim(), */
         "{{ALIQUOTA}}": xmlDoc.getElementsByTagName("ns2:Servico")[0].getElementsByTagName("ns2:Valores")[0].getElementsByTagName("ns2:Aliquota")[0]?.textContent?.trim(),
 
         "{{VALOR_LIQUIDO_NFSE}}": xmlDoc.getElementsByTagName("ns2:ValoresNfse")[0].getElementsByTagName("ns2:ValorLiquidoNfse")[0].textContent?.trim(),
