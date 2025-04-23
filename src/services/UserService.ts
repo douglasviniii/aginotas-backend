@@ -19,8 +19,9 @@ const AddHistoryService = (id: String, data: Object) => User.updateOne({_id: id}
 
 
 const Login = (email: String) => User.findOne({email: email}).select("password");
-const GeradorDeToken = (id: String) =>
-    jwt.sign({ id: id }, `${process.env.SECRET_KEY_JWT}`); //expira em 1d
+
+const GeradorDeToken = (id: string) =>
+  jwt.sign({ id }, process.env.SECRET_KEY_JWT as string, { expiresIn: '1d' });
 
 export default {CreateUserService,
   FindUserByIdService,
