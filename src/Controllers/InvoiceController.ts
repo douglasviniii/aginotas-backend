@@ -1346,6 +1346,11 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         return value;
       }
 
+      function formatCep(cep: string | undefined): string {
+        if (!cep) return '';
+        return cep.replace(/^(\d{5})(\d{3})$/, '$1-$2');
+      }
+
       const numeroNfse = getValue("ns2:Numero");
       const codigoAutenticidade = getValue("ns2:CodigoVerificacao");
       const dataEmissao = getValue2("ns2:DataEmissao");
@@ -1378,13 +1383,13 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         "{{CNPJ/CPF_PRESTADOR}}": formatCpfCnpj(`${data.user.cnpj}`),
         "{{INSCRICAO_MUNICIPAL}}": `${data.user.inscricaoMunicipal}`,
         "{{ENDERECO_PRESTADOR}}": getPrestadorEndereco(),
-        "{{CEP_PRESTADOR}}": xmlDoc.getElementsByTagName("ns2:PrestadorServico")[0].getElementsByTagName("ns2:Endereco")[0].getElementsByTagName("ns2:Cep")[0].textContent?.trim(),
+        "{{CEP_PRESTADOR}}": formatCep(xmlDoc.getElementsByTagName("ns2:PrestadorServico")[0].getElementsByTagName("ns2:Endereco")[0].getElementsByTagName("ns2:Cep")[0].textContent?.trim()),
         "{{TELEFONE_PRESTADOR}}": getValue("ns2:Telefone"),
         "{{EMAIL_PRESTADOR}}": getValue("ns2:Email"),
         "{{DESCRICAO}}": getValue("ns2:Discriminacao"),
         "{{CNAE}}": getValue("ns2:CodigoCnae"),
         "{{VALOR_SERVICOS}}": formatCurrency(getValue2("ns2:ValorServicos")),
-/*         "{{ALIQUOTA}}": `${formatPercentage(getValue2("ns2:Aliquota"))}%`, */
+    /*         "{{ALIQUOTA}}": `${formatPercentage(getValue2("ns2:Aliquota"))}%`, */
         "{{BASE_CALCULO}}": formatCurrency(getValue2("ns2:BaseCalculo")),
          "{{VALOR_ISS}}": formatCurrency(getValue2("ns2:ValorIss")), 
 
@@ -1397,8 +1402,8 @@ const create_nfse_pdf = async (req: Request, res: Response) => {
         "{{TOMADOR_PHONE}}": `${data.customer.phone}`,
         "{{TOMADOR_EMAIL}}": `${data.customer.email}`,
         "{{TOMADOR_ENDERECO}}": getTomadorEndereco(),
-/*         "{{TOMADOR_ENDERECO}}": `${data.customer.address.street}, ${data.customer.address.number} - ${data.customer.address.neighborhood}`, */
-        "{{TOMADOR_CEP}}":`${data.customer.address.zipCode}`,
+    /*         "{{TOMADOR_ENDERECO}}": `${data.customer.address.street}, ${data.customer.address.number} - ${data.customer.address.neighborhood}`, */
+        "{{TOMADOR_CEP}}": formatCep(`${data.customer.address.zipCode}`),
         "{{TOMADOR_MUNICIPIO_UF}}": `${data.customer.address.city}/${data.customer.address.state}`,
         "{{CHAVE_ACESSO}}": getValue("ns2:ChaveAcesso"),
 
