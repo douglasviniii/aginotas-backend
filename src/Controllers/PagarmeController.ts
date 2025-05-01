@@ -30,6 +30,7 @@ const CreatePlan = async (req: Request, res: Response) => {
         }
         res.status(400).send({message: 'Occurred an error when created plan'});
       } catch (error) {
+        console.error(error);
         res.status(500).send({message: 'Internal server error', error});
     }
 }

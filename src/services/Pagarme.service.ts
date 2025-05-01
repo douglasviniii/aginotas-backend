@@ -55,7 +55,7 @@ const CreatePlan = async (data: CustomerData) => {
           'content-type': 'application/json',
           authorization: `Basic ${process.env.TOKEN_PAGARME}`
         },
-         body: JSON.stringify({
+/*          body: JSON.stringify({
             interval: 'month',
             interval_count: 1,
             pricing_scheme: {scheme_type: 'Unit', price: data.price, mininum_price: data.price},
@@ -65,8 +65,25 @@ const CreatePlan = async (data: CustomerData) => {
             statement_descriptor: data.statement_descriptor,
             currency: 'BRL',
             trial_period_days: data.trial_period_days,
-            billing_type: 'postpaid',
-          })
+            billing_type: 'prepaid', //postpaid
+          }) */
+            body: JSON.stringify({
+              interval: 'month',
+              interval_count: 1,
+              pricing_scheme: {scheme_type: 'Unit', price: 14990, mininum_price: 14990},
+              quantity: null,
+              name: 'Aginotas NFSe recorrentes',
+              currency: 'BRL',
+              billing_type: 'prepaid',
+              /* minimum_price: 10000, */
+              payment_methods: ['credit_card'],
+              items: [
+                {name: 'Aginotas NFSe recorrentes', quantity: 1, pricing_scheme: {price: 14990}},
+              ],
+              metadata: {id: 'Aginotas NFSe recorrentes'},
+              trial_period_days: 7,
+              statement_descriptor: 'Aginotas NFSe'
+            })
       };
       
       const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}`, options);
@@ -75,7 +92,9 @@ const CreatePlan = async (data: CustomerData) => {
         const data = await response.json();
         return data;
       } else {
-        throw new Error('Erro na requisição: ' + response);
+        const errorBody = await response.text(); 
+        console.error('Erro na requisição:', errorBody);
+        throw new Error('Erro na requisição: ' + errorBody);
       }
 }
 
