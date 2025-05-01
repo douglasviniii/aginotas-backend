@@ -572,6 +572,9 @@ const scheduling_controller = async () =>{
           });  
 
           await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
+          if(`${db_user._id}` === '67e1ccda5e3c91022a9499f7'){
+             await AdminService.UpdateAdmin('68027948e125b64214f55b80', {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
+          }
           await SendEmailService.NfseEmitida(`${db_user.email}`); 
           await SendEmailService.SendLinkToClientNfseEmitida(db_customer.email,invoicebody._id as string);
           console.log('Nota Fiscal gerada com sucesso!');
@@ -736,6 +739,9 @@ const scheduling_controller = async () =>{
           });  
 
           await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
+          if(`${db_user._id}` === '67e1ccda5e3c91022a9499f7'){
+            await AdminService.UpdateAdmin('68027948e125b64214f55b80', {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
+          } 
           await SendEmailService.NfseEmitida(`${db_user.email}`); 
           await SendEmailService.SendLinkToClientNfseEmitida(db_customer.email,invoicebody._id as string);
           console.log('Nota Fiscal gerada com sucesso!');
@@ -960,6 +966,11 @@ const scheduling_controller_admin = async () =>{
           });  
 
           await AdminService.UpdateAdmin(`${db_admin._id}`, {numeroLote: db_admin.numeroLote + 1 , identificacaoRpsnumero: db_admin.identificacaoRpsnumero + 1});
+          
+          if(`${db_admin._id}` === '68027948e125b64214f55b80' && schedule.user_id === '67e1ccda5e3c91022a9499f7'){
+              await UserService.UpdateUser(`${schedule.user_id}`, {numeroLote: db_admin.numeroLote + 1 , identificacaoRpsnumero: db_admin.identificacaoRpsnumero + 1});
+          }
+
           await SendEmailService.NfseEmitida(`${db_admin.email}`); 
           await SendEmailService.SendLinkToClientNfseEmitida(db_user.email,invoicebody._id as string);
           console.log('Nota Fiscal gerada com sucesso!');
@@ -1125,6 +1136,11 @@ const scheduling_controller_admin = async () =>{
           });  
 
           await AdminService.UpdateAdmin(`${db_admin?._id}`, {numeroLote: db_admin.numeroLote + 1 , identificacaoRpsnumero: db_admin.identificacaoRpsnumero + 1});
+          
+          if(`${db_admin._id}` === '68027948e125b64214f55b80' && schedule.user_id === '67e1ccda5e3c91022a9499f7'){
+            await UserService.UpdateUser(`${schedule.user_id}`, {numeroLote: db_admin.numeroLote + 1 , identificacaoRpsnumero: db_admin.identificacaoRpsnumero + 1});
+          }          
+          
           await SendEmailService.NfseEmitida(`${db_admin.email}`); 
           await SendEmailService.SendLinkToClientNfseEmitida(db_user.email,invoicebody._id as string);
           console.log('Nota Fiscal gerada com sucesso!');

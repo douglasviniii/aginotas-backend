@@ -691,6 +691,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
             });
 
             await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+            if(user?.id === '67e1ccda5e3c91022a9499f7'){
+              await AdminService.UpdateAdmin('68027948e125b64214f55b80', {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+            }
             await SendEmailService.NfseEmitida(user.email);
             await SendEmailService.SendLinkToClientNfseEmitida(customer.email,invoicebody._id as string);
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
@@ -856,6 +859,9 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
               });
   
               await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+              if(user?.id === '67e1ccda5e3c91022a9499f7'){
+                await AdminService.UpdateAdmin('68027948e125b64214f55b80', {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+              }
               await SendEmailService.NfseEmitida(user.email);
               await SendEmailService.SendLinkToClientNfseEmitida(customer.email,invoicebody._id as string);
               res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
@@ -1052,6 +1058,9 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
           });
 
           await AdminService.UpdateAdmin(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+          if(user?.id === '68027948e125b64214f55b80' && customer?._id === '67e1ccda5e3c91022a9499f7'){
+            await UserService.UpdateUser(customer?._id, {numeroLote: user?.numeroLote + 1 , identificacaoRpsnumero: user?.identificacaoRpsnumero + 1});
+          }
           await SendEmailService.NfseEmitida(user.email);
           res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
           return;
@@ -1217,6 +1226,9 @@ const create_invoice_admin = async (req: CustomRequest, res: Response) => {
             });
 
             await AdminService.UpdateAdmin(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+            if(user?.id === '68027948e125b64214f55b80' && customer?._id === '67e1ccda5e3c91022a9499f7'){
+              await UserService.UpdateUser(customer?._id, {numeroLote: user?.numeroLote + 1 , identificacaoRpsnumero: user?.identificacaoRpsnumero + 1});
+            }
             await SendEmailService.NfseEmitida(user.email);
             res.status(200).send({message: 'Nota Fiscal gerada com sucesso!'});
             return;
