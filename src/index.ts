@@ -86,6 +86,66 @@ app.get("/admin/tickets", async (req, res) => {
 
 io.on("connection", (socket) => {
 
+  socket.on("open_ticket", async ({ userId, message, media, senderName }) => {
+    try {
+      let ticket = await Ticket.findOne({ userId, status: "open" });
+
+      const newMessage: any = { sender: "user", text: message, senderName };
+      if (media && media.imageBase64) {
+        newMessage.media = { imageBase64: media.imageBase64 };
+      }
+
+      if (!ticket) {
+        ticket = new Ticket({ userId, messages: [newMessage], status: "open" });
+      } else {
+        ticket.messages.push(newMessage);
+      }
+
+      await ticket.save();
+      
+      socket.join(`ticket_${ticket._id}`); 
+      io.to(`admins`).emit("new_ticket", ticket); 
+      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket);
+    } catch (error) {
+      console.error("Erro ao abrir ticket:", error);
+    }
+  });
+
+  socket.on("send_message", async ({ ticketId, sender, message, media, senderName }) => {
+    try {
+      const ticket = await Ticket.findById(ticketId);
+      if (!ticket) return;
+
+      const newMessage: any = { sender, text: message, senderName };
+      if (media && media.imageBase64) {
+        newMessage.media = { imageBase64: media.imageBase64 };
+      }
+
+      ticket.messages.push(newMessage);
+      await ticket.save();
+
+      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket);
+    } catch (error) {
+      console.error("Erro ao enviar mensagem:", error);
+    }
+  });
+
+  socket.on("close_ticket", async (ticketId) => {
+    try {
+      await Ticket.findByIdAndDelete(ticketId);
+      console.log(`Ticket ${ticketId} foi excluído.`);
+    } catch (error) {
+      console.error("Erro ao fechar ticket:", error);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`Usuário desconectado: ${socket.id}`);
+  });
+});
+
+/* io.on("connection", (socket) => {
+
   socket.on("open_ticket", async ({ userId, message }) => {
     try {
       let ticket = await Ticket.findOne({ userId, status: "open" });
@@ -122,11 +182,6 @@ io.on("connection", (socket) => {
 
   socket.on("close_ticket", async (ticketId) => {
     try {
-/*       const ticket = await Ticket.findByIdAndUpdate(ticketId, { status: "closed" }, { new: true });
-
-      if (ticket) {
-        io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket);
-      } */
       await Ticket.findByIdAndDelete(ticketId);
       console.log(`Ticket ${ticketId} foi excluído.`);
     } catch (error) {
@@ -137,7 +192,7 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`Usuário desconectado: ${socket.id}`);
   });
-});
+}); */
 
 const startServer = async () => {
   await DataBase(); 

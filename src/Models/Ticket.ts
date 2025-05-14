@@ -5,8 +5,12 @@ const TicketSchema = new mongoose.Schema({
   messages: [
     {
       sender: { type: String, required: true },
-      text: { type: String, required: true },
-      timestamp: { type: Date, default: Date.now }
+      senderName: { type: String },
+      text: { type: String },
+      timestamp: { type: Date, default: Date.now },
+      media: {
+        imageBase64: { type: String } // imagem em base64 como string
+      }
     }
   ],
   status: { type: String, enum: ["open", "closed"], default: "open" },
