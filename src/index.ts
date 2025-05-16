@@ -144,56 +144,6 @@ io.on("connection", (socket) => {
   });
 });
 
-/* io.on("connection", (socket) => {
-
-  socket.on("open_ticket", async ({ userId, message }) => {
-    try {
-      let ticket = await Ticket.findOne({ userId, status: "open" });
-
-      if (!ticket) {
-        ticket = new Ticket({ userId, messages: [{ sender: "user", text: message }], status: "open" });
-      } else {
-        ticket.messages.push({ sender: "user", text: message });
-      }
-
-      await ticket.save();
-      
-      socket.join(`ticket_${ticket._id}`); 
-      io.to(`admins`).emit("new_ticket", ticket); 
-      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket);
-    } catch (error) {
-      console.error("Erro ao abrir ticket:", error);
-    }
-  });
-
-  socket.on("send_message", async ({ ticketId, sender, message }) => {
-    try {
-      const ticket = await Ticket.findById(ticketId);
-      if (!ticket) return;
-
-      ticket.messages.push({ sender, text: message });
-      await ticket.save();
-
-      io.to(`ticket_${ticket._id}`).emit("update_ticket", ticket);
-    } catch (error) {
-      console.error("Erro ao enviar mensagem:", error);
-    }
-  });
-
-  socket.on("close_ticket", async (ticketId) => {
-    try {
-      await Ticket.findByIdAndDelete(ticketId);
-      console.log(`Ticket ${ticketId} foi excluído.`);
-    } catch (error) {
-      console.error("Erro ao fechar ticket:", error);
-    }
-  });
-
-  socket.on("disconnect", () => {
-    console.log(`Usuário desconectado: ${socket.id}`);
-  });
-}); */
-
 const startServer = async () => {
   await DataBase(); 
   cron.schedule("0 0 * * *", async () => { 
@@ -212,13 +162,3 @@ const startServer = async () => {
 };
 
 startServer();
-
-/* server.listen(PORT, async () => {
-  await DataBase(); 
-  cron.schedule("0 0 * * *", async () => { 
-   await Scheduling.scheduling_controller(); // executando agendamentos
-  }, {
-   timezone: "America/Sao_Paulo" 
-  });
-  console.log(`Servidor rodando na porta ${PORT}`);
-}); */
