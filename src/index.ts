@@ -146,7 +146,7 @@ io.on("connection", (socket) => {
 
 const startServer = async () => {
   await DataBase(); 
-  cron.schedule("0 0 * * *", async () => { 
+/*   cron.schedule("0 0 * * *", async () => { 
     console.log("Iniciando a verifição dos agendamentos...");
     await Scheduling.scheduling_controller(); // executando agendamentos
     await Scheduling.scheduling_controller_admin();
@@ -154,7 +154,7 @@ const startServer = async () => {
     await FinancialController.ExpirationCheck();
   }, {
     timezone: "America/Sao_Paulo" 
-  });
+  }); */
 
   server.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
