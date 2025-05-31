@@ -221,7 +221,7 @@ const create_scheduling = async (req: CustomRequest, res: Response) => {
   try {
     const data = req.body;
 
-    console.log(data);
+    //console.log(data);
 
     if(!data){
       res.status(400).send({message: 'Dados incompletos'});
@@ -557,6 +557,7 @@ const scheduling_controller = async () =>{
                 
           if (!nfseGerada) {
             await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
+            await SendEmailService.NfseErroAoEmitir(`${db_user.email}`);
             console.log("Erro na emissão da NFS-e. Verifique os dados.");
             return;
           }
@@ -724,6 +725,7 @@ const scheduling_controller = async () =>{
                 
           if (!nfseGerada) {
             await UserService.UpdateUser(`${db_user._id}`, {numeroLote: db_user.numeroLote + 1 , identificacaoRpsnumero: db_user.identificacaoRpsnumero + 1});
+            await SendEmailService.NfseErroAoEmitir(`${db_user.email}`);
             console.log("Erro na emissão da NFS-e. Verifique os dados.");
             return;
           }
@@ -951,6 +953,7 @@ const scheduling_controller_admin = async () =>{
                 
           if (!nfseGerada) {
             await AdminService.UpdateAdmin(`${db_admin._id}`, {numeroLote: db_admin.numeroLote + 1 , identificacaoRpsnumero: db_admin.identificacaoRpsnumero + 1});
+            await SendEmailService.NfseErroAoEmitir(`${db_admin.email}`);
             console.log("Erro na emissão da NFS-e. Verifique os dados.");
             return;
           }
@@ -1121,6 +1124,7 @@ const scheduling_controller_admin = async () =>{
                 
           if (!nfseGerada) {
             await AdminService.UpdateAdmin(`${db_admin?._id}`, {numeroLote: db_admin.numeroLote + 1 , identificacaoRpsnumero: db_admin.identificacaoRpsnumero + 1});
+            await SendEmailService.NfseErroAoEmitir(`${db_admin.email}`);
             console.log("Erro na emissão da NFS-e. Verifique os dados.");
             return;
           }

@@ -205,6 +205,70 @@ async function NfseEmitida(email:string) {
   }  
 }
 
+async function NfseErroAoEmitir(email: string) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL as string,
+        pass: process.env.PASS as string,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.EMAIL as string,
+      to: email,
+      subject: "AgiNotas - Erro na emissão da NFS-e",
+      html: `
+      <p>&nbsp;</p>
+      <table style="background-color: #f5f5f5; padding: 20px;" width="100%" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>
+            <td align="center">
+              <table style="background-color: #ffffff; border-radius: 10px; overflow: hidden;" width="600" cellspacing="0" cellpadding="0">
+                <tbody>
+                  <tr>
+                    <td style="padding: 20px; text-align: center; background-color: #d32f2f; color: #ffffff;">
+                      <h1 style="margin: 0; font-size: 24px;">Atenção: Erro na emissão da NFS-e</h1>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 20px;">
+                      <h2 style="color: #d32f2f; font-size: 18px;">Olá!</h2>
+                      <p style="font-size: 14px; color: #555555;">
+                        Identificamos um problema ao tentar gerar sua Nota Fiscal de Serviços Eletrônica (NFS-e).
+                      </p>
+                      <p style="font-size: 14px; color: #555555;">
+                        Por favor, revise os dados enviados e tente novamente. Se o problema persistir, entre em contato com nosso suporte para que possamos ajudar.
+                      </p>
+                      <div style="margin-top: 20px; text-align: center;">
+                        <a style="display: inline-block; padding: 12px 25px; background-color: #161e2c; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;" href="https://www.aginotas.com.br/suporte">Falar com o suporte</a>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 20px; background-color: #eaeaea; text-align: center; font-size: 12px; color: #555;">
+                      <p style="margin: 0;">AgiNotas by <strong>Delvind Tecnologia da Informação LTDA</strong><br />contato@aginotas.com.br | (45) 8800-0647<br /><a style="color: #161e2c;" href="https://aginotas.com.br/politica-de-privacidade">Política de Privacidade</a> &bull; <a style="color: #161e2c;" href="https://aginotas.com.br/termos-de-uso">Termos de Uso</a></p>
+                      <p style="margin-top: 10px;">Siga-nos no Instagram: <strong style="color: #161e2c;">@aginotas</strong></p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    return "Entregue";
+  } catch (error) {
+    console.error("Erro ao enviar e-mail:", error);
+    return "Não Entregue";
+  }
+}
+
 async function SendLinkToClientNfseEmitida(email:string, id: string) {
   try {
     const transporter = nodemailer.createTransport({
@@ -279,4 +343,4 @@ async function SendLinkToClientNfseEmitida(email:string, id: string) {
   }  
 }
 
-export default {SendEmail,SendEmailNFSe,BoasVindas,NfseEmitida,SendLinkToClientNfseEmitida};
+export default {SendEmail,SendEmailNFSe,BoasVindas,NfseEmitida,SendLinkToClientNfseEmitida,NfseErroAoEmitir};

@@ -38,11 +38,57 @@ interface CustomerDataSubscription {
   plan_id: String;
   payment_method: String;
   customer_id: String;
+  address: {
+    line_1: string;
+    line_2: string;
+    zip_code: string;
+    city: string;
+    state: string;
+    country: string;
+  },
+  name: String;
+  cnpj: String;
+  municipalRegistration: String;
+  email: String;
+  telefone:{
+    country_code:string;
+    area_code:String;
+    number:string;
+  },
+  selectedState: String;
+  selectedCity: String;
 }
 
 interface CustomerClient {
   name: String;
   email: String;
+  cnpj: string;
+  code:string;
+  document:string;
+  type:string;
+  document_type:string;
+  selectedCity: string;
+  selectedState: string;
+  gender:string;
+  address: {
+    line_1: string;
+    line_2: string;
+    zip_code: string;
+    city: string;
+    state: string;
+    country: string;
+  },
+    birthdate: string;
+    phones: {
+      home_phone: {country_code: string, area_code: string, number:string},
+      mobile_phone: {country_code: string, area_code: string, number: string}
+    },
+    telefone:{
+    country_code: string, 
+    area_code: string, 
+    number:string
+    }
+    metadata: {company: string}
 }
 
 //PLANOS
@@ -55,35 +101,23 @@ const CreatePlan = async (data: CustomerData) => {
           'content-type': 'application/json',
           authorization: `Basic ${process.env.TOKEN_PAGARME}`
         },
-/*          body: JSON.stringify({
-            interval: 'month',
-            interval_count: 1,
-            pricing_scheme: {scheme_type: 'Unit', price: data.price, mininum_price: data.price},
-            quantity: 1,
-            name: data.name,
-            payment_methods: ['credit_card'],
-            statement_descriptor: data.statement_descriptor,
-            currency: 'BRL',
-            trial_period_days: data.trial_period_days,
-            billing_type: 'prepaid', //postpaid
-          }) */
-            body: JSON.stringify({
+             body: JSON.stringify({
               interval: 'month',
               interval_count: 1,
               pricing_scheme: {scheme_type: 'Unit', price: 14990, mininum_price: 14990},
               quantity: null,
-              name: 'Aginotas NFSe recorrentes',
+              name: 'NFSe recorrentes',
               currency: 'BRL',
               billing_type: 'prepaid',
-              /* minimum_price: 10000, */
-              payment_methods: ['credit_card'],
+              payment_methods: ['credit_card', 'boleto', 'debit_card'],
               items: [
-                {name: 'Aginotas NFSe recorrentes', quantity: 1, pricing_scheme: {price: 14990}},
+                {name: 'NFSe recorrentes', quantity: 1, pricing_scheme: {price: 14990}},
               ],
-              metadata: {id: 'Aginotas NFSe recorrentes'},
+              metadata: {id: 'NFSe recorrentes'},
+              description: 'Emissao Automatizada NFSe',
               trial_period_days: 7,
-              statement_descriptor: 'Aginotas NFSe'
-            })
+              statement_descriptor: 'Aginotas'
+            }) 
       };
       
       const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}`, options);
@@ -160,6 +194,40 @@ const EditItemPlan = async (data: CustomerData) =>{
 
 }
 
+const EditPlan = async (data:any)=>{
+  const options = {
+    method: 'PUT',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      authorization: `Basic ${process.env.TOKEN_PAGARME}`
+    },
+    body: JSON.stringify({
+      interval: data.interval,
+      interval_count: data.interval_count,
+      name: data.name,
+      description: data.description,
+      currency: data.currency,
+      billing_type: data.billing_type,
+      statement_descriptor: data.statement_descriptor,
+      minimum_price: data.minimum_price,
+      status: data.status,
+      payment_methods: ['credit_card', 'boleto', 'debit_card'],
+      trial_period_days: data.trial_period_days
+    })
+  };
+
+  const response = await fetch(`${process.env.PAGARME_API_URL_PLAN}/${data.plan_id}`, options);
+  console.log(response);
+  
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    throw new Error('Erro na requisição: ' + response);
+  }  
+}
+
 const DeletePlan = async (id: string) => {
 
     const options = {
@@ -202,7 +270,7 @@ const ListPlans = async () => {
 
 
 //CLIENTE
-const CreateClient = async (data: CustomerClient) => {
+/* const CreateClient = async (data: CustomerClient) => {
 
     const options = {
         method: 'POST',
@@ -212,6 +280,68 @@ const CreateClient = async (data: CustomerClient) => {
         },
 
         body: JSON.stringify({name: data.name, email: data.email})
+      };
+      
+      const response = await fetch(`${process.env.PAGARME_API_URL_CUSTOMER}`, options);
+
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        throw new Error('Erro na requisição: ' + response);
+      }
+} */
+
+const CreateClient = async (data: CustomerClient) => {
+
+    function getCurrentDateString(): string {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    //console.log("Objeto: ", data);
+
+    const options = {
+        method: 'POST',
+        headers: {
+            accept: 'application/json', 'content-type': 'application/json',
+            authorization: `Basic ${process.env.TOKEN_PAGARME}`
+        },
+
+        body: JSON.stringify({
+          name: data.name,
+          email: data.email,
+          code: 'Cliente Aginotas',
+          document: data.cnpj.replace(/[^\d]/g, ''),
+          type: 'company',
+          document_type: 'CNPJ',
+          gender: 'male',
+          address: {
+            line_1: data.address.line_1,
+            line_2: data.address.line_2,
+            zip_code: data.address.zip_code,
+            city: data.selectedCity,
+            state: data.selectedState,
+            country: 'BR'
+          },
+          birthdate: getCurrentDateString(),
+          phones: {
+            home_phone: {
+              country_code: data.telefone.country_code,
+              area_code: data.telefone.area_code,
+              number: data.telefone.number
+            },
+            mobile_phone: {
+              country_code: data.telefone.country_code,
+              area_code: data.telefone.area_code,
+              number: data.telefone.number
+            }
+          },
+          metadata: { company: 'aginotas' }
+        })
       };
       
       const response = await fetch(`${process.env.PAGARME_API_URL_CUSTOMER}`, options);
@@ -245,7 +375,7 @@ const ListClients = async () => {
 }
 
 //ASSINATURA
- const CreateSubscription = async (data: CustomerDataSubscription) => {
+/*  const CreateSubscription = async (data: CustomerDataSubscription) => {
 
   const options = {
     method: 'POST',
@@ -278,8 +408,79 @@ const ListClients = async () => {
   } else {
     throw new Error('Erro na requisição: ' + response);
   }  
-} 
+}  */
 
+const CreateSubscription = async (data: CustomerDataSubscription) => {
+
+  function generateId(length: number = 16): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  console.log("data: ",data);
+
+  const options = {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      authorization: `Basic ${process.env.TOKEN_PAGARME}`
+    },
+    body: JSON.stringify({
+      customer: {
+        address: {
+          country: 'BR',
+          state: data.selectedState,
+          city: data.selectedCity,
+          zip_code: data.address.zip_code,
+          line_1: data.address.line_1,
+          line_2: data.address.line_2
+        },
+        phones: {mobile_phone: {country_code: data.telefone.country_code, area_code: data.telefone.area_code, number: data.telefone.number}},
+        name: data.name,
+        email: data.email,
+        type: 'company',
+        document: data.cnpj,
+        document_type: 'CNPJ'
+      },      
+      //customer_id: data.customer_id,
+      card: {
+        billing_address: {
+          line_1: data.address.line_1,
+          line_2: data.address.line_2,
+          zip_code: data.address.zip_code,
+          city: data.selectedCity,
+          state: data.selectedState,
+          country: 'BR'
+        },
+        holder_name: data.card.holder_name,
+        number: data.card.number,
+        exp_month: data.card.exp_month,
+        exp_year: data.card.exp_year,
+        cvv: data.card.cvv
+      },
+      installments: 1,
+      plan_id: data.plan_id,
+      payment_method: 'credit_card',
+      metadata: {id: generateId()},
+    })
+  };
+ 
+  const response = await fetch(`${process.env.PAGARME_API_URL_SUBSCRIPTION}`, options);
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  } else {
+    const errorText = await response.text();
+    throw new Error('Erro na requisição: ' + errorText);
+  }  
+}  
+  
 const GetSubscription = async (id: string) => {
 
   const options = {
@@ -376,5 +577,6 @@ export default {
   GetSubscription,
   GetAllSubscriptions,
   UpdateCardSubscription,
-  CancelSubscription
+  CancelSubscription,
+  EditPlan
 };

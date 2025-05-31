@@ -676,6 +676,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
         
           if (!nfseGerada) {
               await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+              await SendEmailService.NfseErroAoEmitir(user.email);
               res.status(200).send({message: messageError});
               return;
           }
@@ -844,6 +845,7 @@ const create_invoice = async (req: CustomRequest, res: Response) => {
           
             if (!nfseGerada) {
                 await UserService.UpdateUser(user?.id, {numeroLote: user.numeroLote + 1 , identificacaoRpsnumero: user.identificacaoRpsnumero + 1});
+                await SendEmailService.NfseErroAoEmitir(user.email);
                 res.status(200).send({message: messageError});
                 return;
             }

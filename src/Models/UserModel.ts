@@ -10,6 +10,8 @@ export interface IUser extends Document {
   cidade: string;
   email: string;
   estado: string;
+  address: object;
+  phones: object;
   inscricaoMunicipal: string;
   password: string;
   homologa: boolean;
@@ -18,7 +20,6 @@ export interface IUser extends Document {
   RegimeEspecialTributacao: number;
   IncentivoFiscal: number;
   status: string;
-
   numeroLote:number;
   identificacaoRpsnumero: number;
 }
@@ -29,12 +30,15 @@ const UserSchema = new Schema<IUser>({
 
   name: { type: String, require: true },
   email: { type: String, require: true},
+
   picture: { type: String, default: 'picture'},
   password: { type: String, require: true, select: false },
 
   cnpj: { type: String, require: true },
   estado: { type: String, require: true },
   cidade: { type: String, require: true },
+  address: {type: Object, require: true},
+  phones: {type: Object, require: true},
   inscricaoMunicipal: { type: String, require: true},
 
   RegimeEspecialTributacao: { type: Number, default: 7},

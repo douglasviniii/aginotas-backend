@@ -12,7 +12,7 @@ const ExistUser = (email: String) => User.findOne({email: email});
 const FindAllUsers = () => User.find();
 const UpdatePasswordUserService = (password: String, email: String) => User.findOneAndUpdate({ email: email },{password});
 const UpdateUser = (id: string, data: object) => User.findByIdAndUpdate(id, data);
-
+const DeleteUser = (id: string) => User.deleteOne({_id:id});
 
 const UpdateHistoryService = (id: String, date: Date) => User.updateOne({_id: id, "history.date": date}, { $inc: { "history.$.count": 1 } });
 const AddHistoryService = (id: String, data: Object) => User.updateOne({_id: id}, { $push: { history: data} });
@@ -32,5 +32,6 @@ export default {CreateUserService,
   Login,
   GeradorDeToken,
   FindAllUsers,
-  UpdateUser
+  UpdateUser,
+  DeleteUser
 };

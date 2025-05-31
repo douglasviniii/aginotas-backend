@@ -10,6 +10,7 @@ route.get('/clients', PagarmeController.ListClients);
 route.post('/create-plan',PagarmeController.CreatePlan);
 route.get('/plans',PagarmeController.ListPlans);
 route.put('/edit-item-plan',PagarmeController.EditItemPlan);
+route.put('/edit-plan',PagarmeController.EditPlan);
 route.delete('/delete/:id',PagarmeController.DeletePlan);
 
 //assinaturas

@@ -16,12 +16,25 @@ interface Faixa {
 interface User {
   id_client_pagarme: string;
   name: string;
+  code:string;
   cnpj: string;
   email: string;
   password: string;
   estado: string;
   cidade: string;
+  selectedCity: string;
+  selectedState: string;
   inscricaoMunicipal: string;
+  address:{
+    line_1: string;
+    line_2: string;
+    zip_code: string;    
+  }
+  telefone:{
+    country_code: string, 
+    area_code: string, 
+    number:string
+  }
 }
 
 interface CustomRequest extends Request {
@@ -34,32 +47,32 @@ interface CustomRequest extends Request {
   }; 
 }
 
-const create_user = async (req: Request<{}, {}, User>, res: Response) => {
+const create_user = async (req: Request, res: Response) => {
   try {
+    const data = req.body;
+    const response = await PagarmeService.CreateClient(data);
 
-    const {name,cnpj,email,password,estado,cidade,inscricaoMunicipal} = req.body;
-
-    const response = await PagarmeService.CreateClient({name:name,email:email});
-
-    if(response.id){
-      const data: User = {
+     if(response.id){
+      const body = {
         id_client_pagarme: response.id, 
-        name, 
-        cnpj: cnpj.replace(/[^\d]/g, ''),
-        email, 
-        password,
-        estado,
-        cidade,
-        inscricaoMunicipal,
+        name: data.name, 
+        cnpj: data.cnpj.replace(/[^\d]/g, ''),
+        email: data.email, 
+        password: data.password,
+        address: data.address,
+        phones: data.telefone,
+        estado: data.selectedState,
+        cidade: data.selectedCity,
+        inscricaoMunicipal: data.municipalRegistration,
         
       };
-      const user_created = await UserService.CreateUserService(data);
-      await SendEmailService.BoasVindas(email);
+      const user_created = await UserService.CreateUserService(body);
+      await SendEmailService.BoasVindas(data.email);
       res.status(200).send(user_created);
       return;
     }
     res.status(400).send({ message: 'Ocorreu um erro ao criar a conta do usuário!' });
-    return;
+    return
   } catch (error) {
     res.status(500).send({
       message: 'Não foi possivel criar conta do usuário',
@@ -99,7 +112,7 @@ const AuthUserController = async (req: Request, res: Response) => {
           return;
         } 
 
-        if(Data.email === 'contato@delvind.com'){
+        if(Data.email === 'contato@delvind.com' || Data.email === 'escritorio@delfoscontabilidade.com'){
           res.status(200).send({ token, userdb });  
           return;
         }

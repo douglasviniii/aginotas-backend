@@ -14,17 +14,36 @@ interface CustomerData {
   plan_id: String;
   payment_method: String;
   customer_id: String;
+  address: {
+    line_1: string;
+    line_2: string;
+    zip_code: string;
+    city: string;
+    state: string;
+    country: string;
+  },
+  name: String;
+  cnpj: String;
+  municipalRegistration: String;
+  email: String;
+  telefone:{
+    country_code:string;
+    area_code:String;
+    number:string;
+  },
+  selectedState: String;
+  selectedCity: String;
 }
 
 //PLANOS
 const CreatePlan = async (req: Request, res: Response) => {
     try {
         const data = req.body;
-        console.log(data);
+        //console.log(data);
 
         if(data){
           const response = await PagarmeService.CreatePlan(data);
-          console.log(response);
+          //console.log(response);
           res.status(200).send({message: 'Plan created with success', response });
           return;
         }
@@ -63,10 +82,25 @@ const DeletePlan = async (req: Request, res: Response) => {
 const EditItemPlan = async (req: Request, res: Response) => {
   try {
       const data = req.body;
-      console.log(data);
       
       if(data){
         const response = await PagarmeService.EditItemPlan(data);
+        res.status(200).send({message: 'Plan updated with success', response });
+        return;
+      }
+      res.status(400).send({message: 'Occurred an error when update plan'});
+    } catch (error) {
+      res.status(500).send({message: 'Internal server error', error});
+  }
+}
+
+const EditPlan = async (req: Request, res: Response) => {
+  try {
+      const data = req.body;
+      //console.log(data);
+      
+      if(data){
+        const response = await PagarmeService.EditPlan(data);
         res.status(200).send({message: 'Plan updated with success', response });
         return;
       }
@@ -91,7 +125,7 @@ const ListClients = async (req: Request, res: Response) => {
 }
 
 //ASSINATURA
-const CreateSubscription = async (req: Request, res: Response) => {
+/* const CreateSubscription = async (req: Request, res: Response) => {
   try {
       const data = req.body;
 
@@ -100,7 +134,51 @@ const CreateSubscription = async (req: Request, res: Response) => {
         return;
       }
 
-      const subscription: CustomerData = {
+      const subscription:CustomerData = {
+      card: {
+        number: data.cardNumber,
+        holder_name: data.holderName,
+        exp_month: data.expMonth,
+        exp_year: data.expYear,
+        cvv: data.cvv
+      },
+        installments: 1,
+        plan_id: data.id_plan,
+        payment_method: 'credit_card',
+        customer_id: data.id_customer,
+        address: data.address,
+        name: data.name,
+        cnpj: data.cnpj,
+        municipalRegistration: data.municipalRegistration,
+        email: data.email,
+        telefone: data.telefone,
+        selectedState: data.selectedState,
+        selectedCity: data.selectedCity,
+      }
+    
+      if(data){
+        const response = await PagarmeService.CreateSubscription(subscription);
+        await UserService.UpdateUser(data.idUser, {subscription_id: response.id})
+        res.status(200).send({message: 'Subscription created with success', response });
+      }
+      await UserService.DeleteUser(data.idUser);
+      res.status(400).send({message: 'Occurred an error when created Subscription'});
+      return;
+    } catch (error) {
+      res.status(500).send({message: 'Internal server error', error});
+  }
+} */
+
+const CreateSubscription = async (req: Request, res: Response) => {
+  try {
+    const data = req.body;
+
+    if (!data) {
+      res.status(400).send({ message: 'Invalid data' });
+      return;
+    }
+
+    const subscription: CustomerData = {
       card: {
         number: data.cardNumber,
         holder_name: data.holderName,
@@ -111,19 +189,43 @@ const CreateSubscription = async (req: Request, res: Response) => {
       installments: 1,
       plan_id: data.id_plan,
       payment_method: 'credit_card',
-      customer_id: data.id_customer
-    }
+      customer_id: data.id_customer,
+      address: data.address,
+      name: data.name,
+      cnpj: data.cnpj,
+      municipalRegistration: data.municipalRegistration,
+      email: data.email,
+      telefone: data.telefone,
+      selectedState: data.selectedState,
+      selectedCity: data.selectedCity,
+    };
 
-      if(data){
-        const response = await PagarmeService.CreateSubscription(subscription);
-        const idUser = data.idUser;
-        await UserService.UpdateUser(idUser, {subscription_id: response.id})
-        res.status(200).send({message: 'Subscription created with success', response });
+    let id_subscription = null;
+
+    try {
+      
+      const response = await PagarmeService.CreateSubscription(subscription);
+      
+      id_subscription = response.id;
+
+      if (response.status !== "failed") {
+        await UserService.UpdateUser(data.idUser, { subscription_id: response.id });
+        res.status(200).send({ message: 'Subscription created with success', response });
+        return;
+      } else {
+        await UserService.DeleteUser(data.idUser);
+        await PagarmeService.CancelSubscription(response.id);
+        res.status(400).send({ message: 'Occurred an error when created Subscription' });
         return;
       }
-      res.status(400).send({message: 'Occurred an error when created Subscription'});
     } catch (error) {
-      res.status(500).send({message: 'Internal server error', error});
+      await UserService.DeleteUser(data.idUser);
+      await PagarmeService.CancelSubscription(id_subscription);
+      res.status(400).send({ message: 'Occurred an error when created Subscription', error });
+      return;
+    }
+  } catch (error) {
+    res.status(500).send({ message: 'Internal server error', error });
   }
 }
 
@@ -190,5 +292,6 @@ export default
   GetSubscription,
   CancelSubscription,
   GetAllSubscriptions,
-  UpdateCardSubscription
+  UpdateCardSubscription,
+  EditPlan
 };
