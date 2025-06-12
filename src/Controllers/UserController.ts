@@ -112,10 +112,10 @@ const AuthUserController = async (req: Request, res: Response) => {
           return;
         } 
 
-        if(Data.email === 'contato@delvind.com' || Data.email === 'escritorio@delfoscontabilidade.com'){
+/*         if(Data.email === 'contato@delvind.com' || Data.email === 'escritorio@delfoscontabilidade.com'){
           res.status(200).send({ token, userdb });  
           return;
-        }
+        } */
 
         const subscription = await PagarmeService.GetSubscription(userdb.subscription_id);
 
@@ -129,7 +129,7 @@ const AuthUserController = async (req: Request, res: Response) => {
           return;
         }
 
-        res.status(200).send({ token, userdb }); 
+        //res.status(200).send({ token, userdb }); 
 
     }catch(error){
         res.status(500).send("Falha na autênticação");

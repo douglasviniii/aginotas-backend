@@ -54,7 +54,7 @@ const AuthAdminController = async (req: Request, res: Response) => {
         const token = await AdminService.GeradorDeToken(admin.id);
         const userdb = await AdminService.FindUserByIdService(admin.id);
     
-        res.status(200).send({ token,userdb });        
+        //res.status(200).send({ token,userdb });        
     }catch(error){
         res.status(500).send("Falha na autênticação");
     }
