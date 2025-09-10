@@ -25,7 +25,7 @@ export interface IUser extends Document {
 }
 
 const UserSchema = new Schema<IUser>({
-  id_client_pagarme: { type: String, require: true },
+  id_client_pagarme: { type: String},
   subscription_id: { type: String, default: 'undefined'},
 
   name: { type: String, require: true },

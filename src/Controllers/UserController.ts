@@ -50,11 +50,11 @@ interface CustomRequest extends Request {
 const create_user = async (req: Request, res: Response) => {
   try {
     const data = req.body;
-    const response = await PagarmeService.CreateClient(data);
+    //const response = await PagarmeService.CreateClient(data);
 
-     if(response.id){
+     if(true){
       const body = {
-        id_client_pagarme: response.id, 
+        id_client_pagarme: '', 
         name: data.name, 
         cnpj: data.cnpj.replace(/[^\d]/g, ''),
         email: data.email, 
