@@ -107,7 +107,7 @@ const AuthUserController = async (req: Request, res: Response) => {
           return;
         }
 
-        if(userdb.status != 'active'){
+/*         if(userdb.status != 'active'){
           res.status(400).send({message: 'User not active!'});
           return;
         } 
@@ -115,9 +115,9 @@ const AuthUserController = async (req: Request, res: Response) => {
          if(Data.email === 'contato@delvind.com' || Data.email === 'escritorio@delfoscontabilidade.com'){
           res.status(200).send({ token, userdb });  
           return;
-        } 
+        }  */
 
-        const subscription = await PagarmeService.GetSubscription(userdb.subscription_id);
+/*         const subscription = await PagarmeService.GetSubscription(userdb.subscription_id);
 
          if(!subscription){
           res.status(400).send({message: 'Subscription not found!'});
@@ -127,7 +127,7 @@ const AuthUserController = async (req: Request, res: Response) => {
         if(subscription.status != 'future' && subscription.status != 'active'){
           res.status(400).send({message: 'Subscription inactive!'});
           return;
-        }
+        } */
 
         res.status(200).send({ token, userdb }); 
 
