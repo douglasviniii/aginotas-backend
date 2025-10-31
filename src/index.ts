@@ -146,8 +146,21 @@ io.on("connection", (socket) => {
 
 const startServer = async () => {
   await DataBase(); 
+  
+  // 🕘 AGENDADOR - NOTAS RECORRENTES TODO DIA ÀS 09:00
+  cron.schedule('0 9 * * *', async () => {
+    console.log('🔄 Iniciando emissão de notas recorrentes às 09:00...');
+    try {
+        await Scheduling.scheduling_controller();
+        await Scheduling.scheduling_controller_admin();
+        console.log('✅ Notas recorrentes processadas com sucesso!');
+    } catch (error) {
+        console.error('❌ Erro ao processar notas recorrentes:', error);
+    }
+  });
+
   server.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+    console.log(`🚀 Servidor rodando na porta ${PORT} + Agendador 09:00 ativo!`);
   });
 };
 
