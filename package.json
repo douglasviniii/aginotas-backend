@@ -3,10 +3,11 @@
     "version": "1.0.0",
     "type": "module",
     "scripts": {
-    "dev": "tsx watch src/index.ts",
-    "build": "tsc",
-    "start": "tsx watch src/index.ts",
-    "start:worker": "tsx src/worker.ts"
+        "dev": "tsx watch src/index.ts",
+        "build": "tsc",
+        "start": "tsx watch src/index.ts",
+        "start:worker": "tsx src/worker.ts",
+        "recurrent": "tsx -e \"import('./Controllers/SchedulingController.ts').then(async (Scheduling) => { console.log('🚀 Executando notas recorrentes...'); await Scheduling.scheduling_controller(); await Scheduling.scheduling_controller_admin(); console.log('✅ Notas recorrentes finalizadas!'); })\""
     },
     "dependencies": {
         "@supabase/supabase-js": "^2.39.7",
